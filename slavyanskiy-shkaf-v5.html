@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Славянский шкаф</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+/* ══ VARIABLES ══════════════════════════════════════════ */
+:root{
+  --g:#00c875; --g2:#009e5c; --gl:#e8faf2;
+  --bl:#3b82f6; --bll:#dbeafe;
+  --am:#f59e0b; --aml:#fef3c7;
+  --rd:#ef4444; --rdl:#fee2e2;
+  --pu:#8b5cf6; --pul:#ede9fe;
+  --ink:#0f172a; --c1:#f1f5f9; --c2:#e2e8f0; --c3:#cbd5e1; --c4:#94a3b8; --c5:#64748b;
+  --wh:#ffffff; --bg:#f6f8fb;
+  --dk:#0f172a; --dk2:#1e293b; --dk3:#334155;
+  --r:16px; --rs:12px;
+  --sh:0 1px 6px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+}
+
+/* ══ RESET ══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:#0a1520;-webkit-font-smoothing:antialiased}
+
+/* ══ APP SHELL ══════════════════════════════════════════ */
+#app{width:100%;max-width:430px;height:100dvh;margin:0 auto;background:var(--bg);position:relative;overflow:hidden}
+
+/* ══ SCREENS ═════════════════════════════════════════════*/
+.scr{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;background:var(--bg)}
+.scr.on{display:flex}
+.scr.dk{background:var(--dk)}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+
+/* ══ TOP NAV ════════════════════════════════════════════ */
+.tnav{display:flex;align-items:center;padding:0 14px;gap:10px;background:var(--wh);border-bottom:1px solid var(--c2);flex-shrink:0;height:54px}
+.tnav.dk{background:var(--dk);border-bottom:1px solid rgba(255,255,255,.07)}
+.tttl{font-size:16px;font-weight:700;color:var(--ink);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tttl.lt{color:#fff}
+.tact{font-size:13px;color:var(--g);font-weight:600;cursor:pointer;white-space:nowrap}
+.back{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;transition:.12s;user-select:none}
+.back.lt{background:rgba(255,255,255,.1);color:#fff}
+.back.dk{background:var(--c1);color:var(--ink)}
+.back:active{transform:scale(.85)}
+
+/* ══ BOTTOM NAV ═════════════════════════════════════════ */
+.bnav{display:flex;background:var(--wh);border-top:1px solid var(--c2);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 4px 8px;cursor:pointer;gap:3px;transition:.1s}
+.bni:active{opacity:.55}
+.bni-ico{font-size:21px;line-height:1}
+.bni-lbl{font-size:10px;font-weight:600;color:var(--c4);letter-spacing:.1px}
+.bni.on .bni-lbl{color:var(--g)}
+
+/* ══ REGISTRATION SHELL (dark) ══════════════════════════ */
+.reg-shell{flex:1;display:flex;flex-direction:column;background:linear-gradient(170deg,#0d2040 0%,#080f1e 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:28px 22px 40px}
+.rlogo{font-size:22px;font-weight:900;color:#fff;letter-spacing:-.4px;cursor:pointer;user-select:none;margin-bottom:4px}
+.rlogo span{color:var(--g)}
+.rsub{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:22px;letter-spacing:.2px}
+.rdots{display:flex;gap:6px;margin-bottom:26px}
+.rd{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);transition:.3s}
+.rd.act{background:var(--g);width:24px;border-radius:4px}
+.rd.done{background:var(--g);opacity:.55}
+.rh{font-size:23px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:6px}
+.rp{font-size:14px;color:rgba(255,255,255,.45);margin-bottom:22px;line-height:1.55}
+
+/* ══ ROLE CARDS ═════════════════════════════════════════ */
+.rcard{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.055);border:1.5px solid rgba(255,255,255,.09);border-radius:14px;padding:13px 14px;margin-bottom:10px;cursor:pointer;transition:.13s;position:relative}
+.rcard.sel{background:rgba(0,200,117,.12);border-color:rgba(0,200,117,.45)}
+.rcard:active{transform:scale(.975)}
+.rcico{font-size:26px;flex-shrink:0}
+.rcttl{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
+.rcsub{font-size:12px;color:rgba(255,255,255,.4)}
+.rcchk{margin-left:auto;width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:.15s}
+.rcard.sel .rcchk{background:var(--g);border-color:var(--g);color:#fff}
+.rcard.sel .rcchk::after{content:'✓'}
+
+/* ══ LANG PILLS ═════════════════════════════════════════ */
+.lpills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.lpill{padding:7px 13px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid rgba(255,255,255,.14);color:rgba(255,255,255,.5);cursor:pointer;transition:.12s}
+.lpill.on{background:var(--g);color:#fff;border-color:var(--g)}
+.lpill:active{transform:scale(.9)}
+
+/* ══ FORM ELEMENTS ══════════════════════════════════════ */
+.fgrp{margin-bottom:14px}
+.flbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.flbl.lt{color:rgba(255,255,255,.45)}
+.flbl.dk{color:var(--c5)}
+
+.finp{width:100%;border-radius:var(--rs);padding:13px 15px;font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:.2s;-webkit-appearance:none;border:1.5px solid transparent}
+.finp.lt{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.11);color:#fff}
+.finp.lt::placeholder{color:rgba(255,255,255,.28)}
+.finp.lt:focus{border-color:var(--g);background:rgba(255,255,255,.12)}
+.finp.dk{background:var(--c1);border-color:var(--c2);color:var(--ink)}
+.finp.dk::placeholder{color:var(--c4)}
+.finp.dk:focus{border-color:var(--g);background:#fff;box-shadow:0 0 0 3px rgba(0,200,117,.1)}
+textarea.finp{resize:none;line-height:1.5}
+
+.fsel{width:100%;border-radius:var(--rs);padding:13px 38px 13px 15px;font-size:15px;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none;cursor:pointer;background-repeat:no-repeat;background-position:right 13px center;transition:.2s;border:1.5px solid transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath fill='%2394a3b8' d='M0 0l6 7 6-7z'/%3E%3C/svg%3E")}
+.fsel.lt{background-color:rgba(255,255,255,.08);border-color:rgba(255,255,255,.11);color:#fff}
+.fsel.lt option{background:#1e293b;color:#fff}
+.fsel.lt:focus{border-color:var(--g)}
+.fsel.dk{background-color:var(--c1);border-color:var(--c2);color:var(--ink)}
+.fsel.dk:focus{border-color:var(--g);background-color:#fff}
+
+.rhint{font-size:11px;color:rgba(255,255,255,.32);margin-top:5px;padding:0 2px;line-height:1.4}
+
+/* ══ SKILL CHIPS ════════════════════════════════════════ */
+.schips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.schip{padding:8px 13px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid rgba(255,255,255,.13);color:rgba(255,255,255,.55);cursor:pointer;transition:.12s;display:flex;align-items:center;gap:5px}
+.schip.on{background:rgba(0,200,117,.14);border-color:rgba(0,200,117,.5);color:var(--g)}
+.schip:active{transform:scale(.93)}
+
+/* ══ DOC ITEMS ══════════════════════════════════════════ */
+.docup{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.055);border:1.5px solid rgba(255,255,255,.09);border-radius:13px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:.13s}
+.docup:active{opacity:.75}
+.docup.ok{border-color:rgba(0,200,117,.38);background:rgba(0,200,117,.08)}
+.dico{font-size:21px;flex-shrink:0}
+.dttl{font-size:13px;font-weight:700;color:#fff;margin-bottom:1px}
+.dsub{font-size:11px;color:rgba(255,255,255,.38)}
+.dstat{margin-left:auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ds-ok{background:rgba(0,200,117,.2);color:var(--g)}
+.ds-req{background:rgba(239,68,68,.2);color:#f87171}
+.ds-opt{background:rgba(148,163,184,.14);color:var(--c4)}
+.ds-pnd{background:rgba(245,158,11,.18);color:var(--am)}
+.ds-mis{background:rgba(239,68,68,.14);color:#f87171}
+
+/* ══ INFO BANNERS ═══════════════════════════════════════ */
+.ib{border-radius:10px;padding:11px 13px;font-size:12px;line-height:1.55;margin-bottom:10px}
+.ib-g{background:rgba(0,200,117,.11);color:rgba(255,255,255,.7);border:1px solid rgba(0,200,117,.2)}
+.ib-bl{background:rgba(59,130,246,.11);color:rgba(255,255,255,.7);border:1px solid rgba(59,130,246,.2)}
+.ib-am{background:rgba(245,158,11,.11);color:rgba(255,255,255,.7);border:1px solid rgba(245,158,11,.2)}
+
+/* ══ LIGHT INFO BOXES ═══════════════════════════════════ */
+.lbox{border-radius:11px;padding:11px 13px;font-size:12px;line-height:1.55;margin:0 16px 10px}
+.lbox-g{background:var(--gl);color:#065f46;border:1px solid rgba(0,200,117,.2)}
+.lbox-bl{background:var(--bll);color:#1e3a8a}
+.lbox-am{background:var(--aml);color:#78350f}
+
+/* ══ BUTTONS ════════════════════════════════════════════ */
+.btn{width:100%;padding:15px;border:none;border-radius:14px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:.13s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.1px}
+.btn:active{transform:scale(.97);opacity:.88}
+.btn-g{background:var(--g);color:#fff}
+.btn-g:hover{background:var(--g2)}
+.btn-dk{background:rgba(255,255,255,.09);color:rgba(255,255,255,.65)}
+.btn-lt{background:var(--c1);color:var(--c5)}
+.btn-rd{background:var(--rdl);color:var(--rd)}
+
+/* ══ CARDS (light) ══════════════════════════════════════ */
+.card{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin:0 16px 12px;overflow:hidden}
+.sec{padding:14px 16px 6px;font-size:10px;font-weight:700;color:var(--c4);text-transform:uppercase;letter-spacing:.7px}
+
+/* ══ LIST ROWS ══════════════════════════════════════════ */
+.irow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--c1);cursor:pointer;transition:.1s}
+.irow:last-child{border-bottom:none}
+.irow:active{background:var(--c1)}
+.ibox2{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ittl{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:1px}
+.isub{font-size:12px;color:var(--c4)}
+.arr{color:var(--c3);font-size:20px;margin-left:auto;line-height:1}
+.arr-g{color:var(--g);font-size:14px;font-weight:700;margin-left:auto}
+
+/* ══ CHIPS (light) ══════════════════════════════════════ */
+.chip{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.chip-g{background:var(--gl);color:var(--g2)}
+.chip-bl{background:var(--bll);color:#1d4ed8}
+.chip-am{background:var(--aml);color:#b45309}
+.chip-rd{background:var(--rdl);color:var(--rd)}
+.chip-gr{background:var(--c1);color:var(--c5)}
+.chip-dk{background:var(--dk2);color:rgba(255,255,255,.75)}
+
+/* ══ SEARCH BAR ═════════════════════════════════════════ */
+.srch-wrap{padding:10px 16px;background:var(--wh);border-bottom:1px solid var(--c2);flex-shrink:0}
+.srch-row{display:flex;gap:8px;align-items:center}
+.srch-box{flex:1;display:flex;align-items:center;gap:9px;background:var(--c1);border-radius:12px;padding:9px 13px;border:1.5px solid transparent;transition:.2s}
+.srch-box:focus-within{border-color:var(--g);background:#fff}
+.srch-box input{flex:1;border:none;outline:none;background:transparent;font-size:14px;font-family:'Inter',sans-serif;color:var(--ink)}
+.srch-box input::placeholder{color:var(--c4)}
+.srch-ico{font-size:15px;color:var(--c4);flex-shrink:0}
+.fltr-btn{width:42px;height:42px;border-radius:12px;border:none;background:var(--dk);color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.13s}
+.fltr-btn:active{transform:scale(.88)}
+
+/* Filter pills row */
+.fpills{display:flex;gap:7px;padding:9px 16px 0;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.fpills::-webkit-scrollbar{display:none}
+.fpill{white-space:nowrap;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--c2);color:var(--c5);cursor:pointer;transition:.13s;background:var(--wh);flex-shrink:0}
+.fpill.on{background:var(--dk);color:#fff;border-color:var(--dk)}
+
+/* ══ MASTER CARD ════════════════════════════════════════ */
+.mcard{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin:0 16px 10px;overflow:hidden;cursor:pointer;transition:.13s}
+.mcard:active{transform:scale(.99);box-shadow:none}
+.mctp{display:flex;align-items:flex-start;gap:12px;padding:13px 13px 9px}
+.mcava{width:52px;height:52px;border-radius:14px;background:var(--dk2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;position:relative}
+.mcbadge{position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:9px;border:2px solid #fff}
+.mcnm{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.mcrole{font-size:12px;color:var(--c4);margin-bottom:5px}
+.mcstars{font-size:12px;color:var(--am);font-weight:700;white-space:nowrap;margin-left:auto}
+.mcft{display:flex;align-items:center;justify-content:space-between;padding:8px 13px 11px;border-top:1px solid var(--c1);font-size:12px;color:var(--c4)}
+.mcprice{font-size:14px;font-weight:700;color:var(--ink)}
+
+/* ══ PROFILE HERO ═══════════════════════════════════════ */
+.prof-hero{padding:20px 16px 16px;background:linear-gradient(160deg,#0f1f3d 0%,#1a3260 60%,#0d1e3c 100%)}
+.pav{width:70px;height:70px;border-radius:20px;font-size:30px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);margin-bottom:11px;position:relative;cursor:pointer}
+.pav-edit{position:absolute;bottom:-3px;right:-3px;width:22px;height:22px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid #0f1f3d}
+.pnm{font-size:19px;font-weight:800;color:#fff;margin-bottom:3px}
+.prole{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px}
+.pbadges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pbadge-v{display:inline-flex;align-items:center;gap:4px;background:rgba(0,200,117,.18);border:1px solid rgba(0,200,117,.3);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;color:var(--g)}
+.pbadge-av{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.09);border-radius:20px;padding:4px 11px;font-size:12px;color:rgba(255,255,255,.65)}
+.pstats{display:flex;gap:7px}
+.pst{flex:1;background:rgba(255,255,255,.08);border-radius:11px;padding:9px 5px;text-align:center}
+.pstv{font-size:16px;font-weight:800;color:#fff}
+.pstl{font-size:10px;color:rgba(255,255,255,.38);margin-top:2px;font-weight:600}
+
+/* ══ VERIFICATION BAR ═══════════════════════════════════ */
+.vbar-card{background:var(--wh);box-shadow:var(--sh);padding:14px 16px;margin:0 0 0}
+.vbar-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.vbar-ttl{font-size:13px;font-weight:700;color:var(--ink)}
+.vbar-pct{font-size:13px;font-weight:800;color:var(--g)}
+.vbar-bg{height:5px;background:var(--c2);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.vbar-fill{height:100%;background:var(--g);border-radius:3px;transition:width .7s ease}
+.vlvls{display:flex;gap:5px}
+.vlvl{flex:1;text-align:center;padding:6px 3px;border-radius:8px;font-size:10px;font-weight:700;line-height:1.4;cursor:pointer}
+.vlvl.done{background:var(--gl);color:var(--g2)}
+.vlvl.act{background:var(--dk);color:#fff}
+.vlvl.pend{background:var(--c1);color:var(--c4)}
+
+/* ══ HOME HERO CARD ═════════════════════════════════════ */
+.hero-card{margin:14px 16px;border-radius:18px;background:linear-gradient(135deg,#0f1f3d 0%,#1a3260 100%);padding:17px;overflow:hidden;position:relative}
+.hero-card::before{content:'🪑';position:absolute;right:-10px;bottom:-18px;font-size:80px;opacity:.1;pointer-events:none}
+.hgreeting{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:3px}
+.hname{font-size:21px;font-weight:800;color:#fff;margin-bottom:2px;letter-spacing:-.2px}
+.hrole{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:13px}
+.hstats{display:flex;gap:8px}
+.hst{flex:1;background:rgba(255,255,255,.08);border-radius:11px;padding:9px 6px;text-align:center}
+.hstv{font-size:17px;font-weight:800;color:#fff}
+.hstl{font-size:10px;color:rgba(255,255,255,.38);margin-top:2px;font-weight:600}
+
+/* ══ QUICK ACTION GRID ══════════════════════════════════ */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 16px 14px}
+.qa{background:var(--wh);border-radius:14px;padding:13px;box-shadow:var(--sh);cursor:pointer;transition:.12s}
+.qa:active{transform:scale(.96)}
+.qa-ico{font-size:22px;margin-bottom:7px}
+.qa-ttl{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:1px}
+.qa-sub{font-size:11px;color:var(--c4)}
+
+/* ══ NOTIF ITEMS ════════════════════════════════════════ */
+.nitem{display:flex;align-items:flex-start;gap:11px;padding:11px 16px;border-bottom:1px solid var(--c1);cursor:pointer;transition:.1s}
+.nitem:active{background:var(--c1)}
+.nitem:last-child{border-bottom:none}
+.nitem.unr{background:#f0fdf8}
+.ni-ico{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:17px}
+.ni-ttl{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:1px}
+.ni-desc{font-size:11px;color:var(--c4);margin-bottom:2px;line-height:1.4}
+.ni-t{font-size:10px;color:var(--c3)}
+
+/* ══ MISSION CARDS ══════════════════════════════════════ */
+.mc{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);margin:0 16px 10px;overflow:hidden;cursor:pointer;transition:.13s}
+.mc:active{transform:scale(.99);box-shadow:none}
+.mc-tp{display:flex;align-items:flex-start;gap:11px;padding:13px 13px 8px}
+.mc-cat{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.mc-ttl{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.mc-sub{font-size:12px;color:var(--c4)}
+.mc-badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.mc-hot{background:var(--rdl);color:var(--rd)}
+.mc-new{background:var(--gl);color:var(--g2)}
+.mc-ok{background:var(--bll);color:#1d4ed8}
+.mc-ft{display:flex;align-items:center;justify-content:space-between;padding:7px 13px 11px;border-top:1px solid var(--c1)}
+.mc-price{font-size:14px;font-weight:700;color:var(--ink)}
+
+/* ══ CHAT ═══════════════════════════════════════════════ */
+.chatcard{display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:1px solid var(--c1);cursor:pointer;transition:.1s}
+.chatcard:active{background:var(--c1)}
+.chava{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--c1);position:relative}
+.chonline{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--g);border:2px solid #fff}
+.chnm{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:1px}
+.chlast{font-size:12px;color:var(--c4)}
+.chtime{font-size:10px;color:var(--c3);margin-left:auto;text-align:right}
+.chunr{width:18px;height:18px;border-radius:50%;background:var(--g);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:4px;margin-left:auto}
+
+.chat-hdr{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--wh);border-bottom:1px solid var(--c2);flex-shrink:0;min-height:56px}
+.ch-hinfo{flex:1}.ch-hnm{font-size:14px;font-weight:700;color:var(--ink)}.ch-hsub{font-size:11px;color:var(--g)}
+.msgs{flex:1;overflow-y:auto;padding:12px 15px;display:flex;flex-direction:column;gap:7px;-webkit-overflow-scrolling:touch}
+.bw{display:flex;flex-direction:column}.bw.me{align-items:flex-end}
+.bbl{max-width:82%;padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45}
+.bw:not(.me) .bbl{background:#fff;color:var(--ink);border-radius:4px 16px 16px 16px;box-shadow:var(--sh)}
+.bw.me .bbl{background:var(--g);color:#fff;border-radius:16px 4px 16px 16px}
+.mt{font-size:10px;color:var(--c4);margin-top:3px;padding:0 3px}
+.chat-inp-row{display:flex;align-items:flex-end;gap:8px;padding:8px 12px;background:var(--wh);border-top:1px solid var(--c2);flex-shrink:0;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.chinp{flex:1;background:var(--c1);border:none;border-radius:20px;padding:10px 14px;font-size:14px;font-family:'Inter',sans-serif;color:var(--ink);outline:none;resize:none;min-height:40px;max-height:100px}
+.sendbtn{width:40px;height:40px;border-radius:50%;background:var(--g);border:none;color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.13s}
+.sendbtn:active{transform:scale(.85)}
+
+/* ══ SUCCESS ════════════════════════════════════════════ */
+.suc-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:linear-gradient(170deg,#0d2040 0%,#080f1e 100%);text-align:center}
+.suc-ico{font-size:64px;margin-bottom:16px;animation:popIn .55s cubic-bezier(.34,1.56,.64,1) both}
+.suc-ttl{font-size:24px;font-weight:800;color:#fff;margin-bottom:8px}
+.suc-sub{font-size:13px;color:rgba(255,255,255,.42);margin-bottom:30px;line-height:1.6;max-width:280px}
+
+/* ══ BOTTOM DRAWER ══════════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:800;opacity:0;pointer-events:none;transition:.25s}
+.overlay.show{opacity:1;pointer-events:all}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(102%);width:100%;max-width:430px;background:var(--wh);border-radius:22px 22px 0 0;z-index:801;transition:transform .32s cubic-bezier(.32,0,.12,1);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,14px)}
+.drawer.show{transform:translateX(-50%) translateY(0)}
+.dhandle{width:38px;height:4px;background:var(--c2);border-radius:4px;margin:13px auto 16px}
+.dttl{font-size:17px;font-weight:800;color:var(--ink);padding:0 20px 14px}
+.dbody{padding:0 20px 6px}
+.drawer-save{margin:8px 20px 0;display:flex;gap:9px}
+
+/* ══ REVIEW ITEMS ════════════════════════════════════════ */
+.revitem{padding:13px 16px;border-bottom:1px solid var(--c1)}
+.revitem:last-child{border-bottom:none}
+.revhd{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.revava{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.revnm{font-size:13px;font-weight:700;color:var(--ink)}
+.revstars{font-size:11px;color:var(--am)}
+.revdate{font-size:10px;color:var(--c4);margin-left:auto}
+.revtxt{font-size:13px;color:var(--c5);line-height:1.5}
+.revtag{font-size:11px;color:var(--c4);margin-top:3px}
+
+/* ══ PRICE EDITOR ═══════════════════════════════════════ */
+.prow{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.prlbl{font-size:14px;font-weight:600;color:var(--ink);flex:1}
+.prinp{width:100px;background:var(--c1);border:1.5px solid var(--c2);border-radius:10px;padding:8px 11px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;color:var(--ink);text-align:right;outline:none}
+.prinp:focus{border-color:var(--g);background:#fff}
+
+/* ══ ADMIN SCREENS ══════════════════════════════════════ */
+.astat{flex:1;background:rgba(255,255,255,.07);border-radius:12px;padding:12px 8px;text-align:center}
+.astv{font-size:22px;font-weight:800;color:#fff}
+.astl{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;font-weight:600}
+
+/* ══ TOAST ══════════════════════════════════════════════ */
+#toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--dk);color:#fff;padding:9px 18px;border-radius:24px;font-size:13px;font-weight:600;white-space:nowrap;z-index:9999;opacity:0;transition:.22s;pointer-events:none;max-width:88%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.35)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ ANIMATIONS ═════════════════════════════════════════ */
+@keyframes popIn{from{opacity:0;transform:scale(.45)} 80%{transform:scale(1.08)} to{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)}}
+@keyframes logoIn{from{opacity:0;transform:scale(.8) translateY(22px)} to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes loadBar{from{width:0} to{width:100%}}
+@keyframes shimmer{0%{background-position:-200% 0} 100%{background-position:200% 0}}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="toast"></div>
+
+<!-- ██ SPLASH ████████████████████████████████████████████ -->
+<div class="scr on dk" id="splash" style="align-items:center;justify-content:center;background:linear-gradient(155deg,#0d2040 0%,#060d18 100%)">
+  <div style="text-align:center;animation:logoIn .9s cubic-bezier(.34,1.56,.64,1) both">
+    <div style="font-size:56px;margin-bottom:10px;display:block">🪑</div>
+    <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-.5px">Славянский <span style="color:var(--g)">шкаф</span></div>
+    <div style="font-size:12px;color:rgba(255,255,255,.32);margin-top:7px;letter-spacing:.4px">Каталог мастеров · 22 страны EU</div>
+  </div>
+  <div style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:56%;animation:fadeUp .6s .9s both">
+    <div style="height:3px;background:rgba(255,255,255,.09);border-radius:3px;overflow:hidden">
+      <div style="height:100%;background:var(--g);border-radius:3px;animation:loadBar 1.9s .7s ease both"></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:30px;font-size:11px;color:rgba(255,255,255,.18);letter-spacing:.5px">@slavyanskiy_shkaf_bot</div>
+</div>
+
+<!-- ██ M-REG1 : РОЛЬ + ЯЗЫК ██████████████████████████████ -->
+<div class="scr dk" id="m-reg1">
+  <div class="reg-shell">
+    <div class="rlogo" id="logo-tap">Славянский <span>шкаф</span></div>
+    <div class="rsub">Каталог мастеров · 22 страны EU</div>
+    <div class="rdots"><div class="rd act"></div><div class="rd"></div><div class="rd"></div><div class="rd"></div></div>
+
+    <div class="rh" data-t="reg.who">Bienvenue !<br>Qui êtes-vous ?</div>
+    <div class="rp" data-t="reg.role_desc">Choisissez votre rôle pour continuer</div>
+
+    <div class="rcard sel" id="role-master" onclick="selRole(this,'master')">
+      <div class="rcico">👷</div>
+      <div><div class="rcttl" data-t="role.master">Prestataire / Мастер</div><div class="rcsub" data-t="role.master_sub">Je propose des services professionnels</div></div>
+      <div class="rcchk"></div>
+    </div>
+    <div class="rcard" id="role-client" onclick="selRole(this,'client')">
+      <div class="rcico">🏠</div>
+      <div><div class="rcttl" data-t="role.client">Client / Заказчик</div><div class="rcsub" data-t="role.client_sub">Je cherche un professionnel qualifié</div></div>
+      <div class="rcchk"></div>
+    </div>
+
+    <div style="height:20px"></div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.35);margin-bottom:10px" data-t="lang.choose">Langue / Язык</div>
+    <div class="lpills">
+      <div class="lpill on" onclick="setLang('fr',this)">🇫🇷 Français</div>
+      <div class="lpill"    onclick="setLang('ru',this)">🇷🇺 Русский</div>
+      <div class="lpill"    onclick="setLang('es',this)">🇪🇸 Español</div>
+      <div class="lpill"    onclick="setLang('de',this)">🇩🇪 Deutsch</div>
+      <div class="lpill"    onclick="setLang('pl',this)">🇵🇱 Polski</div>
+    </div>
+
+    <button class="btn btn-g" id="btn-role-continue" onclick="continueFromRole()" data-t="btn.continue">Continuer →</button>
+    <div style="text-align:center;margin-top:14px;font-size:13px;color:rgba(255,255,255,.3)">
+      <span data-t="reg.have_account">Déjà inscrit ?</span>
+      <span style="color:var(--g);font-weight:600;cursor:pointer" onclick="T('🔐 Connexion — bientôt disponible')" data-t="btn.login"> Se connecter</span>
+    </div>
+  </div>
+</div>
+
+<!-- ██ M-REG2 : СТРАНА + СТАТУС ███████████████████████████ -->
+<div class="scr dk" id="m-reg2">
+  <div class="reg-shell">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div class="back lt" onclick="go('m-reg1')">←</div>
+      <div class="rlogo">Славянский <span>шкаф</span></div>
+    </div>
+    <div class="rsub" data-t="reg.legal_title">Statut juridique</div>
+    <div class="rdots"><div class="rd done"></div><div class="rd act"></div><div class="rd"></div><div class="rd"></div></div>
+
+    <div class="fgrp">
+      <label class="flbl lt" data-t="reg.country">Pays d'activité</label>
+      <select class="fsel lt" id="reg-country" onchange="updateRegField(this.value)">
+        <option value="">— Sélectionnez —</option>
+        <option value="fr" selected>🇫🇷 France</option>
+        <option value="de">🇩🇪 Allemagne</option>
+        <option value="es">🇪🇸 Espagne</option>
+        <option value="it">🇮🇹 Italie</option>
+        <option value="be">🇧🇪 Belgique</option>
+        <option value="nl">🇳🇱 Pays-Bas</option>
+        <option value="pl">🇵🇱 Pologne</option>
+        <option value="at">🇦🇹 Autriche</option>
+        <option value="ch">🇨🇭 Suisse</option>
+        <option value="pt">🇵🇹 Portugal</option>
+        <option value="se">🇸🇪 Suède</option>
+        <option value="no">🇳🇴 Norvège</option>
+        <option value="dk">🇩🇰 Danemark</option>
+        <option value="fi">🇫🇮 Finlande</option>
+        <option value="cz">🇨🇿 Tchéquie</option>
+        <option value="sk">🇸🇰 Slovaquie</option>
+        <option value="hu">🇭🇺 Hongrie</option>
+        <option value="ro">🇷🇴 Roumanie</option>
+        <option value="bg">🇧🇬 Bulgarie</option>
+        <option value="hr">🇭🇷 Croatie</option>
+        <option value="si">🇸🇮 Slovénie</option>
+        <option value="gr">🇬🇷 Grèce</option>
+      </select>
+      <div class="rhint" id="reg-hint">Système d'identification du répertoire des établissements</div>
+    </div>
+
+    <div class="fgrp">
+      <label class="flbl lt" id="reg-num-label">SIRET</label>
+      <input class="finp lt" id="reg-num-input" placeholder="123 456 789 00012">
+    </div>
+
+    <div class="fgrp">
+      <label class="flbl lt" data-t="reg.status_type" style="margin-bottom:12px">Statut professionnel</label>
+      <div class="rcard sel" onclick="selRole(this)" style="padding:11px 13px">
+        <div class="rcico" style="font-size:20px">🏢</div>
+        <div><div class="rcttl" style="font-size:13px">Entreprise</div><div class="rcsub" id="stcard0">SIRET + docs complets</div></div>
+        <div class="rcchk"></div>
+      </div>
+      <div class="rcard" onclick="selRole(this)" style="padding:11px 13px">
+        <div class="rcico" style="font-size:20px">👤</div>
+        <div><div class="rcttl" style="font-size:13px">Micro-entrepreneur</div><div class="rcsub" id="stcard1">SIRET simplifié</div></div>
+        <div class="rcchk"></div>
+      </div>
+      <div class="rcard" onclick="selRole(this)" style="padding:11px 13px">
+        <div class="rcico" style="font-size:20px">🔧</div>
+        <div><div class="rcttl" style="font-size:13px">Indépendant</div><div class="rcsub" id="stcard2">Sans SIRET requis</div></div>
+        <div class="rcchk"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-g" onclick="go('m-reg3')" data-t="btn.continue">Continuer →</button>
+  </div>
+</div>
+
+<!-- ██ M-REG3 : DOCUMENTS ████████████████████████████████ -->
+<div class="scr dk" id="m-reg3">
+  <div class="reg-shell">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div class="back lt" onclick="go('m-reg2')">←</div>
+      <div class="rlogo">Славянский <span>шкаф</span></div>
+    </div>
+    <div class="rsub">Documents</div>
+    <div class="rdots"><div class="rd done"></div><div class="rd done"></div><div class="rd act"></div><div class="rd"></div></div>
+
+    <div class="rh" data-t="reg.docs_title">Vos documents</div>
+    <div class="rp" data-t="reg.docs_desc">Ajoutez maintenant ou plus tard. Les clients voient votre niveau de vérification 1–3.</div>
+
+    <div class="docup ok">
+      <div class="dico">🏢</div>
+      <div><div class="dttl" data-reg-label>SIRET</div><div class="dsub">Auto-vérifié depuis base officielle</div></div>
+      <div class="dstat ds-ok">✓ OK</div>
+    </div>
+    <div class="docup" id="d-rc" onclick="uploadDoc(this,'✅ RC Pro ajoutée !')">
+      <div class="dico">🛡️</div>
+      <div><div class="dttl">Assurance RC Pro</div><div class="dsub" data-t="doc.click_upload">Cliquez pour uploader</div></div>
+      <div class="dstat ds-req" data-t="doc.required">Requis</div>
+    </div>
+    <div class="docup" id="d-dec" onclick="uploadDoc(this,'✅ Décennale ajoutée !')">
+      <div class="dico">📋</div>
+      <div><div class="dttl">Assurance Décennale</div><div class="dsub" data-t="doc.construction">Travaux de construction</div></div>
+      <div class="dstat ds-opt" data-t="doc.optional">Optionnel</div>
+    </div>
+    <div class="docup" id="d-rge" onclick="uploadDoc(this,'✅ RGE ajoutée !')">
+      <div class="dico">🪪</div>
+      <div><div class="dttl">Qualification RGE</div><div class="dsub" data-t="doc.energy">Énergie / isolation</div></div>
+      <div class="dstat ds-opt" data-t="doc.optional">Optionnel</div>
+    </div>
+
+    <div class="ib ib-g" style="margin-top:6px">✅ <strong style="color:var(--g)">Niveau 1/3</strong> — Ajoutez RC Pro → Niveau 2 (+40% missions visibles)</div>
+    <div style="height:4px"></div>
+    <button class="btn btn-g" onclick="go('m-reg4')" data-t="btn.continue">Continuer →</button>
+    <div style="text-align:center;margin-top:11px;font-size:13px;color:rgba(255,255,255,.28);cursor:pointer" onclick="go('m-reg4')" data-t="btn.skip">Passer pour l'instant</div>
+  </div>
+</div>
+
+<!-- ██ M-REG4 : COMPÉTENCES + ZONE ███████████████████████ -->
+<div class="scr dk" id="m-reg4">
+  <div class="reg-shell">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div class="back lt" onclick="go('m-reg3')">←</div>
+      <div class="rlogo">Славянский <span>шкаф</span></div>
+    </div>
+    <div class="rsub" data-t="reg.skills_zone">Compétences &amp; Zone</div>
+    <div class="rdots"><div class="rd done"></div><div class="rd done"></div><div class="rd done"></div><div class="rd act"></div></div>
+
+    <div class="rh" data-t="reg.skills_title">Vos compétences</div>
+    <div class="rp" data-t="reg.skills_desc">Sélectionnez vos domaines. Cliquez à nouveau pour désélectionner.</div>
+
+    <div class="schips">
+      <div class="schip on" onclick="tSkill(this)">🔧 Plomberie</div>
+      <div class="schip"    onclick="tSkill(this)">⚡ Électricité</div>
+      <div class="schip"    onclick="tSkill(this)">🪟 Menuiserie</div>
+      <div class="schip"    onclick="tSkill(this)">🏗️ Maçonnerie</div>
+      <div class="schip"    onclick="tSkill(this)">🎨 Peinture</div>
+      <div class="schip"    onclick="tSkill(this)">❄️ Climatisation</div>
+      <div class="schip"    onclick="tSkill(this)">🪵 Parquet</div>
+      <div class="schip"    onclick="tSkill(this)">🛁 Salle de bain</div>
+      <div class="schip"    onclick="tSkill(this)">🔑 Serrurerie</div>
+      <div class="schip"    onclick="tSkill(this)">🌱 Jardinage</div>
+      <div class="schip"    onclick="tSkill(this)">🧹 Nettoyage</div>
+      <div class="schip"    onclick="tSkill(this)">📦 Déménagement</div>
+    </div>
+
+    <div class="fgrp">
+      <label class="flbl lt" data-t="field.city">Ville principale</label>
+      <input class="finp lt" id="reg-city" placeholder="Paris, Lyon, Berlin..." value="Paris">
+    </div>
+    <div class="fgrp">
+      <label class="flbl lt" data-t="field.radius">Rayon d'intervention</label>
+      <select class="fsel lt" id="reg-radius">
+        <option>5 km</option><option>10 km</option><option selected>25 km</option>
+        <option>50 km</option><option>100 km</option><option>Toute la région</option>
+      </select>
+    </div>
+    <div class="fgrp">
+      <label class="flbl lt">Tarif horaire (€/h)</label>
+      <input class="finp lt" type="number" placeholder="45" value="45">
+    </div>
+    <div style="height:6px"></div>
+    <button class="btn btn-g" onclick="finishReg()" data-t="btn.create_profile">🚀 Créer mon profil</button>
+  </div>
+</div>
+
+<!-- ██ M-REGSUC : SUCCESS ████████████████████████████████ -->
+<div class="scr dk" id="m-regsuc">
+  <div class="suc-wrap">
+    <div class="suc-ico">🎉</div>
+    <div class="suc-ttl" data-t="suc.profile_created">Profil créé !</div>
+    <div class="suc-sub">Vérification en cours (24h). Vous recevrez une notification Telegram dès votre validation.</div>
+    <div style="width:100%;background:rgba(255,255,255,.06);border-radius:14px;padding:16px;margin-bottom:24px;text-align:left">
+      <div style="font-size:11px;color:rgba(255,255,255,.35);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Votre progression</div>
+      <div style="display:flex;gap:5px;margin-bottom:8px">
+        <div style="flex:1;height:5px;border-radius:3px;background:var(--g)"></div>
+        <div style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.1)"></div>
+        <div style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.1)"></div>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.38)">Niveau 1/3 · Ajoutez RC Pro pour Niveau 2</div>
+    </div>
+    <button class="btn btn-g" onclick="go('m-home')">Accéder à mon espace →</button>
+  </div>
+</div>
+
+<!-- ██ M-HOME ██████████████████████████████████████████████ -->
+<div class="scr" id="m-home">
+  <div class="tnav">
+    <div class="rlogo" style="font-size:17px;color:var(--ink);margin:0">Славянский <span>шкаф</span></div>
+    <div style="margin-left:auto;display:flex;gap:4px;align-items:center">
+      <div style="cursor:pointer;font-size:20px;position:relative;padding:6px" onclick="go('m-notifs')">
+        🔔<span style="position:absolute;top:4px;right:3px;width:8px;height:8px;background:var(--rd);border-radius:50%;border:2px solid #fff;display:block"></span>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="hero-card">
+      <div class="hgreeting">Bonjour 👋</div>
+      <div class="hname" id="h-name">Alexei Morozov</div>
+      <div class="hrole">Plombier · Électricien · Paris 🇫🇷 · <span style="color:var(--g)">✅ Niveau 2 vérifié</span></div>
+      <div class="hstats">
+        <div class="hst"><div class="hstv">4.9⭐</div><div class="hstl">Note</div></div>
+        <div class="hst"><div class="hstv">127</div><div class="hstl">Missions</div></div>
+        <div class="hst"><div class="hstv">2.4k€</div><div class="hstl">Ce mois</div></div>
+        <div class="hst"><div class="hstv">3</div><div class="hstl">Actives</div></div>
+      </div>
+    </div>
+
+    <!-- Mini vbar -->
+    <div style="margin:0 16px 14px;background:var(--wh);border-radius:14px;padding:13px;box-shadow:var(--sh)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+        <span style="font-size:13px;font-weight:700;color:var(--ink)">Vérification</span>
+        <span style="font-size:13px;font-weight:800;color:var(--g)">Niveau 2/3 · 67%</span>
+      </div>
+      <div style="height:5px;background:var(--c2);border-radius:3px;overflow:hidden;margin-bottom:9px">
+        <div style="width:67%;height:100%;background:var(--g);border-radius:3px"></div>
+      </div>
+      <div style="display:flex;gap:5px">
+        <div class="vlvl done" onclick="go('m-profile')">✅ Niv.1<br>SIRET</div>
+        <div class="vlvl done" onclick="go('m-profile')">✅ Niv.2<br>RC Pro</div>
+        <div class="vlvl act"  onclick="go('m-profile')">🔓 Niv.3<br>Décennale</div>
+      </div>
+    </div>
+
+    <div class="qa-grid">
+      <div class="qa" onclick="go('m-exchange')"><div class="qa-ico">🔍</div><div class="qa-ttl">Chercher missions</div><div class="qa-sub">12 nouvelles</div></div>
+      <div class="qa" onclick="go('m-missions')"><div class="qa-ico">📋</div><div class="qa-ttl">Mes travaux</div><div class="qa-sub">3 en cours</div></div>
+      <div class="qa" onclick="go('m-chats')"><div class="qa-ico">💬</div><div class="qa-ttl">Messages</div><div class="qa-sub">2 non lus</div></div>
+      <div class="qa" onclick="go('m-profile')"><div class="qa-ico">⭐</div><div class="qa-ttl">Mon profil</div><div class="qa-sub">4.9 / 5</div></div>
+    </div>
+
+    <div class="sec">Dernières notifications</div>
+    <div class="card">
+      <div class="nitem unr" onclick="go('m-exchange')">
+        <div class="ni-ico" style="background:var(--aml)">🔥</div>
+        <div><div class="ni-ttl">Mission urgente à 3km !</div><div class="ni-desc">Remplacement robinet · Paris 11e · 150–300€</div><div class="ni-t">Il y a 5 min</div></div>
+      </div>
+      <div class="nitem unr" onclick="go('m-chat')">
+        <div class="ni-ico" style="background:var(--gl)">💬</div>
+        <div><div class="ni-ttl">Marie D. vous a répondu</div><div class="ni-desc">« Disponible à partir de 15h... »</div><div class="ni-t">Il y a 12 min</div></div>
+      </div>
+      <div class="nitem" onclick="go('m-profile')">
+        <div class="ni-ico" style="background:var(--gl)">✅</div>
+        <div><div class="ni-ttl">RC Pro vérifiée · Niveau 2 !</div><div class="ni-desc">Votre assurance a été validée par nos admins</div><div class="ni-t">Hier 10:15</div></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni on"><div class="bni-ico">🏠</div><div class="bni-lbl" style="color:var(--g)">Accueil</div></div>
+    <div class="bni" onclick="go('m-exchange')"><div class="bni-ico">🔍</div><div class="bni-lbl">Missions</div></div>
+    <div class="bni" onclick="go('m-missions')"><div class="bni-ico">📋</div><div class="bni-lbl">Travaux</div></div>
+    <div class="bni" onclick="go('m-chats')"><div class="bni-ico">💬</div><div class="bni-lbl">Messages</div></div>
+    <div class="bni" onclick="go('m-profile')"><div class="bni-ico">👤</div><div class="bni-lbl">Profil</div></div>
+  </div>
+</div>
+
+<!-- ██ M-EXCHANGE : ПОИСК МИССИЙ ██████████████████████████ -->
+<div class="scr" id="m-exchange">
+  <div class="tnav">
+    <div class="back dk" onclick="go('m-home')">←</div>
+    <div class="tttl">Missions disponibles</div>
+    <div class="tact" onclick="openDrawer('drawer-filter')">⚙️ Filtrer</div>
+  </div>
+  <!-- SEARCH -->
+  <div class="srch-wrap">
+    <div class="srch-row">
+      <div class="srch-box">
+        <span class="srch-ico">🔍</span>
+        <input type="search" placeholder="Catégorie, ville, mot-clé..." oninput="filterMissions(this.value)">
+      </div>
+      <button class="fltr-btn" onclick="openDrawer('drawer-filter')">⚙️</button>
+    </div>
+    <div class="fpills">
+      <div class="fpill on" onclick="tFpill(this,'m-exchange')">Tous</div>
+      <div class="fpill" onclick="tFpill(this,'m-exchange')">🔥 Urgents</div>
+      <div class="fpill" onclick="tFpill(this,'m-exchange')">📍 &lt;5km</div>
+      <div class="fpill" onclick="tFpill(this,'m-exchange')">🔧 Plomberie</div>
+      <div class="fpill" onclick="tFpill(this,'m-exchange')">⚡ Élec</div>
+      <div class="fpill" onclick="tFpill(this,'m-exchange')">🎨 Peinture</div>
+      <div class="fpill" onclick="tFpill(this,'m-exchange')">🪵 Parquet</div>
+      <div class="fpill" onclick="tFpill(this,'m-exchange')">🏗️ Maçon</div>
+    </div>
+  </div>
+  <div class="body" id="missions-list">
+    <div style="padding:9px 16px 4px;font-size:12px;color:var(--c4)">247 missions trouvées</div>
+    <div class="mc" onclick="go('m-chat')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--bll)">🔧</div>
+        <div style="flex:1"><div class="mc-ttl">Remplacement robinet cuisine</div><div class="mc-sub">Paris 11e · Aujourd'hui · 📍 2.3km</div></div>
+        <div class="mc-badge mc-hot">🔥 Urgent</div>
+      </div>
+      <div class="mc-ft">
+        <div style="display:flex;gap:5px"><span class="chip chip-g">SIRET ✓</span><span class="chip chip-bl">RC Pro ✓</span><span style="font-size:12px;font-weight:700;color:var(--ink)">150–300€</span></div>
+        <div style="font-size:11px;color:var(--c4)">3 candidats</div>
+      </div>
+    </div>
+    <div class="mc" onclick="go('m-chat')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--aml)">⚡</div>
+        <div style="flex:1"><div class="mc-ttl">Tableau électrique — mise aux normes</div><div class="mc-sub">Paris 8e · Cette semaine · 📍 5.1km</div></div>
+        <div class="mc-badge mc-new">Nouveau</div>
+      </div>
+      <div class="mc-ft">
+        <div style="display:flex;gap:5px"><span class="chip chip-g">SIRET ✓</span><span class="chip chip-am">RGE</span><span style="font-size:12px;font-weight:700;color:var(--ink)">400–600€</span></div>
+        <div style="font-size:11px;color:var(--c4)">1 candidat</div>
+      </div>
+    </div>
+    <div class="mc" onclick="go('m-chat')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--rdl)">🎨</div>
+        <div style="flex:1"><div class="mc-ttl">Peinture salon 40m² + chambre</div><div class="mc-sub">Vincennes · Flexible · 📍 7.8km</div></div>
+        <div class="mc-badge mc-ok">Ouvert</div>
+      </div>
+      <div class="mc-ft">
+        <div style="display:flex;gap:5px"><span class="chip chip-gr">Indépendant OK</span><span style="font-size:12px;font-weight:700;color:var(--ink)">800–1200€</span></div>
+        <div style="font-size:11px;color:var(--c4)">8 candidats</div>
+      </div>
+    </div>
+    <div class="mc" onclick="go('m-chat')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--pul)">🪵</div>
+        <div style="flex:1"><div class="mc-ttl">Pose parquet chêne 65m²</div><div class="mc-sub">Boulogne · Dès que possible · 📍 9.2km</div></div>
+        <div class="mc-badge mc-new">Nouveau</div>
+      </div>
+      <div class="mc-ft">
+        <div style="display:flex;gap:5px"><span class="chip chip-g">SIRET ✓</span><span style="font-size:12px;font-weight:700;color:var(--ink)">1800–2400€</span></div>
+        <div style="font-size:11px;color:var(--c4)">2 candidats</div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="go('m-home')"><div class="bni-ico">🏠</div><div class="bni-lbl">Accueil</div></div>
+    <div class="bni on"><div class="bni-ico">🔍</div><div class="bni-lbl" style="color:var(--g)">Missions</div></div>
+    <div class="bni" onclick="go('m-missions')"><div class="bni-ico">📋</div><div class="bni-lbl">Travaux</div></div>
+    <div class="bni" onclick="go('m-chats')"><div class="bni-ico">💬</div><div class="bni-lbl">Messages</div></div>
+    <div class="bni" onclick="go('m-profile')"><div class="bni-ico">👤</div><div class="bni-lbl">Profil</div></div>
+  </div>
+</div>
+
+<!-- ██ M-MISSIONS : MES TRAVAUX ███████████████████████████ -->
+<div class="scr" id="m-missions">
+  <div class="tnav"><div class="back dk" onclick="go('m-home')">←</div><div class="tttl">Mes travaux</div></div>
+  <div class="body">
+    <div class="sec">En cours</div>
+    <div class="mc" onclick="go('m-chat')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--bll)">🔧</div>
+        <div style="flex:1"><div class="mc-ttl">Remplacement robinet cuisine</div><div class="mc-sub">Marie Dupont · Paris 11e</div></div>
+        <div class="mc-badge" style="background:var(--gl);color:var(--g2)">🟢 En cours</div>
+      </div>
+      <div class="mc-ft"><div style="font-size:12px;color:var(--c4)">Demain 10h · Confirmé</div><div class="mc-price">220€</div></div>
+    </div>
+    <div class="mc" onclick="go('m-chat')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--aml)">⚡</div>
+        <div style="flex:1"><div class="mc-ttl">Installation prise cuisine</div><div class="mc-sub">Thomas Petit · Vincennes</div></div>
+        <div class="mc-badge" style="background:var(--bll);color:var(--bl)">🔵 Proposé</div>
+      </div>
+      <div class="mc-ft"><div style="font-size:12px;color:var(--c4)">En attente validation client</div><div class="mc-price">95€</div></div>
+    </div>
+    <div class="sec">Terminés</div>
+    <div class="mc" onclick="T('Mission terminée ✅')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--pul)">🪵</div>
+        <div style="flex:1"><div class="mc-ttl">Pose parquet salon</div><div class="mc-sub">Claire Renaud · Boulogne</div></div>
+        <div class="mc-badge" style="background:var(--c1);color:var(--c5)">✅ Terminé</div>
+      </div>
+      <div class="mc-ft"><div style="font-size:12px;color:var(--c4)">Il y a 3 jours · ⭐ 5/5</div><div class="mc-price">1,400€</div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="go('m-home')"><div class="bni-ico">🏠</div><div class="bni-lbl">Accueil</div></div>
+    <div class="bni" onclick="go('m-exchange')"><div class="bni-ico">🔍</div><div class="bni-lbl">Missions</div></div>
+    <div class="bni on"><div class="bni-ico">📋</div><div class="bni-lbl" style="color:var(--g)">Travaux</div></div>
+    <div class="bni" onclick="go('m-chats')"><div class="bni-ico">💬</div><div class="bni-lbl">Messages</div></div>
+    <div class="bni" onclick="go('m-profile')"><div class="bni-ico">👤</div><div class="bni-lbl">Profil</div></div>
+  </div>
+</div>
+
+<!-- ██ M-CHATS ████████████████████████████████████████████ -->
+<div class="scr" id="m-chats">
+  <div class="tnav"><div class="back dk" onclick="go('m-home')">←</div><div class="tttl">Messages</div></div>
+  <div class="body">
+    <div style="background:var(--wh)">
+      <div class="chatcard" onclick="go('m-chat')">
+        <div class="chava" style="background:var(--gl)">👩<div class="chonline"></div></div>
+        <div style="flex:1"><div class="chnm">Marie Dupont</div><div class="chlast">Disponible à partir de 15h...</div></div>
+        <div style="text-align:right"><div class="chtime">12 min</div><div class="chunr">2</div></div>
+      </div>
+      <div class="chatcard" onclick="go('m-chat')">
+        <div class="chava" style="background:var(--bll)">👨</div>
+        <div style="flex:1"><div class="chnm">Thomas Petit</div><div class="chlast">Merci pour le devis, je confirme !</div></div>
+        <div class="chtime">Hier</div>
+      </div>
+      <div class="chatcard" onclick="go('m-chat')">
+        <div class="chava" style="background:var(--aml)">👩‍💼</div>
+        <div style="flex:1"><div class="chnm">Claire Renaud</div><div class="chlast">Super travail, très satisfaite 😊</div></div>
+        <div class="chtime">Il y a 3j</div>
+      </div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="go('m-home')"><div class="bni-ico">🏠</div><div class="bni-lbl">Accueil</div></div>
+    <div class="bni" onclick="go('m-exchange')"><div class="bni-ico">🔍</div><div class="bni-lbl">Missions</div></div>
+    <div class="bni" onclick="go('m-missions')"><div class="bni-ico">📋</div><div class="bni-lbl">Travaux</div></div>
+    <div class="bni on"><div class="bni-ico">💬</div><div class="bni-lbl" style="color:var(--g)">Messages</div></div>
+    <div class="bni" onclick="go('m-profile')"><div class="bni-ico">👤</div><div class="bni-lbl">Profil</div></div>
+  </div>
+</div>
+
+<!-- ██ M-CHAT : ROOM ██████████████████████████████████████ -->
+<div class="scr" id="m-chat" style="background:var(--c1)">
+  <div class="chat-hdr">
+    <div class="back dk" onclick="go('m-chats')">←</div>
+    <div style="width:38px;height:38px;border-radius:50%;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:18px">👩</div>
+    <div class="ch-hinfo"><div class="ch-hnm">Marie Dupont</div><div class="ch-hsub">🟢 En ligne · Remplacement robinet</div></div>
+    <div style="font-size:18px;cursor:pointer" onclick="T('Infos sur la mission')">ℹ️</div>
+  </div>
+  <div class="msgs">
+    <div class="bw"><div class="bbl">Bonjour ! Vous avez bien le SIRET et l'assurance RC Pro ?</div><div class="mt">09:14</div></div>
+    <div class="bw me"><div class="bbl">Bonjour ! Oui, tout est vérifié ✅ SIRET + RC Pro à jour.</div><div class="mt">09:16 ✓✓</div></div>
+    <div class="bw"><div class="bbl">Parfait ! Vous pouvez intervenir demain matin ?</div><div class="mt">09:17</div></div>
+    <div class="bw me"><div class="bbl">Bien sûr, 9h ça vous convient ? Devis estimé : 180€ TTC</div><div class="mt">09:18 ✓✓</div></div>
+    <div class="bw"><div class="bbl">Disponible à partir de 15h plutôt 🙏</div><div class="mt">09:20</div></div>
+  </div>
+  <div class="chat-inp-row">
+    <textarea class="chinp" placeholder="Message..." rows="1"></textarea>
+    <button class="sendbtn" onclick="T('Message envoyé ✓')">➤</button>
+  </div>
+</div>
+
+<!-- ██ M-PROFILE : PROFIL COMPLET ÉDITABLE ████████████████ -->
+<div class="scr" id="m-profile">
+  <div class="tnav">
+    <div class="tttl">Mon profil</div>
+    <div class="tact" onclick="openDrawer('drawer-info')">✎ Modifier</div>
+  </div>
+  <div class="body">
+
+    <!-- HERO -->
+    <div class="prof-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px">
+        <div class="pav" onclick="T('Changer la photo')">
+          👷<div class="pav-edit">✎</div>
+        </div>
+        <div style="cursor:pointer;background:rgba(255,255,255,.1);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center" onclick="T('Partager le profil')">📤</div>
+      </div>
+      <div class="pnm" id="pnm">Alexei Morozov</div>
+      <div class="prole" id="prole">Plombier · Électricien · Paris · Entreprise 🇫🇷</div>
+      <div class="pbadges">
+        <div class="pbadge-v">✅ Niveau 2/3 vérifié</div>
+        <div class="pbadge-av">🟢 Disponible</div>
+      </div>
+      <div class="pstats">
+        <div class="pst"><div class="pstv">4.9</div><div class="pstl">Note</div></div>
+        <div class="pst"><div class="pstv">127</div><div class="pstl">Missions</div></div>
+        <div class="pst"><div class="pstv">47</div><div class="pstl">Avis</div></div>
+        <div class="pst"><div class="pstv">2.4k€</div><div class="pstl">Ce mois</div></div>
+      </div>
+    </div>
+
+    <!-- VBAR -->
+    <div class="vbar-card">
+      <div class="vbar-hdr"><div class="vbar-ttl">Progression vérification</div><div class="vbar-pct">67% · Niv.2/3</div></div>
+      <div class="vbar-bg"><div class="vbar-fill" style="width:67%"></div></div>
+      <div class="vlvls">
+        <div class="vlvl done" onclick="T('Niveau 1 ✅ — SIRET vérifié')">✅ Niv.1<br>SIRET</div>
+        <div class="vlvl done" onclick="T('Niveau 2 ✅ — RC Pro vérifiée')">✅ Niv.2<br>RC Pro</div>
+        <div class="vlvl act"  onclick="openDrawer('drawer-docs')">🔓 Niv.3<br>Décennale</div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="sec">Documents</div>
+    <div style="padding:0 16px">
+      <div class="docup ok" style="background:rgba(0,200,117,.06)" onclick="T('SIRET 123 456 789 00012 — vérifié')">
+        <div class="dico">🏢</div><div style="flex:1"><div class="dttl" style="color:var(--ink)">SIRET</div><div class="dsub" style="color:var(--c4)">123 456 789 00012 · Vérifié</div></div><div class="dstat ds-ok">✓ OK</div>
+      </div>
+      <div class="docup ok" style="background:rgba(0,200,117,.06)" onclick="T('RC Pro AXA — valide 12/2026')">
+        <div class="dico">🛡️</div><div style="flex:1"><div class="dttl" style="color:var(--ink)">RC Pro AXA</div><div class="dsub" style="color:var(--c4)">Valide jusqu'au 12/2026</div></div><div class="dstat ds-ok">✓ OK</div>
+      </div>
+      <div class="docup" style="background:var(--wh);border-color:var(--rdl)" onclick="openDrawer('drawer-docs')">
+        <div class="dico">📋</div><div style="flex:1"><div class="dttl" style="color:var(--ink)">Décennale</div><div class="dsub" style="color:var(--c4)">Non ajoutée · Nécessaire pour Niveau 3</div></div><div class="dstat ds-mis">Manquant</div>
+      </div>
+      <div class="docup" style="background:var(--wh);border-color:var(--c2)" onclick="T('RGE en cours de vérification — 2–3 jours')">
+        <div class="dico">🪪</div><div style="flex:1"><div class="dttl" style="color:var(--ink)">Qualification RGE</div><div class="dsub" style="color:var(--c4)">En attente vérification admin (2–3j)</div></div><div class="dstat ds-pnd">En attente</div>
+      </div>
+    </div>
+
+    <!-- INFOS ÉDITABLES -->
+    <div class="sec">Informations</div>
+    <div class="card">
+      <div class="irow" onclick="openDrawer('drawer-info')">
+        <div class="ibox2" style="background:var(--gl)">👤</div>
+        <div style="flex:1"><div class="ittl" id="p-namerow">Alexei Morozov</div><div class="isub" id="p-contactrow">+33 6 12 34 56 78 · alexei@example.com</div></div>
+        <div class="arr-g">✎</div>
+      </div>
+      <div class="irow" onclick="openDrawer('drawer-bio')">
+        <div class="ibox2" style="background:var(--bll)">📝</div>
+        <div style="flex:1"><div class="ittl">Description</div><div class="isub" id="p-biorow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">Plombier certifié, 8 ans d'expérience...</div></div>
+        <div class="arr-g">✎</div>
+      </div>
+      <div class="irow" onclick="openDrawer('drawer-skills')">
+        <div class="ibox2" style="background:var(--bll)">🔧</div>
+        <div style="flex:1"><div class="ittl" id="p-skillsrow">Plomberie · Électricité</div><div class="isub">Mes compétences</div></div>
+        <div class="arr-g">✎</div>
+      </div>
+      <div class="irow" onclick="openDrawer('drawer-zone')">
+        <div class="ibox2" style="background:var(--aml)">📍</div>
+        <div style="flex:1"><div class="ittl" id="p-zonerow">Paris · 25km · 🇫🇷 France</div><div class="isub">Zone d'intervention</div></div>
+        <div class="arr-g">✎</div>
+      </div>
+      <div class="irow" onclick="openDrawer('drawer-prices')">
+        <div class="ibox2" style="background:var(--pul)">💶</div>
+        <div style="flex:1"><div class="ittl" id="p-pricerow">45€/h · Déplacement 20€</div><div class="isub">Mes tarifs</div></div>
+        <div class="arr-g">✎</div>
+      </div>
+      <div class="irow" onclick="openDrawer('drawer-legal')">
+        <div class="ibox2" style="background:var(--bll)">🏢</div>
+        <div style="flex:1"><div class="ittl" id="p-legalrow">Entreprise · France 🇫🇷</div><div class="isub" id="p-regrow">SIRET 123 456 789 00012</div></div>
+        <div class="arr-g">✎</div>
+      </div>
+    </div>
+
+    <!-- AVIS -->
+    <div class="sec">Avis clients</div>
+    <div class="card" style="margin-bottom:6px">
+      <div class="revitem">
+        <div class="revhd"><div class="revava" style="background:var(--gl)">👩</div><div><div class="revnm">Marie Dupont</div><div class="revstars">⭐⭐⭐⭐⭐</div></div><div class="revdate">Il y a 2j</div></div>
+        <div class="revtxt">Excellent professionnel ! Ponctuel, efficace et soigné. Je recommande vivement !</div>
+        <div class="revtag">🔧 Remplacement robinet · Paris 11e</div>
+      </div>
+      <div class="revitem">
+        <div class="revhd"><div class="revava" style="background:var(--bll)">👨</div><div><div class="revnm">Thomas Petit</div><div class="revstars">⭐⭐⭐⭐⭐</div></div><div class="revdate">Il y a 5j</div></div>
+        <div class="revtxt">Travail impeccable sur le parquet. Propre, rapide et de qualité.</div>
+        <div class="revtag">🪵 Pose parquet · Vincennes</div>
+      </div>
+    </div>
+
+    <div style="padding:0 16px 20px;display:flex;flex-direction:column;gap:9px">
+      <button class="btn btn-g" onclick="go('m-exchange')">+ Chercher des missions</button>
+      <button class="btn btn-lt" style="color:var(--rd)" onclick="T('Déconnexion...')">Se déconnecter</button>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="go('m-home')"><div class="bni-ico">🏠</div><div class="bni-lbl">Accueil</div></div>
+    <div class="bni" onclick="go('m-exchange')"><div class="bni-ico">🔍</div><div class="bni-lbl">Missions</div></div>
+    <div class="bni" onclick="go('m-missions')"><div class="bni-ico">📋</div><div class="bni-lbl">Travaux</div></div>
+    <div class="bni" onclick="go('m-chats')"><div class="bni-ico">💬</div><div class="bni-lbl">Messages</div></div>
+    <div class="bni on"><div class="bni-ico">👤</div><div class="bni-lbl" style="color:var(--g)">Profil</div></div>
+  </div>
+</div>
+
+<!-- ██ M-NOTIFS ████████████████████████████████████████████ -->
+<div class="scr" id="m-notifs">
+  <div class="tnav"><div class="back dk" onclick="go('m-home')">←</div><div class="tttl">Notifications</div><div class="tact" onclick="T('Toutes marquées comme lues')">Tout lire</div></div>
+  <div class="body">
+    <div class="sec">Aujourd'hui</div>
+    <div class="card">
+      <div class="nitem unr" onclick="go('m-exchange')"><div class="ni-ico" style="background:var(--aml)">🔥</div><div><div class="ni-ttl">Mission urgente à 3km !</div><div class="ni-desc">Remplacement robinet · Paris 11e · SIRET requis · 150–300€</div><div class="ni-t">Il y a 5 min</div></div></div>
+      <div class="nitem unr" onclick="go('m-chat')"><div class="ni-ico" style="background:var(--gl)">💬</div><div><div class="ni-ttl">Marie D. vous a répondu</div><div class="ni-desc">« Disponible à partir de 15h... »</div><div class="ni-t">Il y a 12 min</div></div></div>
+      <div class="nitem" onclick="go('m-missions')"><div class="ni-ico" style="background:var(--bll)">📋</div><div><div class="ni-ttl">4 nouvelles missions dans votre zone</div><div class="ni-desc">Plomberie, Électricité · Paris · ≤10km</div><div class="ni-t">Il y a 2h</div></div></div>
+    </div>
+    <div class="sec">Hier</div>
+    <div class="card">
+      <div class="nitem" onclick="go('m-profile')"><div class="ni-ico" style="background:var(--gl)">✅</div><div><div class="ni-ttl">RC Pro vérifiée · Niveau 2 atteint !</div><div class="ni-desc">Votre assurance RC Pro a été validée par l'admin</div><div class="ni-t">Hier 10:15</div></div></div>
+      <div class="nitem" onclick="go('m-profile')"><div class="ni-ico" style="background:var(--aml)">⭐</div><div><div class="ni-ttl">Nouvel avis : 5/5</div><div class="ni-desc">Thomas P. : « Travail impeccable, je recommande ! »</div><div class="ni-t">Hier 18:30</div></div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ██ C-REG1 : CLIENT REGISTRATION ██████████████████████ -->
+<div class="scr dk" id="c-reg1">
+  <div class="reg-shell">
+    <div class="rlogo">Славянский <span>шкаф</span></div>
+    <div class="rsub">Créer un compte client</div>
+    <div class="rdots"><div class="rd act"></div><div class="rd"></div></div>
+    <div class="rh">Créer votre compte</div>
+    <div class="rp">Trouvez les meilleurs professionnels vérifiés près de chez vous</div>
+    <div class="fgrp"><label class="flbl lt">Prénom et Nom</label><input class="finp lt" placeholder="Marie Dupont"></div>
+    <div class="fgrp"><label class="flbl lt">Email</label><input class="finp lt" type="email" placeholder="marie@email.com"></div>
+    <div class="fgrp"><label class="flbl lt">Téléphone</label><input class="finp lt" type="tel" placeholder="+33 6 XX XX XX XX"></div>
+    <div class="fgrp">
+      <label class="flbl lt">Pays</label>
+      <select class="fsel lt">
+        <option>🇫🇷 France</option><option>🇩🇪 Allemagne</option><option>🇪🇸 Espagne</option>
+        <option>🇮🇹 Italie</option><option>🇧🇪 Belgique</option><option>🇳🇱 Pays-Bas</option>
+        <option>🇵🇱 Pologne</option><option>🇨🇭 Suisse</option><option>🇵🇹 Portugal</option>
+      </select>
+    </div>
+    <div class="fgrp"><label class="flbl lt">Ville</label><input class="finp lt" placeholder="Paris" value="Paris"></div>
+    <div style="height:6px"></div>
+    <button class="btn btn-g" onclick="go('c-home')">Créer mon compte →</button>
+    <div style="text-align:center;margin-top:13px;font-size:13px;color:rgba(255,255,255,.3)">
+      Déjà inscrit ? <span style="color:var(--g);font-weight:600;cursor:pointer" onclick="go('c-home')">Se connecter</span>
+    </div>
+  </div>
+</div>
+
+<!-- ██ C-HOME ██████████████████████████████████████████████ -->
+<div class="scr" id="c-home">
+  <div class="tnav">
+    <div class="rlogo" style="font-size:17px;color:var(--ink);margin:0">Славянский <span>шкаф</span></div>
+    <div style="margin-left:auto;cursor:pointer;font-size:20px;padding:6px" onclick="go('c-notifs')">🔔</div>
+  </div>
+  <div class="body">
+    <div class="hero-card">
+      <div class="hgreeting">Bonjour 👋</div>
+      <div class="hname">Marie Dupont</div>
+      <div class="hrole">Paris 11e · 🇫🇷 France · Cliente vérifiée</div>
+      <div class="hstats">
+        <div class="hst"><div class="hstv">3</div><div class="hstl">Missions</div></div>
+        <div class="hst"><div class="hstv">2</div><div class="hstl">En cours</div></div>
+        <div class="hst"><div class="hstv">247</div><div class="hstl">Pros dispo</div></div>
+      </div>
+    </div>
+
+    <!-- Quick search -->
+    <div style="padding:0 16px;margin-bottom:14px">
+      <div class="srch-box" style="background:var(--wh);box-shadow:var(--sh)" onclick="go('c-catalog')">
+        <span class="srch-ico">🔍</span>
+        <input type="search" placeholder="Plombier, électricien, peintre..." readonly onclick="go('c-catalog')" style="cursor:pointer">
+      </div>
+    </div>
+
+    <div class="qa-grid">
+      <div class="qa" onclick="go('c-catalog')"><div class="qa-ico">🔍</div><div class="qa-ttl">Trouver un pro</div><div class="qa-sub">247 disponibles</div></div>
+      <div class="qa" onclick="go('c-neworder')"><div class="qa-ico">📋</div><div class="qa-ttl">Poster mission</div><div class="qa-sub">Gratuit</div></div>
+      <div class="qa" onclick="go('c-chat')"><div class="qa-ico">💬</div><div class="qa-ttl">Messages</div><div class="qa-sub">1 non lu</div></div>
+      <div class="qa" onclick="go('c-orders')"><div class="qa-ico">📊</div><div class="qa-ttl">Mes missions</div><div class="qa-sub">2 actives</div></div>
+    </div>
+
+    <div class="sec">Pros vérifiés près de vous</div>
+    <div class="mcard" onclick="go('c-master')">
+      <div class="mctp">
+        <div class="mcava">👷<div class="mcbadge">✅</div></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:flex-start"><div style="flex:1"><div class="mcnm">Alexei Morozov</div><div class="mcrole">Plombier · Électricien · 📍 2.3km</div></div><div class="mcstars">⭐ 4.9</div></div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap"><span class="chip chip-g">✅ Niv.2</span><span class="chip chip-bl">SIRET</span><span class="chip chip-gr">RC Pro</span></div>
+        </div>
+      </div>
+      <div class="mcft"><div style="font-size:12px;color:var(--c4)">127 missions · 🟢 Disponible · Répond en 15 min</div><div class="mcprice">45€/h</div></div>
+    </div>
+    <div class="mcard" onclick="go('c-master')">
+      <div class="mctp">
+        <div class="mcava">👨‍🔧<div class="mcbadge">✅</div></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:flex-start"><div style="flex:1"><div class="mcnm">Étienne Bernard</div><div class="mcrole">Électricien · 📍 4.1km</div></div><div class="mcstars">⭐ 4.8</div></div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap"><span class="chip chip-g">✅ Niv.3</span><span class="chip chip-bl">SIRET</span><span class="chip chip-am">RGE ✓</span></div>
+        </div>
+      </div>
+      <div class="mcft"><div style="font-size:12px;color:var(--c4)">89 missions · 🟢 Disponible</div><div class="mcprice">55€/h</div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni on"><div class="bni-ico">🏠</div><div class="bni-lbl" style="color:var(--g)">Accueil</div></div>
+    <div class="bni" onclick="go('c-catalog')"><div class="bni-ico">🔍</div><div class="bni-lbl">Catalogue</div></div>
+    <div class="bni" onclick="go('c-neworder')"><div class="bni-ico">➕</div><div class="bni-lbl">Mission</div></div>
+    <div class="bni" onclick="go('c-chat')"><div class="bni-ico">💬</div><div class="bni-lbl">Messages</div></div>
+    <div class="bni" onclick="go('c-profile')"><div class="bni-ico">👤</div><div class="bni-lbl">Profil</div></div>
+  </div>
+</div>
+
+<!-- ██ C-CATALOG : SEARCH ████████████████████████████████ -->
+<div class="scr" id="c-catalog">
+  <div class="tnav dk" style="background:var(--dk)">
+    <div class="back lt" onclick="go('c-home')">←</div>
+    <div class="tttl lt">Trouver un professionnel</div>
+  </div>
+  <div class="srch-wrap">
+    <div class="srch-row">
+      <div class="srch-box">
+        <span class="srch-ico">🔍</span>
+        <input type="search" id="cat-search" placeholder="Plombier, électricien, ville..." oninput="filterCatalog(this.value)">
+      </div>
+      <button class="fltr-btn" onclick="openDrawer('drawer-catfilter')">⚙️</button>
+    </div>
+    <div class="fpills">
+      <div class="fpill on" onclick="tFpill(this,'c-catalog')">Tous</div>
+      <div class="fpill" onclick="tFpill(this,'c-catalog')">✅ Vérifiés</div>
+      <div class="fpill" onclick="tFpill(this,'c-catalog')">⭐ Top notés</div>
+      <div class="fpill" onclick="tFpill(this,'c-catalog')">📍 Proches</div>
+      <div class="fpill" onclick="tFpill(this,'c-catalog')">💰 &lt;40€/h</div>
+      <div class="fpill" onclick="tFpill(this,'c-catalog')">🔧 Plomberie</div>
+      <div class="fpill" onclick="tFpill(this,'c-catalog')">⚡ Élec</div>
+      <div class="fpill" onclick="tFpill(this,'c-catalog')">🎨 Peinture</div>
+    </div>
+  </div>
+  <div class="body" id="catalog-list">
+    <div style="padding:9px 16px 4px;font-size:12px;color:var(--c4)">247 professionnels · Paris et alentours</div>
+    <div class="mcard" onclick="go('c-master')">
+      <div class="mctp">
+        <div class="mcava">👷<div class="mcbadge">✅</div></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:flex-start"><div style="flex:1"><div class="mcnm">Alexei Morozov</div><div class="mcrole">Plombier · Électricien · 📍 2.3km</div></div><div class="mcstars">⭐ 4.9</div></div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap"><span class="chip chip-g">✅ Niv.2</span><span class="chip chip-bl">SIRET</span><span class="chip chip-gr">RC Pro</span></div>
+        </div>
+      </div>
+      <div class="mcft"><div>127 missions · 🟢 Dispo</div><div class="mcprice">45€/h</div></div>
+    </div>
+    <div class="mcard" onclick="go('c-master')">
+      <div class="mctp">
+        <div class="mcava">👨‍🔧<div class="mcbadge">✅</div></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:flex-start"><div style="flex:1"><div class="mcnm">Étienne Bernard</div><div class="mcrole">Électricien · 📍 4.1km</div></div><div class="mcstars">⭐ 4.8</div></div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap"><span class="chip chip-g">✅ Niv.3</span><span class="chip chip-bl">SIRET</span><span class="chip chip-am">RGE ✓</span></div>
+        </div>
+      </div>
+      <div class="mcft"><div>89 missions · 🟢 Dispo</div><div class="mcprice">55€/h</div></div>
+    </div>
+    <div class="mcard" onclick="go('c-master')">
+      <div class="mctp">
+        <div class="mcava" style="background:var(--pul)">👩‍🎨</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:flex-start"><div style="flex:1"><div class="mcnm">Sophie Lambert</div><div class="mcrole">Peintre · Décorateur · 📍 5.7km</div></div><div class="mcstars">⭐ 4.7</div></div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap"><span class="chip chip-g">✅ Niv.1</span><span class="chip chip-bl">SIRET</span></div>
+        </div>
+      </div>
+      <div class="mcft"><div>54 missions · 🟡 Bientôt dispo</div><div class="mcprice">35€/h</div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="go('c-home')"><div class="bni-ico">🏠</div><div class="bni-lbl">Accueil</div></div>
+    <div class="bni on"><div class="bni-ico">🔍</div><div class="bni-lbl" style="color:var(--g)">Catalogue</div></div>
+    <div class="bni" onclick="go('c-neworder')"><div class="bni-ico">➕</div><div class="bni-lbl">Mission</div></div>
+    <div class="bni" onclick="go('c-chat')"><div class="bni-ico">💬</div><div class="bni-lbl">Messages</div></div>
+    <div class="bni" onclick="go('c-profile')"><div class="bni-ico">👤</div><div class="bni-lbl">Profil</div></div>
+  </div>
+</div>
+
+<!-- ██ C-MASTER : PROFIL VU PAR CLIENT ████████████████████ -->
+<div class="scr" id="c-master">
+  <div class="tnav"><div class="back dk" onclick="go('c-catalog')">←</div><div class="tttl">Profil du professionnel</div></div>
+  <div class="body">
+    <div class="prof-hero">
+      <div class="pav" style="cursor:default">👷</div>
+      <div class="pnm">Alexei Morozov</div>
+      <div class="prole">Plombier · Électricien · Paris · 📍 2.3km</div>
+      <div class="pbadges">
+        <div class="pbadge-v">✅ Niveau 2/3 vérifié</div>
+        <div class="pbadge-av">🟢 Disponible</div>
+      </div>
+      <div class="pstats">
+        <div class="pst"><div class="pstv">4.9⭐</div><div class="pstl">Note</div></div>
+        <div class="pst"><div class="pstv">127</div><div class="pstl">Missions</div></div>
+        <div class="pst"><div class="pstv">47</div><div class="pstl">Avis</div></div>
+        <div class="pst"><div class="pstv">15min</div><div class="pstl">Réponse</div></div>
+      </div>
+    </div>
+    <!-- Bio -->
+    <div style="padding:13px 16px;background:var(--wh);border-bottom:1px solid var(--c1)">
+      <div style="font-size:13px;color:var(--c5);line-height:1.6">Plombier certifié depuis 8 ans, spécialisé en dépannage urgent et rénovation. Devis gratuit sous 30 minutes. Disponible 7j/7.</div>
+      <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+        <span class="chip chip-g">🔧 Plomberie</span>
+        <span class="chip chip-bl">⚡ Électricité</span>
+        <span class="chip chip-gr">🛁 Salle de bain</span>
+      </div>
+    </div>
+    <!-- Verification bar (client view) -->
+    <div class="vbar-card" style="margin:0">
+      <div class="vbar-hdr"><div class="vbar-ttl">Niveau de vérification</div><div class="vbar-pct">Niveau 2/3</div></div>
+      <div class="vbar-bg"><div class="vbar-fill" style="width:67%"></div></div>
+      <div class="vlvls">
+        <div class="vlvl done">✅ Niv.1<br>SIRET</div>
+        <div class="vlvl done">✅ Niv.2<br>RC Pro</div>
+        <div class="vlvl pend">🔓 Niv.3<br>Décennale</div>
+      </div>
+    </div>
+    <div class="sec">Documents vérifiés</div>
+    <div style="padding:0 16px">
+      <div class="docup ok" style="background:rgba(0,200,117,.06)"><div class="dico">🏢</div><div style="flex:1"><div class="dttl" style="color:var(--ink)">SIRET vérifié</div><div class="dsub" style="color:var(--c4)">Entreprise enregistrée</div></div><div class="dstat ds-ok">✓</div></div>
+      <div class="docup ok" style="background:rgba(0,200,117,.06)"><div class="dico">🛡️</div><div style="flex:1"><div class="dttl" style="color:var(--ink)">RC Pro valide</div><div class="dsub" style="color:var(--c4)">Responsabilité civile pro</div></div><div class="dstat ds-ok">✓</div></div>
+    </div>
+    <div class="sec">Avis clients (47)</div>
+    <div class="card">
+      <div class="revitem">
+        <div class="revhd"><div class="revava" style="background:var(--gl)">👩</div><div><div class="revnm">Marie D.</div><div class="revstars">⭐⭐⭐⭐⭐</div></div><div class="revdate">2j</div></div>
+        <div class="revtxt">Excellent professionnel ! Ponctuel et soigné. Je recommande vivement.</div>
+        <div class="revtag">🔧 Robinet · Paris 11e</div>
+      </div>
+      <div class="revitem">
+        <div class="revhd"><div class="revava" style="background:var(--bll)">👨</div><div><div class="revnm">Thomas P.</div><div class="revstars">⭐⭐⭐⭐⭐</div></div><div class="revdate">5j</div></div>
+        <div class="revtxt">Travail impeccable. Propre, rapide et de qualité.</div>
+        <div class="revtag">🪵 Parquet · Vincennes</div>
+      </div>
+    </div>
+    <div style="padding:0 16px 20px;display:flex;flex-direction:column;gap:9px">
+      <button class="btn btn-g" onclick="go('c-chat')">💬 Contacter · Devis gratuit</button>
+      <button class="btn btn-lt" onclick="T('✅ Mission publiée ! Alexei sera notifié.')">📋 Poster une mission pour ce pro</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>
+
+<!-- ██ C-NEWORDER ██████████████████████████████████████████ -->
+<div class="scr" id="c-neworder">
+  <div class="tnav"><div class="back dk" onclick="go('c-home')">←</div><div class="tttl">Nouvelle mission</div></div>
+  <div class="body">
+    <div style="padding:16px">
+      <div class="fgrp"><label class="flbl dk">Catégorie</label>
+        <select class="fsel dk"><option>🔧 Plomberie</option><option>⚡ Électricité</option><option>🎨 Peinture</option><option>🪟 Menuiserie</option><option>🏗️ Maçonnerie</option><option>❄️ Climatisation</option><option>🪵 Parquet</option><option>Autre</option></select>
+      </div>
+      <div class="fgrp"><label class="flbl dk">Titre</label><input class="finp dk" placeholder="Ex: Remplacement robinet cuisine"></div>
+      <div class="fgrp"><label class="flbl dk">Description détaillée</label><textarea class="finp dk" rows="4" placeholder="Décrivez le travail, les dimensions, matériaux existants..."></textarea></div>
+      <div class="fgrp"><label class="flbl dk">Ville / Adresse</label><input class="finp dk" placeholder="Paris 11e" value="Paris 11e"></div>
+      <div class="fgrp"><label class="flbl dk">Urgence</label>
+        <select class="fsel dk"><option>🔥 Aujourd'hui — urgent</option><option>📅 Cette semaine</option><option>🕐 Flexible</option></select>
+      </div>
+      <div class="fgrp"><label class="flbl dk">Budget estimé</label><input class="finp dk" placeholder="Ex: 150–300€"></div>
+      <div class="fgrp"><label class="flbl dk">Niveau de vérification requis</label>
+        <select class="fsel dk"><option>Tous les pros</option><option>✅ Niveau 1 (SIRET)</option><option>✅ Niveau 2 (SIRET + RC Pro)</option><option>✅ Niveau 3 (SIRET + RC Pro + Décennale)</option></select>
+      </div>
+      <div style="height:6px"></div>
+      <button class="btn btn-g" onclick="go('c-home');T('✅ Mission publiée ! 23 pros notifiés.')">Publier la mission →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT CHAT -->
+<div class="scr" id="c-chat" style="background:var(--c1)">
+  <div class="chat-hdr">
+    <div class="back dk" onclick="go('c-home')">←</div>
+    <div style="width:38px;height:38px;border-radius:50%;background:var(--dk2);display:flex;align-items:center;justify-content:center;font-size:18px">👷</div>
+    <div class="ch-hinfo"><div class="ch-hnm">Alexei Morozov</div><div class="ch-hsub">🟢 En ligne · Plombier · ✅ Vérifié</div></div>
+    <div style="font-size:18px;cursor:pointer" onclick="go('c-master')">👤</div>
+  </div>
+  <div class="msgs">
+    <div class="bw me"><div class="bbl">Bonjour Alexei ! Pouvez-vous venir demain pour un robinet ?</div><div class="mt">09:10 ✓✓</div></div>
+    <div class="bw"><div class="bbl">Bonjour ! Bien sûr. Devis estimé : 180€ TTC. Je peux venir demain à 9h.</div><div class="mt">09:12</div></div>
+    <div class="bw me"><div class="bbl">Parfait ! Je confirme pour demain 9h.</div><div class="mt">09:14 ✓✓</div></div>
+  </div>
+  <div class="chat-inp-row">
+    <textarea class="chinp" placeholder="Message..." rows="1"></textarea>
+    <button class="sendbtn" onclick="T('Message envoyé ✓')">➤</button>
+  </div>
+</div>
+
+<!-- CLIENT ORDERS -->
+<div class="scr" id="c-orders">
+  <div class="tnav"><div class="back dk" onclick="go('c-home')">←</div><div class="tttl">Mes missions</div></div>
+  <div class="body">
+    <div style="height:10px"></div>
+    <div class="mc" onclick="go('c-chat')">
+      <div class="mc-tp">
+        <div class="mc-cat" style="background:var(--bll)">🔧</div>
+        <div style="flex:1"><div class="mc-ttl">Remplacement robinet cuisine</div><div class="mc-sub">Alexei Morozov · Paris 11e</div></div>
+        <div class="mc-badge mc-new">En cours</div>
+      </div>
+      <div class="mc-ft"><div style="font-size:12px;color:var(--c4)">Demain 10h</div><div class="mc-price">180€</div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- CLIENT PROFILE -->
+<div class="scr" id="c-profile">
+  <div class="tnav"><div class="tttl">Mon profil</div><div class="tact" onclick="T('Modifier profil client')">✎ Modifier</div></div>
+  <div class="body">
+    <div class="prof-hero">
+      <div class="pav" onclick="T('Changer la photo')">🏠<div class="pav-edit">✎</div></div>
+      <div class="pnm">Marie Dupont</div>
+      <div class="prole">Cliente · Paris 11e · 🇫🇷 France</div>
+      <div class="pbadges"><div class="pbadge-av">✅ Compte vérifié</div></div>
+      <div class="pstats">
+        <div class="pst"><div class="pstv">3</div><div class="pstl">Missions</div></div>
+        <div class="pst"><div class="pstv">2</div><div class="pstl">En cours</div></div>
+        <div class="pst"><div class="pstv">4.9⭐</div><div class="pstl">Évaluation</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="irow" onclick="T('Modifier : nom, téléphone, email')">
+        <div class="ibox2" style="background:var(--gl)">👤</div><div style="flex:1"><div class="ittl">Marie Dupont</div><div class="isub">+33 6 98 76 54 32 · marie@email.com</div></div><div class="arr-g">✎</div>
+      </div>
+      <div class="irow" onclick="T('Modifier adresse')">
+        <div class="ibox2" style="background:var(--aml)">📍</div><div style="flex:1"><div class="ittl">Paris 11e · 75011</div><div class="isub">Adresse principale</div></div><div class="arr-g">✎</div>
+      </div>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:9px">
+      <button class="btn btn-g" onclick="go('c-catalog')">🔍 Trouver un professionnel</button>
+      <button class="btn btn-lt" style="color:var(--rd)" onclick="T('Déconnexion...')">Se déconnecter</button>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="go('c-home')"><div class="bni-ico">🏠</div><div class="bni-lbl">Accueil</div></div>
+    <div class="bni" onclick="go('c-catalog')"><div class="bni-ico">🔍</div><div class="bni-lbl">Catalogue</div></div>
+    <div class="bni" onclick="go('c-neworder')"><div class="bni-ico">➕</div><div class="bni-lbl">Mission</div></div>
+    <div class="bni" onclick="go('c-chat')"><div class="bni-ico">💬</div><div class="bni-lbl">Messages</div></div>
+    <div class="bni on"><div class="bni-ico">👤</div><div class="bni-lbl" style="color:var(--g)">Profil</div></div>
+  </div>
+</div>
+
+<!-- CLIENT NOTIFS -->
+<div class="scr" id="c-notifs">
+  <div class="tnav"><div class="back dk" onclick="go('c-home')">←</div><div class="tttl">Notifications</div></div>
+  <div class="body">
+    <div class="card" style="margin-top:14px">
+      <div class="nitem unr" onclick="go('c-chat')"><div class="ni-ico" style="background:var(--gl)">💬</div><div><div class="ni-ttl">Alexei Morozov vous a répondu</div><div class="ni-desc">Devis 180€ · Disponible demain 9h</div><div class="ni-t">Il y a 5 min</div></div></div>
+      <div class="nitem" onclick="go('c-orders')"><div class="ni-ico" style="background:var(--bll)">📋</div><div><div class="ni-ttl">Mission confirmée</div><div class="ni-desc">Remplacement robinet · Demain 10h</div><div class="ni-t">Il y a 2h</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ██ DRAWERS ████████████████████████████████████████████ -->
+<div class="overlay" id="overlay" onclick="closeAllDrawers()"></div>
+
+<!-- DRAWER: Infos personnelles -->
+<div class="drawer" id="drawer-info">
+  <div class="dhandle"></div>
+  <div class="dttl">👤 Infos personnelles</div>
+  <div class="dbody">
+    <div class="fgrp"><label class="flbl dk">Prénom et Nom</label><input class="finp dk" id="e-name" value="Alexei Morozov"></div>
+    <div class="fgrp"><label class="flbl dk">Téléphone</label><input class="finp dk" id="e-phone" type="tel" value="+33 6 12 34 56 78"></div>
+    <div class="fgrp"><label class="flbl dk">Email</label><input class="finp dk" id="e-email" type="email" value="alexei@example.com"></div>
+    <div class="fgrp"><label class="flbl dk">Disponibilité</label>
+      <select class="fsel dk" id="e-avail"><option>🟢 Disponible</option><option>🟡 Limité</option><option>🔴 Non disponible</option></select>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Annuler</button>
+    <button class="btn btn-g" style="flex:2" onclick="saveInfo()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<!-- DRAWER: Bio / Description -->
+<div class="drawer" id="drawer-bio">
+  <div class="dhandle"></div>
+  <div class="dttl">📝 Description</div>
+  <div class="dbody">
+    <div class="fgrp"><label class="flbl dk">Présentation</label>
+      <textarea class="finp dk" id="e-bio" rows="5">Plombier certifié depuis 8 ans, spécialisé en dépannage urgent et rénovation. Devis gratuit sous 30 minutes. Disponible 7j/7.</textarea>
+    </div>
+    <div class="lbox lbox-bl" style="margin:0 0 10px">💡 Un bon texte augmente vos chances de 60%</div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Annuler</button>
+    <button class="btn btn-g" style="flex:2" onclick="saveBio()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<!-- DRAWER: Compétences -->
+<div class="drawer" id="drawer-skills">
+  <div class="dhandle"></div>
+  <div class="dttl">🔧 Compétences</div>
+  <div class="dbody">
+    <div class="schips" id="drawer-schips">
+      <div class="schip on"  onclick="tSkill(this)">🔧 Plomberie</div>
+      <div class="schip on"  onclick="tSkill(this)">⚡ Électricité</div>
+      <div class="schip"     onclick="tSkill(this)">🪟 Menuiserie</div>
+      <div class="schip"     onclick="tSkill(this)">🏗️ Maçonnerie</div>
+      <div class="schip"     onclick="tSkill(this)">🎨 Peinture</div>
+      <div class="schip"     onclick="tSkill(this)">❄️ Climatisation</div>
+      <div class="schip"     onclick="tSkill(this)">🪵 Parquet</div>
+      <div class="schip"     onclick="tSkill(this)">🛁 Salle de bain</div>
+      <div class="schip"     onclick="tSkill(this)">🔑 Serrurerie</div>
+      <div class="schip"     onclick="tSkill(this)">🌱 Jardinage</div>
+      <div class="schip"     onclick="tSkill(this)">🧹 Nettoyage</div>
+      <div class="schip"     onclick="tSkill(this)">📦 Déménagement</div>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Annuler</button>
+    <button class="btn btn-g" style="flex:2" onclick="saveSkills()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<!-- DRAWER: Zone -->
+<div class="drawer" id="drawer-zone">
+  <div class="dhandle"></div>
+  <div class="dttl">📍 Zone d'intervention</div>
+  <div class="dbody">
+    <div class="fgrp"><label class="flbl dk">Pays</label>
+      <select class="fsel dk" id="e-country">
+        <option value="fr">🇫🇷 France</option><option value="de">🇩🇪 Allemagne</option>
+        <option value="es">🇪🇸 Espagne</option><option value="it">🇮🇹 Italie</option>
+        <option value="be">🇧🇪 Belgique</option><option value="nl">🇳🇱 Pays-Bas</option>
+        <option value="pl">🇵🇱 Pologne</option>
+      </select>
+    </div>
+    <div class="fgrp"><label class="flbl dk">Ville principale</label><input class="finp dk" id="e-city" value="Paris"></div>
+    <div class="fgrp"><label class="flbl dk">Rayon d'intervention</label>
+      <select class="fsel dk" id="e-radius"><option>5 km</option><option>10 km</option><option selected>25 km</option><option>50 km</option><option>100 km</option><option>Toute la région</option></select>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Annuler</button>
+    <button class="btn btn-g" style="flex:2" onclick="saveZone()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<!-- DRAWER: Tarifs -->
+<div class="drawer" id="drawer-prices">
+  <div class="dhandle"></div>
+  <div class="dttl">💶 Mes tarifs</div>
+  <div class="dbody">
+    <div class="prow"><div class="prlbl">Taux horaire</div><input class="prinp" id="e-rate" type="number" value="45"> €/h</div>
+    <div class="prow"><div class="prlbl">Frais de déplacement</div><input class="prinp" id="e-travel" type="number" value="20"> €</div>
+    <div class="prow"><div class="prlbl">Tarif week-end (+%)</div><input class="prinp" id="e-weekend" type="number" value="25"> %</div>
+    <div class="prow"><div class="prlbl">Tarif nuit/urgence (+%)</div><input class="prinp" id="e-urgent" type="number" value="50"> %</div>
+    <div class="fgrp" style="margin-top:10px"><label class="flbl dk">Modes de paiement</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <div class="schip on"  onclick="tSkill(this)">💳 Carte</div>
+        <div class="schip on"  onclick="tSkill(this)">🏦 Virement</div>
+        <div class="schip on"  onclick="tSkill(this)">💵 Espèces</div>
+        <div class="schip"     onclick="tSkill(this)">📱 PayPal</div>
+        <div class="schip"     onclick="tSkill(this)">₿ Crypto</div>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Annuler</button>
+    <button class="btn btn-g" style="flex:2" onclick="savePrices()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<!-- DRAWER: Statut légal -->
+<div class="drawer" id="drawer-legal">
+  <div class="dhandle"></div>
+  <div class="dttl">🏢 Statut juridique</div>
+  <div class="dbody">
+    <div class="fgrp"><label class="flbl dk">Pays d'activité</label>
+      <select class="fsel dk" id="e-lcountry" onchange="updateRegField(this.value)">
+        <option value="fr">🇫🇷 France</option><option value="de">🇩🇪 Allemagne</option>
+        <option value="es">🇪🇸 Espagne</option><option value="it">🇮🇹 Italie</option>
+        <option value="be">🇧🇪 Belgique</option><option value="nl">🇳🇱 Pays-Bas</option>
+        <option value="fi">🇫🇮 Finlande</option><option value="pl">🇵🇱 Pologne</option>
+      </select>
+    </div>
+    <div class="fgrp">
+      <label class="flbl dk" id="e-regnumlabel">SIRET</label>
+      <input class="finp dk" id="e-regnum" value="123 456 789 00012">
+    </div>
+    <div class="fgrp"><label class="flbl dk">Type de statut</label>
+      <select class="fsel dk"><option>Entreprise</option><option>Micro-entrepreneur</option><option>Indépendant</option></select>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Annuler</button>
+    <button class="btn btn-g" style="flex:2" onclick="saveLegal()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<!-- DRAWER: Docs -->
+<div class="drawer" id="drawer-docs">
+  <div class="dhandle"></div>
+  <div class="dttl">📋 Uploader un document</div>
+  <div class="dbody">
+    <div class="lbox lbox-g">✅ Niveau 3 débloque les missions premium (+30%)</div>
+    <div class="docup" style="background:var(--wh);border-color:var(--rdl)" onclick="T('Sélectionner fichier PDF/JPG — max 5MB')">
+      <div class="dico">📋</div><div style="flex:1"><div class="dttl" style="color:var(--ink)">Assurance Décennale</div><div class="dsub" style="color:var(--c4)">PDF ou JPG · Max 5MB</div></div>
+      <div style="background:var(--g);color:#fff;padding:6px 12px;border-radius:10px;font-size:12px;font-weight:700">+ Upload</div>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Annuler</button>
+    <button class="btn btn-g" style="flex:2" onclick="T('Document envoyé — vérification sous 24h ✅');closeAllDrawers()">Envoyer →</button>
+  </div>
+</div>
+
+<!-- DRAWER: Filtre missions -->
+<div class="drawer" id="drawer-filter">
+  <div class="dhandle"></div>
+  <div class="dttl">⚙️ Filtrer les missions</div>
+  <div class="dbody">
+    <div class="fgrp"><label class="flbl dk">Catégorie</label>
+      <select class="fsel dk"><option>Toutes</option><option>🔧 Plomberie</option><option>⚡ Électricité</option><option>🎨 Peinture</option><option>🪵 Parquet</option><option>🏗️ Maçonnerie</option></select>
+    </div>
+    <div class="fgrp"><label class="flbl dk">Distance max</label>
+      <select class="fsel dk"><option>5 km</option><option>10 km</option><option selected>25 km</option><option>50 km</option><option>Toute la France</option></select>
+    </div>
+    <div class="fgrp"><label class="flbl dk">Budget min</label><input class="finp dk" type="number" placeholder="0 €"></div>
+    <div class="fgrp"><label class="flbl dk">Budget max</label><input class="finp dk" type="number" placeholder="Illimité"></div>
+    <div class="fgrp"><label class="flbl dk">Urgence</label>
+      <select class="fsel dk"><option>Tous</option><option>🔥 Urgent (aujourd'hui)</option><option>📅 Cette semaine</option><option>🕐 Flexible</option></select>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Réinitialiser</button>
+    <button class="btn btn-g" style="flex:2" onclick="closeAllDrawers();T('✅ Filtres appliqués')">Appliquer →</button>
+  </div>
+</div>
+
+<!-- DRAWER: Filtre catalogue -->
+<div class="drawer" id="drawer-catfilter">
+  <div class="dhandle"></div>
+  <div class="dttl">⚙️ Filtrer le catalogue</div>
+  <div class="dbody">
+    <div class="fgrp"><label class="flbl dk">Catégorie</label>
+      <select class="fsel dk"><option>Toutes</option><option>🔧 Plomberie</option><option>⚡ Électricité</option><option>🎨 Peinture</option><option>🪵 Parquet</option></select>
+    </div>
+    <div class="fgrp"><label class="flbl dk">Ville / Code postal</label><input class="finp dk" placeholder="Paris, 75011..."></div>
+    <div class="fgrp"><label class="flbl dk">Distance max</label>
+      <select class="fsel dk"><option>5 km</option><option selected>20 km</option><option>50 km</option><option>100 km</option></select>
+    </div>
+    <div class="fgrp"><label class="flbl dk">Note minimum</label>
+      <select class="fsel dk"><option>Toutes</option><option>⭐ 3+</option><option>⭐⭐ 4+</option><option>⭐⭐⭐ 4.5+</option></select>
+    </div>
+    <div class="fgrp"><label class="flbl dk">Tarif max (€/h)</label><input class="finp dk" type="number" placeholder="Illimité"></div>
+    <div class="fgrp"><label class="flbl dk">Niveau vérification min</label>
+      <select class="fsel dk"><option>Tous les pros</option><option>✅ Niveau 1+</option><option>✅ Niveau 2+</option><option>✅ Niveau 3 seulement</option></select>
+    </div>
+  </div>
+  <div class="drawer-save">
+    <button class="btn btn-lt" style="flex:1" onclick="closeAllDrawers()">Réinitialiser</button>
+    <button class="btn btn-g" style="flex:2" onclick="closeAllDrawers();T('✅ 89 pros correspondent')">Rechercher →</button>
+  </div>
+</div>
+
+
+<!-- ██ ADMIN HOME ██████████████████████████████████████████ -->
+<div class="scr dk" id="a-home">
+  <div class="tnav dk">
+    <div class="rlogo" style="font-size:16px">Славянский <span>шкаф</span></div>
+    <div style="margin-left:auto;background:rgba(239,68,68,.2);color:#f87171;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">ADMIN</div>
+  </div>
+  <div class="body" style="background:var(--dk)">
+    <div style="padding:16px">
+      <div style="display:flex;gap:9px;margin-bottom:14px">
+        <div class="astat"><div class="astv">342</div><div class="astl">Мастера</div></div>
+        <div class="astat"><div class="astv">1,240</div><div class="astl">Клиенты</div></div>
+        <div class="astat"><div class="astv">47</div><div class="astl">Ожидают</div></div>
+        <div class="astat"><div class="astv" style="color:var(--g)">24h</div><div class="astl">Ср. проверка</div></div>
+      </div>
+      <div style="display:flex;gap:9px;margin-bottom:18px">
+        <div class="astat"><div class="astv" style="font-size:18px">8,420€</div><div class="astl">Оборот (мес)</div></div>
+        <div class="astat"><div class="astv" style="color:var(--am)">12</div><div class="astl">Жалобы</div></div>
+      </div>
+    </div>
+
+    <div class="sec" style="color:rgba(255,255,255,.35)">Быстрые действия</div>
+    <div style="padding:0 16px">
+      <div class="docup" style="margin-bottom:8px" onclick="go('a-moderation')">
+        <div class="dico">🔍</div><div style="flex:1"><div class="dttl">Модерация документов</div><div class="dsub">47 ожидают проверки</div></div>
+        <div class="dstat ds-req">47</div>
+      </div>
+      <div class="docup" style="margin-bottom:8px" onclick="go('a-users')">
+        <div class="dico">👥</div><div style="flex:1"><div class="dttl">Пользователи</div><div class="dsub">342 мастера · 1,240 клиентов</div></div>
+        <div class="dstat ds-opt">→</div>
+      </div>
+      <div class="docup" style="margin-bottom:8px" onclick="go('a-broadcast')">
+        <div class="dico">📢</div><div style="flex:1"><div class="dttl">Рассылка Telegram</div><div class="dsub">Всем / по стране / по навыкам</div></div>
+        <div class="dstat ds-opt">→</div>
+      </div>
+    </div>
+    <div class="sec" style="color:rgba(255,255,255,.35)">Последняя активность</div>
+    <div style="padding:0 16px 20px">
+      <div class="docup" style="margin-bottom:7px" onclick="T('Новый мастер: Alexei M. — Франция')"><div class="dico" style="font-size:14px">👷</div><div style="flex:1"><div class="dttl" style="font-size:13px">Новый мастер: Alexei M.</div><div class="dsub">Франция · SIRET загружен · 5 мин назад</div></div><div class="dstat ds-pnd">Нов</div></div>
+      <div class="docup" style="margin-bottom:7px" onclick="T('RC Pro Étienne B. — ожидает')"><div class="dico" style="font-size:14px">🛡️</div><div style="flex:1"><div class="dttl" style="font-size:13px">RC Pro — Étienne B.</div><div class="dsub">Бельгия · На проверке · 1 час назад</div></div><div class="dstat ds-pnd">Провер.</div></div>
+      <div class="docup ok" onclick="T('SIRET одобрен — Sophie L.')"><div class="dico" style="font-size:14px">✅</div><div style="flex:1"><div class="dttl" style="font-size:13px">SIRET одобрен — Sophie L.</div><div class="dsub">Германия · 3 часа назад</div></div><div class="dstat ds-ok">OK</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODERATION -->
+<div class="scr dk" id="a-moderation">
+  <div class="tnav dk"><div class="back lt" onclick="go('a-home')">←</div><div class="tttl lt">Модерация</div><div class="tact">47 ожидают</div></div>
+  <div class="body" style="background:var(--dk)">
+    <div style="padding:10px 16px 0">
+      <div class="docup" style="margin-bottom:10px">
+        <div class="dico">👷</div>
+        <div style="flex:1">
+          <div class="dttl">Alexei Morozov — RC Pro</div>
+          <div class="dsub">Франция · Загружено 2ч назад · 2.4MB</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <div style="background:rgba(239,68,68,.2);color:#f87171;padding:6px 11px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer" onclick="T('❌ RC Pro — ОТКЛОНЕНО')">✗</div>
+          <div style="background:rgba(0,200,117,.2);color:var(--g);padding:6px 11px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer" onclick="T('✅ RC Pro — ОДОБРЕНО · Мастер уведомлён')">✓</div>
+        </div>
+      </div>
+      <div class="docup" style="margin-bottom:10px">
+        <div class="dico">👨‍🔧</div>
+        <div style="flex:1">
+          <div class="dttl">Étienne Bernard — SIRET</div>
+          <div class="dsub">Бельгия · KBO 0123.456.789 · 1ч назад</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <div style="background:rgba(239,68,68,.2);color:#f87171;padding:6px 11px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer" onclick="T('❌ SIRET — ОТКЛОНЕНО')">✗</div>
+          <div style="background:rgba(0,200,117,.2);color:var(--g);padding:6px 11px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer" onclick="T('✅ SIRET — ОДОБРЕНО · Уровень 2 присвоен')">✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN USERS -->
+<div class="scr dk" id="a-users">
+  <div class="tnav dk"><div class="back lt" onclick="go('a-home')">←</div><div class="tttl lt">Пользователи</div></div>
+  <div class="body" style="background:var(--dk)">
+    <div style="padding:10px 16px 0">
+      <div class="docup ok" onclick="T('Профиль: Alexei Morozov')"><div class="dico">👷</div><div style="flex:1"><div class="dttl">Alexei Morozov</div><div class="dsub">Мастер · Франция · ✅ Уровень 2 · 4.9⭐</div></div><div class="dstat ds-ok">→</div></div>
+      <div class="docup" onclick="T('Профиль: Étienne Bernard')"><div class="dico">👨‍🔧</div><div style="flex:1"><div class="dttl">Étienne Bernard</div><div class="dsub">Мастер · Бельгия · ✅ Уровень 3 · 4.8⭐</div></div><div class="dstat ds-ok">→</div></div>
+      <div class="docup" onclick="T('Профиль: Marie Dupont')"><div class="dico">🏠</div><div style="flex:1"><div class="dttl">Marie Dupont</div><div class="dsub">Клиент · Франция · 3 заказа</div></div><div class="dstat ds-opt">→</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN BROADCAST -->
+<div class="scr dk" id="a-broadcast">
+  <div class="tnav dk"><div class="back lt" onclick="go('a-home')">←</div><div class="tttl lt">Рассылка Telegram</div></div>
+  <div class="body" style="background:var(--dk)">
+    <div class="reg-shell" style="padding-top:16px">
+      <div class="fgrp"><label class="flbl lt">Аудитория</label>
+        <select class="fsel lt"><option>Все пользователи (1,582)</option><option>Мастера (342)</option><option>Клиенты (1,240)</option><option>По стране...</option><option>По навыкам...</option><option>Непроверенные (47)</option></select>
+      </div>
+      <div class="fgrp"><label class="flbl lt">Сообщение</label>
+        <textarea class="finp lt" rows="5" placeholder="Текст уведомления..."></textarea>
+      </div>
+      <div style="height:8px"></div>
+      <button class="btn btn-g" onclick="T('📢 Рассылка отправлена 1,582 пользователям!')">📢 Отправить всем →</button>
+      <div style="text-align:center;margin-top:11px;font-size:12px;color:rgba(255,255,255,.28)">Через Cloudflare Worker · @slavyanskiy_shkaf_bot</div>
+    </div>
+  </div>
+</div>
+
+<!-- ████████████████████████████████████████████████████████
+     JAVASCRIPT
+████████████████████████████████████████████████████████ -->
+<script>
+/* ══ CORE NAV ══════════════════════════════════════════ */
+let cur = 'splash';
+function go(id) {
+  const prev = document.getElementById(cur);
+  const next = document.getElementById(id);
+  if (!next) return;
+  if (prev) prev.classList.remove('on');
+  next.classList.add('on');
+  cur = id;
+  closeAllDrawers();
+}
+
+/* ══ TOAST ══════════════════════════════════════════════ */
+let toastTimer;
+function T(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ══ SPLASH ═════════════════════════════════════════════ */
+setTimeout(() => go('m-reg1'), 2500);
+
+/* ══ ROLE SELECTION ═════════════════════════════════════ */
+let selectedRole = 'master';
+function selRole(el) {
+  const parent = el.closest('.reg-shell') || el.closest('.drawer') || document.body;
+  parent.querySelectorAll('.rcard').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function continueFromRole() {
+  const masterCard = document.getElementById('role-master');
+  selectedRole = masterCard.classList.contains('sel') ? 'master' : 'client';
+  go(selectedRole === 'master' ? 'm-reg2' : 'c-reg1');
+}
+
+/* ══ LANGUAGE ═══════════════════════════════════════════ */
+let currentLang = 'fr';
+const T_MAP = {
+  fr: {
+    'reg.who':'Bienvenue !\nQui êtes-vous ?',
+    'reg.role_desc':'Choisissez votre rôle pour continuer',
+    'role.master':'Prestataire / Мастер','role.master_sub':'Je propose des services professionnels',
+    'role.client':'Client / Заказчик','role.client_sub':'Je cherche un professionnel qualifié',
+    'lang.choose':'Langue / Язык',
+    'btn.continue':'Continuer →','btn.login':'Se connecter','btn.skip':'Passer pour l\'instant',
+    'btn.create_profile':'🚀 Créer mon profil',
+    'reg.have_account':'Déjà inscrit ?',
+    'reg.legal_title':'Statut juridique',
+    'reg.country':'Pays d\'activité','reg.status_type':'Statut professionnel',
+    'reg.docs_title':'Vos documents','reg.docs_desc':'Ajoutez maintenant ou plus tard.',
+    'doc.click_upload':'Cliquez pour uploader','doc.required':'Requis','doc.optional':'Optionnel',
+    'doc.construction':'Travaux de construction','doc.energy':'Énergie / isolation',
+    'reg.skills_zone':'Compétences & Zone',
+    'reg.skills_title':'Vos compétences','reg.skills_desc':'Multi-sélection.',
+    'field.city':'Ville principale','field.radius':'Rayon d\'intervention',
+    'suc.profile_created':'Profil créé !',
+  },
+  ru: {
+    'reg.who':'Добро пожаловать!\nКто вы?',
+    'reg.role_desc':'Выберите вашу роль для продолжения',
+    'role.master':'Мастер / Prestataire','role.master_sub':'Я предлагаю профессиональные услуги',
+    'role.client':'Клиент / Заказчик','role.client_sub':'Я ищу квалифицированного специалиста',
+    'lang.choose':'Язык / Langue',
+    'btn.continue':'Продолжить →','btn.login':'Войти','btn.skip':'Пропустить',
+    'btn.create_profile':'🚀 Создать профиль',
+    'reg.have_account':'Уже есть аккаунт?',
+    'reg.legal_title':'Юридический статус',
+    'reg.country':'Страна деятельности','reg.status_type':'Тип регистрации',
+    'reg.docs_title':'Ваши документы','reg.docs_desc':'Добавьте сейчас или позже.',
+    'doc.click_upload':'Нажмите для загрузки','doc.required':'Обязательно','doc.optional':'Необязательно',
+    'doc.construction':'Строительные работы','doc.energy':'Энергетика / изоляция',
+    'reg.skills_zone':'Навыки и зона',
+    'reg.skills_title':'Ваши навыки','reg.skills_desc':'Мультивыбор.',
+    'field.city':'Основной город','field.radius':'Радиус работы',
+    'suc.profile_created':'Профиль создан!',
+  },
+  es: {
+    'reg.who':'¡Bienvenido!\n¿Quién eres?',
+    'btn.continue':'Continuar →','btn.login':'Iniciar sesión','btn.skip':'Omitir por ahora',
+    'btn.create_profile':'🚀 Crear mi perfil',
+    'role.master':'Profesional / Мастер','role.master_sub':'Ofrezco servicios profesionales',
+    'role.client':'Cliente / Заказчик','role.client_sub':'Busco un profesional cualificado',
+    'reg.have_account':'¿Ya tienes cuenta?',
+    'suc.profile_created':'¡Perfil creado!',
+  },
+  de: {
+    'reg.who':'Willkommen!\nWer sind Sie?',
+    'btn.continue':'Weiter →','btn.login':'Anmelden','btn.skip':'Überspringen',
+    'btn.create_profile':'🚀 Profil erstellen',
+    'role.master':'Fachmann / Мастер','role.master_sub':'Ich biete professionelle Dienste an',
+    'role.client':'Kunde / Заказчик','role.client_sub':'Ich suche einen Fachmann',
+    'reg.have_account':'Bereits registriert?',
+    'suc.profile_created':'Profil erstellt!',
+  },
+  pl: {
+    'reg.who':'Witamy!\nKim jesteś?',
+    'btn.continue':'Kontynuuj →','btn.login':'Zaloguj się','btn.skip':'Pomiń na razie',
+    'btn.create_profile':'🚀 Utwórz profil',
+    'role.master':'Wykonawca / Мастер','role.master_sub':'Oferuję usługi profesjonalne',
+    'role.client':'Klient / Заказчик','role.client_sub':'Szukam wykwalifikowanego specjalisty',
+    'reg.have_account':'Masz już konto?',
+    'suc.profile_created':'Profil utworzony!',
+  }
+};
+
+function setLang(lang, el) {
+  currentLang = lang;
+  el.closest('.lpills').querySelectorAll('.lpill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  applyTranslations();
+}
+
+function applyTranslations() {
+  const map = T_MAP[currentLang] || T_MAP.fr;
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const key = el.getAttribute('data-t');
+    if (map[key]) el.textContent = map[key];
+  });
+}
+
+/* ══ REG NUMBERS ════════════════════════════════════════ */
+const REG_NUMBERS = {
+  fr:{label:'SIRET',placeholder:'123 456 789 00012',hint:'Système d\'identification du répertoire des établissements'},
+  de:{label:'Steuernummer / HRB',placeholder:'12/345/67890',hint:'Steuernummer (fiscal) + Handelsregisternummer (registre)'},
+  es:{label:'NIF',placeholder:'A12345678',hint:'Número de Identificación Fiscal'},
+  it:{label:'Partita IVA',placeholder:'IT 12345678901',hint:'Partita IVA (+ Codice Fiscale pour personnes physiques)'},
+  be:{label:'KBO / BCE',placeholder:'0123.456.789',hint:'Kruispuntbank van Ondernemingen / Banque-Carrefour des Entreprises'},
+  nl:{label:'KVK-nummer',placeholder:'12345678',hint:'Kamer van Koophandel — Handelsregister'},
+  pl:{label:'NIP + REGON',placeholder:'1234567890',hint:'Numer Identyfikacji Podatkowej + numer statystyczny'},
+  at:{label:'UID / Steuernummer',placeholder:'ATU12345678',hint:'Umsatzsteuer-Identifikationsnummer (Österreich)'},
+  ch:{label:'UID',placeholder:'CHE-123.456.789',hint:'Unternehmens-Identifikationsnummer (Schweiz)'},
+  pt:{label:'NIF / NIPC',placeholder:'123456789',hint:'Número de Identificação Fiscal (Pessoa Coletiva)'},
+  se:{label:'Organisationsnummer',placeholder:'556123-4567',hint:'Organisationsnummer (10 siffror, Luhn-algoritm)'},
+  no:{label:'Organisasjonsnummer',placeholder:'123456789',hint:'Foretaksregisteret — 9 sifre'},
+  dk:{label:'CVR-nummer',placeholder:'12345678',hint:'Det Centrale Virksomhedsregister (8 cifre)'},
+  fi:{label:'Y-tunnus',placeholder:'1234567-8',hint:'Yritys- ja yhteisötunnus (8 merkkiä)'},
+  cz:{label:'IČO',placeholder:'12345678',hint:'Identifikační číslo osoby'},
+  sk:{label:'IČO',placeholder:'12345678',hint:'Identifikačné číslo organizácie'},
+  hu:{label:'Adószám',placeholder:'12345678-1-01',hint:'Adószám (11 számjegy, 3 részben)'},
+  ro:{label:'CUI',placeholder:'RO12345678',hint:'Codul Unic de Înregistrare (Registrul Comerțului)'},
+  bg:{label:'ЕИК / UIC',placeholder:'123456789',hint:'Единен Идентификационен Код'},
+  hr:{label:'OIB',placeholder:'12345678901',hint:'Osobni Identifikacijski Broj (11 znamenki)'},
+  si:{label:'Davčna številka',placeholder:'12345678',hint:'Davčna številka (FURS — 8 mest)'},
+  gr:{label:'ΑΦΜ (AFM)',placeholder:'123456789',hint:'Αριθμός Φορολογικού Μητρώου (9 ψηφία)'},
+};
+
+function updateRegField(country) {
+  const rn = REG_NUMBERS[country] || REG_NUMBERS.fr;
+  // reg2 screen
+  const lbl = document.getElementById('reg-num-label');
+  const inp = document.getElementById('reg-num-input');
+  const hint = document.getElementById('reg-hint');
+  if (lbl) lbl.textContent = rn.label;
+  if (inp) { inp.placeholder = rn.placeholder; inp.value = ''; }
+  if (hint) hint.textContent = rn.hint;
+  // status cards
+  const sc0 = document.getElementById('stcard0');
+  const sc1 = document.getElementById('stcard1');
+  const sc2 = document.getElementById('stcard2');
+  if (sc0) sc0.textContent = rn.label + ' + docs complets';
+  if (sc1) sc1.textContent = rn.label + ' simplifié';
+  if (sc2) sc2.textContent = 'Sans ' + rn.label + ' requis';
+  // all [data-reg-label] elements
+  document.querySelectorAll('[data-reg-label]').forEach(el => el.textContent = rn.label);
+  // drawer-legal
+  const elbl = document.getElementById('e-regnumlabel');
+  if (elbl) elbl.textContent = rn.label;
+}
+
+/* ══ DOC UPLOAD DEMO ════════════════════════════════════ */
+function uploadDoc(el, msg) {
+  el.classList.add('ok');
+  const stat = el.querySelector('.dstat');
+  if (stat) { stat.textContent = '✓ OK'; stat.className = 'dstat ds-ok'; }
+  T(msg);
+}
+
+/* ══ SKILL TOGGLE ═══════════════════════════════════════ */
+function tSkill(el) { el.classList.toggle('on'); }
+
+/* ══ FILTER PILLS ═══════════════════════════════════════ */
+function tFpill(el, screenId) {
+  const container = el.closest('.fpills') || el.parentElement;
+  container.querySelectorAll('.fpill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+/* ══ SEARCH / FILTER ════════════════════════════════════ */
+function filterMissions(q) {
+  const list = document.getElementById('missions-list');
+  if (!list) return;
+  const cards = list.querySelectorAll('.mc');
+  cards.forEach(c => {
+    const text = c.textContent.toLowerCase();
+    c.style.display = (!q || text.includes(q.toLowerCase())) ? '' : 'none';
+  });
+}
+function filterCatalog(q) {
+  const list = document.getElementById('catalog-list');
+  if (!list) return;
+  const cards = list.querySelectorAll('.mcard');
+  cards.forEach(c => {
+    const text = c.textContent.toLowerCase();
+    c.style.display = (!q || text.includes(q.toLowerCase())) ? '' : 'none';
+  });
+}
+
+/* ══ REG FINISH ══════════════════════════════════════════ */
+function finishReg() {
+  const city = document.getElementById('reg-city')?.value || 'Paris';
+  const radius = document.getElementById('reg-radius')?.value || '25 km';
+  const pzone = document.getElementById('p-zonerow');
+  if (pzone) pzone.textContent = city + ' · ' + radius + ' · 🇫🇷 France';
+  go('m-regsuc');
+}
+
+/* ══ DRAWERS ════════════════════════════════════════════ */
+function openDrawer(id) {
+  closeAllDrawers(false);
+  const d = document.getElementById(id);
+  const o = document.getElementById('overlay');
+  if (d) d.classList.add('show');
+  if (o) o.classList.add('show');
+}
+function closeAllDrawers(hideOverlay = true) {
+  document.querySelectorAll('.drawer').forEach(d => d.classList.remove('show'));
+  if (hideOverlay) {
+    const o = document.getElementById('overlay');
+    if (o) o.classList.remove('show');
+  }
+}
+
+/* ══ SAVE FUNCTIONS ═════════════════════════════════════ */
+function saveInfo() {
+  const name = document.getElementById('e-name')?.value || '';
+  const phone = document.getElementById('e-phone')?.value || '';
+  const email = document.getElementById('e-email')?.value || '';
+  const pnm = document.getElementById('pnm');
+  const hname = document.getElementById('h-name');
+  const pname = document.getElementById('p-namerow');
+  const pcontact = document.getElementById('p-contactrow');
+  if (pnm) pnm.textContent = name;
+  if (hname) hname.textContent = name;
+  if (pname) pname.textContent = name;
+  if (pcontact) pcontact.textContent = phone + ' · ' + email;
+  closeAllDrawers();
+  T('✅ Profil mis à jour');
+}
+
+function saveBio() {
+  const bio = document.getElementById('e-bio')?.value || '';
+  const pbio = document.getElementById('p-biorow');
+  if (pbio) pbio.textContent = bio.substring(0, 60) + (bio.length > 60 ? '...' : '');
+  closeAllDrawers();
+  T('✅ Description mise à jour');
+}
+
+function saveSkills() {
+  const chips = document.querySelectorAll('#drawer-schips .schip.on');
+  const skills = Array.from(chips).map(c => c.textContent.trim()).join(' · ');
+  const pskills = document.getElementById('p-skillsrow');
+  if (pskills) pskills.textContent = skills || 'Aucune compétence sélectionnée';
+  closeAllDrawers();
+  T('✅ Compétences mises à jour');
+}
+
+function saveZone() {
+  const city = document.getElementById('e-city')?.value || '';
+  const radius = document.getElementById('e-radius')?.value || '25 km';
+  const country = document.getElementById('e-country')?.value || 'fr';
+  const flags = {fr:'🇫🇷',de:'🇩🇪',es:'🇪🇸',it:'🇮🇹',be:'🇧🇪',nl:'🇳🇱',pl:'🇵🇱'};
+  const flag = flags[country] || '🏳️';
+  const pzone = document.getElementById('p-zonerow');
+  const prole = document.getElementById('prole');
+  if (pzone) pzone.textContent = city + ' · ' + radius + ' · ' + flag;
+  closeAllDrawers();
+  T('✅ Zone mise à jour');
+}
+
+function savePrices() {
+  const rate = document.getElementById('e-rate')?.value || '45';
+  const travel = document.getElementById('e-travel')?.value || '20';
+  const pprice = document.getElementById('p-pricerow');
+  if (pprice) pprice.textContent = rate + '€/h · Déplacement ' + travel + '€';
+  closeAllDrawers();
+  T('✅ Tarifs mis à jour');
+}
+
+function saveLegal() {
+  const lbl = document.getElementById('e-regnumlabel')?.textContent || 'SIRET';
+  const num = document.getElementById('e-regnum')?.value || '';
+  const plegal = document.getElementById('p-legalrow');
+  const preg = document.getElementById('p-regrow');
+  if (plegal) plegal.textContent = 'Entreprise · France 🇫🇷';
+  if (preg) preg.textContent = lbl + ' ' + num;
+  closeAllDrawers();
+  T('✅ Statut juridique mis à jour');
+}
+
+/* ══ ADMIN TAP ══════════════════════════════════════════ */
+let logoTaps = 0, logoTimer;
+document.addEventListener('DOMContentLoaded', () => {
+  const logoTap = document.getElementById('logo-tap');
+  if (logoTap) {
+    logoTap.addEventListener('click', () => {
+      logoTaps++;
+      clearTimeout(logoTimer);
+      if (logoTaps >= 5) { logoTaps = 0; go('a-home'); T('🔐 Mode admin'); return; }
+      logoTimer = setTimeout(() => logoTaps = 0, 1200);
+    });
+  }
+  // init
+  updateRegField('fr');
+  applyTranslations();
+});
+</script>
+</body>
+</html>
