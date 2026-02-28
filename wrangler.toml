@@ -1,0 +1,46 @@
+# ═══════════════════════════════════════════════════════════════
+# wrangler.toml — MasterHub EU Worker Config
+# ═══════════════════════════════════════════════════════════════
+
+name = "slavyanskiy-shkaf-worker"
+main = "worker/worker.js"
+compatibility_date = "2024-01-01"
+
+# ── Cron расписание статистики ───────────────────────────────────
+[triggers]
+crons = [
+  "0 9 * * *",    # Каждый день в 09:00 → дневная статистика (за вчера)
+  "0 9 * * 1",    # Каждый понедельник в 09:00 → недельная
+  "0 9 1 * *",    # 1-е число месяца в 09:00 → месячная
+  "0 9 1 1 *"     # 1 января в 09:00 → годовая
+]
+
+# ── KV хранилище для счётчиков статистики ───────────────────────
+[[kv_namespaces]]
+binding = "STATS_KV"
+id = "СЮДА_ВСТАВИТЬ_KV_ID"
+preview_id = "СЮДА_ВСТАВИТЬ_KV_PREVIEW_ID"
+
+[vars]
+APP_NAME    = "Славянский шкаф"
+APP_VERSION = "3.0"
+TIMEZONE    = "Europe/Paris"
+
+# СЕКРЕТЫ — добавлять только через Cloudflare Dashboard!
+# Workers & Pages → slavyanskiy-shkaf-worker → Settings → Variables → Add (тип Secret)
+#
+# БОТ КАТАЛОГА (masterhub_catalog_bot):
+#   APP_BOT_TOKEN      → токен от @BotFather
+#   APP_CHANNEL_ID     → ID канала для новых заявок (опционально)
+#
+# БОТ АДМИНКИ (masterhub_admin_bot):
+#   ADMIN_BOT_TOKEN    → токен от @BotFather
+#   ADMIN_GROUP_ID     → ID форум-группы (-100...)
+#   TOPIC_MASTERS_ID   → топик "📋 Регистрации мастеров"
+#   TOPIC_CLIENTS_ID   → топик "🏠 Регистрации клиентов"
+#   TOPIC_ORDERS_ID    → топик "🔧 Заявки и услуги"
+#   TOPIC_STATS_ID     → топик "📊 Статистика"
+#   TOPIC_CHATS_ID     → топик "💬 Новые чаты"
+#   TOPIC_REVIEWS_ID   → топик "⭐ Отзывы"
+#   TOPIC_PAYMENTS_ID  → топик "💳 Платежи"
+#   TOPIC_COMPLAINTS_ID→ топик "🚨 Жалобы"
