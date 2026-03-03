@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slavic Shkaf — Проверенные мастера · 22 страны EU</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ── HERO ─────────────────────────────────────────────────── */
+.hero{padding:110px 5% 90px;text-align:center;position:relative;overflow:hidden;min-height:90vh;display:flex;align-items:center}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 55% 40% at 25% 30%,rgba(0,214,143,.07) 0%,transparent 65%),radial-gradient(ellipse 50% 35% at 75% 65%,rgba(124,111,255,.07) 0%,transparent 65%)}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:60px 60px;-webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 0%,transparent 100%);mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 0%,transparent 100%)}
+.hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto;width:100%}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--bdr2);border-radius:50px;padding:7px 16px;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:32px;text-transform:uppercase;letter-spacing:.4px;animation:fup .5s ease both}
+.pill-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,78px);font-weight:900;line-height:1.04;letter-spacing:-.04em;color:#fff;margin-bottom:22px;animation:fup .6s .07s ease both}
+.hero h1 .g{color:var(--g)}.hero h1 .d{color:var(--ink3)}
+.hero-sub{font-size:clamp(15px,1.8vw,18px);color:var(--ink3);max-width:540px;margin:0 auto 48px;line-height:1.7;font-weight:500;animation:fup .6s .14s ease both}
+.hero-roles{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:68px;animation:fup .6s .2s ease both}
+.hero-role{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:20px 26px;border-radius:16px;border:1.5px solid var(--bdr2);background:var(--bg2);cursor:pointer;transition:.2s;min-width:210px;text-decoration:none}
+.hero-role:hover{border-color:var(--g);background:var(--gl);transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,214,143,.1)}
+.hero-role.cl:hover{border-color:var(--acc);background:var(--accl);box-shadow:0 14px 40px rgba(124,111,255,.1)}
+.hr-top{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;color:#fff}
+.hr-ico{font-size:20px}.hr-arr{margin-left:auto;color:var(--ink4);transition:.15s;font-size:18px}
+.hero-role:hover .hr-arr{color:var(--g);transform:translateX(3px)}.hero-role.cl:hover .hr-arr{color:var(--acc)}
+.hr-sub{font-size:12px;color:var(--ink3);padding-left:30px}
+.hero-stats{display:flex;justify-content:center;background:var(--bg2);border:1px solid var(--bdr);border-radius:18px;overflow:hidden;max-width:620px;margin:0 auto;animation:fup .6s .28s ease both;flex-wrap:wrap}
+.hst{padding:22px 0;flex:1;text-align:center;border-right:1px solid var(--bdr);min-width:100px}
+.hst:last-child{border-right:none}
+.hst-v{font-family:'Syne',sans-serif;font-size:24px;font-weight:900;color:#fff;letter-spacing:-.02em}
+.hst-v em{color:var(--g);font-style:normal}
+.hst-l{font-size:10px;color:var(--ink3);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+@keyframes fup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* CATS */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-top:40px}
+.cat-card{padding:22px 14px;border-radius:14px;text-align:center;background:var(--bg3);border:1px solid var(--bdr);cursor:pointer;transition:.18s;display:block}
+.cat-card:hover{border-color:var(--g);transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,214,143,.07)}
+.cat-ico{font-size:28px;margin-bottom:8px}.cat-nm{font-size:13px;font-weight:700;color:#fff}
+.cat-n{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:600}
+
+/* HOW */
+.hiw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;margin-top:48px;border:1px solid var(--bdr);border-radius:18px;overflow:hidden}
+.hiw-step{padding:36px 30px;background:var(--bg);border-right:1px solid var(--bdr);transition:.2s}
+.hiw-step:last-child{border-right:none}.hiw-step:hover{background:rgba(0,214,143,.025)}
+.step-n{width:42px;height:42px;border-radius:11px;background:var(--gl);border:1px solid rgba(0,214,143,.2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:17px;font-weight:900;color:var(--g);margin-bottom:18px}
+.step-ico{font-size:26px;margin-bottom:12px}.step-t{font-size:16px;font-weight:800;color:#fff;margin-bottom:8px}
+.step-p{font-size:13px;color:var(--ink3);line-height:1.7;font-weight:500}
+
+/* VERIF */
+.vlvls{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:48px}
+.vlvl{padding:32px;border-radius:18px;background:var(--bg2);border:1px solid var(--bdr);transition:.2s;position:relative;overflow:hidden}
+.vlvl::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent}
+.vlvl:hover{transform:translateY(-3px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.vlvl.ft{background:linear-gradient(155deg,rgba(0,214,143,.08) 0%,var(--bg2) 100%);border-color:rgba(0,214,143,.22)}
+.vlvl.ft::before{background:linear-gradient(90deg,var(--g),var(--acc))}
+.vl-ico{font-size:32px;margin-bottom:16px}.vl-lv{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px}
+.vlvl.ft .vl-lv{color:var(--g)}
+.vl-t{font-family:'Syne',sans-serif;font-size:20px;font-weight:900;color:#fff;margin-bottom:16px}
+.vl-docs{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
+.vld{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink3);font-weight:500}
+.vld .ck{color:var(--g);font-weight:900;font-size:11px;width:16px;flex-shrink:0}
+.vl-bon{display:inline-flex;padding:8px 14px;border-radius:50px;background:var(--gl);border:1px solid rgba(0,214,143,.15);font-size:12px;font-weight:800;color:var(--g)}
+
+/* FLAGS */
+.flags-sec{background:var(--bg2);border-top:1px solid var(--bdr);padding:60px 5%;text-align:center}
+.flags-t{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink3);margin-bottom:22px}
+.flags-wrap{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:920px;margin:0 auto}
+.fl-chip{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:50px;background:var(--bg3);border:1px solid var(--bdr);font-size:13px;color:var(--ink3);font-weight:600;transition:.15s;cursor:pointer}
+.fl-chip:hover{border-color:var(--g);color:#fff}
+
+/* CTA */
+.cta-sec{background:var(--bg);border-top:1px solid var(--bdr);padding:80px 5%;position:relative;overflow:hidden}
+.cta-sec::before{content:'';position:absolute;top:-20%;left:-5%;width:50%;height:130%;background:radial-gradient(ellipse,rgba(0,214,143,.05) 0%,transparent 65%);pointer-events:none}
+.cta-sec::after{content:'';position:absolute;bottom:-20%;right:-5%;width:45%;height:120%;background:radial-gradient(ellipse,rgba(124,111,255,.06) 0%,transparent 65%);pointer-events:none}
+.cta-in{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;position:relative;z-index:1}
+.cta-feats{display:flex;flex-direction:column;gap:12px;margin-top:32px}
+.cta-feat{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-radius:12px;background:var(--bg2);border:1px solid var(--bdr);transition:.15s}
+.cta-feat:hover{border-color:var(--bdr2)}
+.cf-ico{width:34px;height:34px;border-radius:9px;background:var(--gl);border:1px solid rgba(0,214,143,.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cf-t{font-size:13px;font-weight:800;color:#fff;margin-bottom:2px}.cf-p{font-size:12px;color:var(--ink3);line-height:1.55;font-weight:500}
+.cta-card{background:var(--bg2);border-radius:22px;padding:32px;border:1px solid var(--bdr);box-shadow:0 28px 70px rgba(0,0,0,.4)}
+.cta-card-t{font-family:'Syne',sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;letter-spacing:-.02em}
+.cta-card-s{font-size:12px;color:var(--ink3);margin-bottom:22px;font-weight:600}
+.role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.role-tab{padding:14px;border-radius:12px;border:1.5px solid var(--bdr);background:var(--bg3);cursor:pointer;text-align:center;transition:.2s}
+.role-tab:hover{border-color:var(--bdr2)}.role-tab.on{border-color:var(--g);background:var(--gl)}
+.role-tab.on.cl{border-color:var(--acc);background:var(--accl)}
+.rt-ico{font-size:22px;margin-bottom:5px}.rt-t{font-size:13px;font-weight:800;color:#fff}.rt-s{font-size:11px;color:var(--ink3);margin-top:2px}
+
+@media(max-width:1024px){.cta-in{grid-template-columns:1fr;gap:40px}}
+@media(max-width:640px){
+  .hero-roles{flex-direction:column}
+  .hst{border-right:none;border-bottom:1px solid var(--bdr);padding:16px 0}
+  .hst:last-child{border-bottom:none}
+  .hiw-grid{grid-template-columns:1fr}
+  .hiw-step{border-right:none;border-bottom:1px solid var(--bdr)}
+  .hiw-step:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <img src="logo.png" alt="Slavic Shkaf" class="nav-logo-img">
+  </a>
+  <ul class="nav-links">
+    <li><a href="catalog.html" data-page="catalog">Каталог</a></li>
+    <li><a href="#how">Как работает</a></li>
+    <li><a href="#verif">Верификация</a></li>
+    <li><a href="#cats">Категории</a></li>
+  </ul>
+  <div id="nav-r"></div>
+  <button class="nav-burger" id="nav-burger"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mob" id="nav-mob">
+  <a href="catalog.html">📋 Каталог</a>
+  <a href="#how" onclick="document.getElementById('nav-mob').classList.remove('open')">❓ Как работает</a>
+  <a href="#verif" onclick="document.getElementById('nav-mob').classList.remove('open')">🛡️ Верификация</a>
+  <div id="nav-mob-auth"></div>
+</div>
+
+<!-- HERO -->
+<section class="hero pt">
+  <div class="hero-bg"></div><div class="hero-grid"></div>
+  <div class="hero-in">
+    <div class="hero-pill"><div class="pill-dot"></div>342 мастера · 22 страны Европы</div>
+    <h1>Платформа<br><span class="g">проверенных мастеров</span><br><span class="d">по всей Европе</span></h1>
+    <p class="hero-sub">Лицензия · Страховка · Гарантия — каждый мастер проверен администраторами. Никаких сюрпризов.</p>
+    <div class="hero-roles">
+      <a href="register.html?role=master" class="hero-role">
+        <div class="hr-top"><span class="hr-ico">🔧</span>Я мастер<span class="hr-arr">→</span></div>
+        <div class="hr-sub">Получайте заказы по всей Европе</div>
+      </a>
+      <a href="catalog.html" class="hero-role cl">
+        <div class="hr-top"><span class="hr-ico">🏠</span>Ищу мастера<span class="hr-arr">→</span></div>
+        <div class="hr-sub">Сравните проверенные профили</div>
+      </a>
+    </div>
+    <div class="hero-stats" id="hero-stats"></div>
+  </div>
+</section>
+
+<!-- MASTERS PREVIEW -->
+<section class="section" style="background:var(--bg2);border-top:1px solid var(--bdr)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div><div class="slbl">Каталог</div><h2 class="sh2">Мастера <span class="g">онлайн сейчас</span></h2></div>
+      <a href="catalog.html" class="see-all">Смотреть всех →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px" id="masters-grid"></div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section" style="background:var(--bg3);border-top:1px solid var(--bdr)" id="cats">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div><div class="slbl">Специальности</div><h2 class="sh2">Все <span class="g">категории</span></h2></div>
+      <a href="catalog.html" class="see-all">Весь каталог →</a>
+    </div>
+    <div class="cat-grid" id="cats-grid"></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="rv">
+      <div class="slbl">Процесс</div>
+      <h2 class="sh2">Готов к работе за <span class="g">3 шага</span></h2>
+      <p class="sp">От регистрации до первого заказа — просто и прозрачно.</p>
+    </div>
+    <div class="hiw-grid" id="how-grid"></div>
+  </div>
+</section>
+
+<!-- VERIFICATION -->
+<section class="section" style="background:var(--bg2);border-top:1px solid var(--bdr)" id="verif">
+  <div class="wrap">
+    <div class="rv">
+      <div class="slbl">Верификация</div>
+      <h2 class="sh2">3 уровня <span class="g">доверия</span></h2>
+      <p class="sp">Чем выше уровень — тем вы заметнее и тем больше заказов получаете.</p>
+    </div>
+    <div class="vlvls" id="verif-grid"></div>
+  </div>
+</section>
+
+<!-- COUNTRIES -->
+<div class="flags-sec rv">
+  <div class="flags-t">22 страны Европы — одна платформа</div>
+  <div class="flags-wrap" id="flags-wrap"></div>
+</div>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="cta-in">
+    <div class="rv">
+      <div class="slbl">Начать</div>
+      <h2 class="sh2">Присоединяйтесь к <span class="g">342 мастерам</span> уже работающим</h2>
+      <div class="cta-feats" id="cta-feats"></div>
+    </div>
+    <div class="cta-card rv" style="transition-delay:.12s">
+      <div class="cta-card-t">Создать аккаунт</div>
+      <div class="cta-card-s">Бесплатно · Верификация 24ч · 22 страны</div>
+      <div class="role-tabs">
+        <div class="role-tab on"  id="rt-m" onclick="selRole('master')"><div class="rt-ico">🔧</div><div class="rt-t">Мастер</div><div class="rt-s">Получаю заказы</div></div>
+        <div class="role-tab cl"  id="rt-c" onclick="selRole('client')"><div class="rt-ico">🏠</div><div class="rt-t">Заказчик</div><div class="rt-s">Ищу специалиста</div></div>
+      </div>
+      <div class="form-row" style="margin-bottom:10px">
+        <input class="fi" type="text"  id="c-fn" placeholder="Имя">
+        <input class="fi" type="text"  id="c-ln" placeholder="Фамилия">
+      </div>
+      <input class="fi" type="email" id="c-em" placeholder="Email" style="margin-bottom:10px">
+      <input class="fi" type="tel"   id="c-ph" placeholder="Телефон" style="margin-bottom:14px">
+      <button class="btn btn-p btn-fw" id="cta-btn" onclick="doCtaReg()">Создать аккаунт →</button>
+      <div class="or-div">или</div>
+      <a href="https://t.me/slavyanskiy_shkaf_bot?start=web" target="_blank" class="btn btn-tg btn-fw" style="display:flex">✈️ Продолжить через Telegram</a>
+      <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:12px;font-weight:600">Telegram необязателен — только для уведомлений</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-grid">
+    <div>
+      <div class="f-logo"><img src="logo.png" alt="Slavic Shkaf" class="f-logo-img"></div>
+      <p class="f-desc">Проверенные мастера в 22 странах EU.<br>Лицензия · Страховка · Гарантия.</p>
+    </div>
+    <div class="f-col"><h4>Мастерам</h4><a href="register.html?role=master">Регистрация</a><a href="#verif">Верификация</a><a href="catalog.html">Каталог</a></div>
+    <div class="f-col"><h4>Заказчикам</h4><a href="catalog.html">Найти мастера</a><a href="order.html">Создать заявку</a><a href="#how">Как работает</a></div>
+    <div class="f-col"><h4>Контакты</h4><a href="https://t.me/slavyanskiy_shkaf_bot" target="_blank">✈️ Telegram</a><a href="mailto:support@slavic-shkaf.eu">📧 Email</a></div>
+  </div>
+  <div class="f-bot"><span>© 2025 Slavic Shkaf</span><span>22 страны · EU</span></div>
+</footer>
+
+<script src="data.js"></script>
+<script src="utils.js"></script>
+<script>
+function renderPage() {
+  // Hero stats (from data.js SITE_STATS)
+  document.getElementById('hero-stats').innerHTML =
+    SITE_STATS.map(s=>`<div class="hst"><div class="hst-v">${s.v}<em>${s.em}</em></div><div class="hst-l">${s.l}</div></div>`).join('');
+
+  // Masters (online first, max 4)
+  document.getElementById('masters-grid').innerHTML =
+    MASTERS.filter(m=>m.online).slice(0,4).map(m=>masterCardHTML(m)).join('');
+
+  // Categories from data.js SK
+  document.getElementById('cats-grid').innerHTML =
+    SK.map(s=>`<a class="cat-card rv" href="catalog.html?cat=${s.id}"><div class="cat-ico">${s.i}</div><div class="cat-nm">${s.ru}</div><div class="cat-n">${s.n} мастеров</div></a>`).join('');
+
+  // How steps from data.js HOW_STEPS
+  document.getElementById('how-grid').innerHTML =
+    HOW_STEPS.map((s,i)=>`<div class="hiw-step rv" style="transition-delay:${i*.1}s"><div class="step-n">${s.n}</div><div class="step-ico">${s.ico}</div><div class="step-t">${s.t}</div><div class="step-p">${s.p}</div></div>`).join('');
+
+  // Verif levels from data.js VERIF_LEVELS
+  document.getElementById('verif-grid').innerHTML =
+    VERIF_LEVELS.map((v,i)=>`<div class="vlvl${v.featured?' ft':''} rv" style="transition-delay:${i*.1}s"><div class="vl-ico">${v.ico}</div><div class="vl-lv">${v.lvl}</div><div class="vl-t">${v.t}</div><div class="vl-docs">${v.docs.map(d=>`<div class="vld"><span class="ck">✓</span>${d}</div>`).join('')}</div><div class="vl-bon">${v.bonus}</div></div>`).join('');
+
+  // Countries from data.js CO
+  document.getElementById('flags-wrap').innerHTML =
+    CO.map(c=>`<a class="fl-chip" href="catalog.html?country=${encodeURIComponent(c.ru)}">${c.f} ${c.ru}</a>`).join('');
+
+  // CTA features from data.js FEATURES
+  document.getElementById('cta-feats').innerHTML =
+    FEATURES.map(f=>`<div class="cta-feat"><div class="cf-ico">${f.ico}</div><div><div class="cf-t">${f.t}</div><div class="cf-p">${f.p}</div></div></div>`).join('');
+}
+
+let ctaRole='master';
+function selRole(r){
+  ctaRole=r;
+  document.getElementById('rt-m').classList.toggle('on',r==='master');
+  document.getElementById('rt-c').classList.toggle('on',r==='client');
+}
+function doCtaReg(){
+  const fn=document.getElementById('c-fn').value.trim();
+  const em=document.getElementById('c-em').value.trim();
+  if(!fn||!em){toast('Заполните имя и email','err');return;}
+  const btn=document.getElementById('cta-btn');
+  btn.disabled=true;btn.textContent='⏳ Создаём...';
+  setTimeout(()=>{
+    setUser({name:fn,role:ctaRole,email:em});
+    toast(`Аккаунт создан! Добро пожаловать, ${fn} 🎉`);
+    setTimeout(()=>window.location.href=ctaRole==='master'?'dashboard.html':'client.html',800);
+  },1200);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initNav('home');
+  renderPage();
+  initReveal();
+  // Mobile auth
+  const u=getUser();const mob=document.getElementById('nav-mob-auth');
+  if(u){const d=u.role==='master'?'dashboard.html':'client.html';mob.innerHTML=`<a href="${d}">👤 Мой кабинет</a><a href="#" onclick="doLogout()">🚪 Выйти</a>`;}
+  else{mob.innerHTML=`<a href="login.html">👤 Войти</a><a href="register.html">✅ Регистрация</a>`;}
+});
+</script>
+</body>
+</html>
