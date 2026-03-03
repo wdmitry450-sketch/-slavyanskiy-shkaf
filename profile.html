@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slavic Shkaf — Профиль мастера</title>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   SLAVIC SHKAF — SHARED STYLES
+   Подключается на каждой странице
+═══════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:   #06090f;
+  --bg2:  #0d1117;
+  --bg3:  #131920;
+  --card: #1a222d;
+  --bdr:  rgba(255,255,255,.08);
+  --bdr2: rgba(255,255,255,.15);
+  --g:    #00d68f;
+  --g2:   #00a96e;
+  --gl:   rgba(0,214,143,.10);
+  --gb:   rgba(0,214,143,.18);
+  --acc:  #7c6fff;
+  --accl: rgba(124,111,255,.12);
+  --ink:  #fff;
+  --ink2: rgba(255,255,255,.72);
+  --ink3: rgba(255,255,255,.42);
+  --ink4: rgba(255,255,255,.16);
+  --red:  #ff4d4f;
+  --yel:  #ffc53d;
+}
+
+html  { scroll-behavior: smooth; }
+body  { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--ink);
+        overflow-x: hidden; -webkit-font-smoothing: antialiased; line-height: 1.5; }
+a     { text-decoration: none; color: inherit; }
+button, input, select, textarea { font-family: inherit; font-size: inherit; }
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 3px; }
+
+/* ── NAV ──────────────────────────────────────────────────── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; padding: 0 5%; height: 68px; gap: 16px;
+  background: rgba(6,9,15,.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bdr);
+}
+
+/* Logo with real image */
+.nav-logo { display: flex; align-items: center; flex-shrink: 0; }
+.nav-logo-img {
+  height: 44px;   /* высота в шапке */
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.5));
+  transition: transform .2s, filter .2s;
+}
+.nav-logo:hover .nav-logo-img {
+  transform: scale(1.04);
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,.6));
+}
+
+.nav-links          { display: flex; gap: 2px; margin: 0 auto; list-style: none; }
+.nav-links a        { padding: 8px 14px; border-radius: 8px; font-size: 14px;
+                      font-weight: 600; color: var(--ink3); transition: .15s; }
+.nav-links a:hover,
+.nav-links a.active { color: #fff; background: rgba(255,255,255,.06); }
+
+#nav-r              { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.nav-btn-ghost      { padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 600;
+                      color: var(--ink2); border: 1px solid var(--bdr); background: transparent;
+                      cursor: pointer; transition: .15s; }
+.nav-btn-ghost:hover{ border-color: var(--bdr2); color: #fff; }
+.nav-btn-cta        { padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 800;
+                      background: var(--g); color: #000; border: none; cursor: pointer;
+                      transition: .15s; }
+.nav-btn-cta:hover  { background: var(--g2); }
+
+.nav-user-btn            { display: flex; align-items: center; gap: 9px; }
+.nav-ava                 { width: 34px; height: 34px; border-radius: 50%; background: var(--gl);
+                           border: 2px solid var(--g); display: flex; align-items: center;
+                           justify-content: center; font-size: 14px; font-weight: 900; color: var(--g); }
+.nav-uname               { font-size: 14px; font-weight: 700; color: #fff; transition: .15s; }
+.nav-user-btn:hover .nav-uname { color: var(--g); }
+
+.nav-burger      { display: none; flex-direction: column; gap: 5px; cursor: pointer;
+                   background: none; border: none; padding: 4px; margin-left: 4px; }
+.nav-burger span { width: 22px; height: 2px; background: #fff; border-radius: 2px; display: block; }
+
+.nav-mob       { display: none; position: fixed; inset: 68px 0 0;
+                 background: rgba(6,9,15,.98); backdrop-filter: blur(16px);
+                 border-top: 1px solid var(--bdr); padding: 20px 5%;
+                 flex-direction: column; gap: 4px; z-index: 199; overflow-y: auto; }
+.nav-mob.open  { display: flex; }
+.nav-mob a     { padding: 13px 14px; border-radius: 10px; font-size: 16px;
+                 font-weight: 600; color: var(--ink2); }
+.nav-mob a:hover { color: #fff; background: rgba(255,255,255,.06); }
+
+/* ── BUTTONS ──────────────────────────────────────────────── */
+.btn      { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; transition: .15s;
+            border: none; text-decoration: none; font-family: inherit; }
+.btn-p    { background: var(--g);  color: #000; padding: 13px 22px; font-size: 15px; font-weight: 800; }
+.btn-p:hover { background: var(--g2); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,214,143,.22); }
+.btn-p:disabled { opacity: .4; pointer-events: none; }
+.btn-o    { background: transparent; color: var(--ink2); padding: 10px 18px;
+            font-size: 14px; border: 1px solid var(--bdr2); }
+.btn-o:hover { border-color: var(--g); color: var(--g); }
+.btn-ghost{ background: rgba(255,255,255,.06); color: var(--ink2); padding: 10px 18px;
+            font-size: 14px; border: 1px solid var(--bdr); }
+.btn-ghost:hover { background: rgba(255,255,255,.1); color: #fff; }
+.btn-tg   { background: var(--bg3); color: var(--ink2); padding: 11px 18px;
+            font-size: 14px; border: 1px solid var(--bdr2); }
+.btn-tg:hover { border-color: #2AABEE; color: #2AABEE; }
+.btn-danger { background: rgba(255,77,79,.1); color: var(--red); padding: 10px 18px;
+              font-size: 14px; border: 1px solid rgba(255,77,79,.2); }
+.btn-danger:hover { background: rgba(255,77,79,.18); }
+.btn-sm  { padding: 7px 13px !important; font-size: 13px !important; border-radius: 8px !important; }
+.btn-lg  { padding: 15px 28px; font-size: 16px; border-radius: 12px; }
+.btn-fw  { width: 100%; }
+
+/* ── FORMS ────────────────────────────────────────────────── */
+.fg  { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.fl  { font-size: 11px; font-weight: 800; text-transform: uppercase;
+       letter-spacing: .7px; color: var(--ink3); }
+.fi  { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--bdr2);
+       background: var(--bg3); color: #fff; font-size: 14px; outline: none;
+       transition: .2s; width: 100%; }
+.fi:focus       { border-color: var(--g); box-shadow: 0 0 0 3px var(--gl); background: var(--bg2); }
+.fi::placeholder{ color: var(--ink3); }
+textarea.fi     { resize: vertical; min-height: 88px; }
+.form-row       { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.or-div         { display: flex; align-items: center; gap: 10px; margin: 16px 0;
+                  font-size: 11px; color: var(--ink3); font-weight: 800;
+                  text-transform: uppercase; letter-spacing: .6px; }
+.or-div::before,
+.or-div::after  { content: ''; flex: 1; height: 1px; background: var(--bdr); }
+
+/* ── BADGES ───────────────────────────────────────────────── */
+.badge       { display: inline-flex; align-items: center; gap: 4px;
+               padding: 4px 10px; border-radius: 50px; font-size: 11px;
+               font-weight: 800; white-space: nowrap; }
+.badge-g     { background: var(--gl);  color: var(--g);   border: 1px solid rgba(0,214,143,.2); }
+.badge-acc   { background: var(--accl);color: var(--acc);  border: 1px solid rgba(124,111,255,.2); }
+.badge-y     { background: rgba(255,197,61,.12); color: var(--yel); border: 1px solid rgba(255,197,61,.22); }
+.badge-r     { background: rgba(255,77,79,.1);   color: var(--red); border: 1px solid rgba(255,77,79,.16); }
+.badge-muted { background: rgba(255,255,255,.05); color: var(--ink3); border: 1px solid var(--bdr); }
+
+/* ── CARD ─────────────────────────────────────────────────── */
+.card      { background: var(--bg2); border-radius: 16px; border: 1px solid var(--bdr); transition: .2s; }
+.card-p    { padding: 24px; }
+.card:hover{ border-color: var(--bdr2); }
+.card-t    { font-size: 13px; font-weight: 800; text-transform: uppercase;
+             letter-spacing: .7px; color: var(--ink3); margin-bottom: 18px;
+             padding-bottom: 12px; border-bottom: 1px solid var(--bdr); }
+
+/* ── MASTER CARD ──────────────────────────────────────────── */
+.mcard     { display: block; border-radius: 16px; overflow: hidden; background: var(--bg2);
+             border: 1px solid var(--bdr); cursor: pointer; transition: .22s; }
+.mcard:hover { border-color: var(--g); transform: translateY(-4px);
+               box-shadow: 0 18px 50px rgba(0,214,143,.08); }
+.mcard-top   { height: 108px; position: relative;
+               background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+               display: flex; align-items: center; justify-content: center; }
+.mcard-ava   { font-size: 46px; }
+.mcard-online{ position: absolute; bottom: 10px; right: 10px; width: 10px; height: 10px;
+               border-radius: 50%; background: var(--g); border: 2px solid var(--bg2);
+               animation: onpulse 2s infinite; }
+@keyframes onpulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,214,143,.4); }
+  60%     { box-shadow: 0 0 0 5px rgba(0,214,143,0); }
+}
+.mcard-badge { position: absolute; top: 10px; right: 10px; }
+.mcard-body  { padding: 16px; }
+.mcard-name  { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+.mcard-city  { font-size: 12px; color: var(--ink3); margin-bottom: 10px; font-weight: 600; }
+.mcard-tags  { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+.mcard-tag   { padding: 3px 9px; border-radius: 6px; background: rgba(255,255,255,.05);
+               border: 1px solid var(--bdr); font-size: 11px; font-weight: 600; color: var(--ink3); }
+.mcard-foot  { display: flex; align-items: center; justify-content: space-between;
+               padding-top: 11px; border-top: 1px solid var(--bdr); }
+.mcard-rate  { font-size: 12px; color: var(--ink3); font-weight: 600; }
+.mcard-rate strong { color: #fff; }
+.mcard-price { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 900; color: var(--g); }
+.mcard-price span { font-size: 11px; color: var(--ink3); font-family: 'Manrope', sans-serif; font-weight: 500; }
+
+/* ── LAYOUT ───────────────────────────────────────────────── */
+.pt      { padding-top: 68px; }
+.section { padding: 80px 5%; }
+.wrap    { max-width: 1160px; margin: 0 auto; }
+.slbl    { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+           color: var(--g); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.slbl::after { content: ''; width: 30px; height: 1px; background: var(--g); }
+.sh2     { font-family: 'Syne', sans-serif; font-size: clamp(24px,3.5vw,42px); font-weight: 900;
+           letter-spacing: -.03em; line-height: 1.1; color: #fff; margin-bottom: 12px; }
+.sh2 .g  { color: var(--g); }
+.sp      { font-size: 15px; color: var(--ink3); line-height: 1.7; font-weight: 500; max-width: 500px; }
+.sec-head{ display: flex; align-items: flex-end; justify-content: space-between;
+           margin-bottom: 40px; flex-wrap: wrap; gap: 16px; }
+.see-all { font-size: 14px; font-weight: 700; color: var(--g); transition: .15s; }
+.see-all:hover { color: #fff; }
+
+/* ── DASHBOARD ────────────────────────────────────────────── */
+.dash-wrap { display: flex; min-height: calc(100vh - 68px); }
+.dash-side { width: 240px; background: var(--bg2); border-right: 1px solid var(--bdr);
+             padding: 20px 0; flex-shrink: 0; position: sticky; top: 68px;
+             height: calc(100vh - 68px); overflow-y: auto; }
+.dash-side-user   { padding: 0 16px 16px; border-bottom: 1px solid var(--bdr); margin-bottom: 8px; }
+.dash-side-ava    { width: 40px; height: 40px; border-radius: 11px; display: flex;
+                    align-items: center; justify-content: center; font-size: 20px; margin-bottom: 10px; }
+.dash-side-name   { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+.dash-side-role   { font-size: 11px; font-weight: 800; }
+.ds-item  { display: flex; align-items: center; gap: 11px; padding: 11px 20px;
+            font-size: 14px; font-weight: 600; color: var(--ink3);
+            cursor: pointer; transition: .15s; text-decoration: none; }
+.ds-item:hover  { color: #fff; background: rgba(255,255,255,.04); }
+.ds-item.active { color: var(--g); background: var(--gl); }
+.ds-ico   { font-size: 17px; width: 22px; text-align: center; flex-shrink: 0; }
+.ds-sep   { height: 1px; background: var(--bdr); margin: 10px 14px; }
+.dash-main{ flex: 1; padding: 32px; background: var(--bg); min-width: 0; }
+.tab-panel        { display: none; }
+.tab-panel.active { display: block; }
+.d-head   { display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
+.d-title  { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 900;
+            color: #fff; letter-spacing: -.02em; }
+
+/* ── STAT CARDS ───────────────────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
+              gap: 14px; margin-bottom: 24px; }
+.s-card { background: var(--bg2); border-radius: 14px; padding: 20px; border: 1px solid var(--bdr); }
+.s-ico  { font-size: 22px; margin-bottom: 10px; }
+.s-val  { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 900;
+          color: #fff; line-height: 1; letter-spacing: -.02em; }
+.s-val em   { color: var(--g); font-style: normal; }
+.s-lbl      { font-size: 12px; color: var(--ink3); font-weight: 700; margin-top: 5px; }
+.s-delta    { font-size: 11px; font-weight: 800; margin-top: 6px; }
+.up { color: #52c41a; } .dn { color: var(--red); }
+
+/* ── TABLE ────────────────────────────────────────────────── */
+.tbl-wrap{ overflow-x: auto; }
+.tbl     { width: 100%; border-collapse: collapse; }
+.tbl th  { padding: 10px 14px; font-size: 11px; font-weight: 800; text-transform: uppercase;
+           letter-spacing: .7px; color: var(--ink3); border-bottom: 1px solid var(--bdr);
+           text-align: left; white-space: nowrap; }
+.tbl td  { padding: 13px 14px; font-size: 13px; color: var(--ink2);
+           border-bottom: 1px solid var(--bdr); vertical-align: middle; }
+.tbl tr:hover td      { background: rgba(255,255,255,.015); }
+.tbl tr:last-child td { border-bottom: none; }
+
+/* ── VERIFICATION TRACK ───────────────────────────────────── */
+.vt-item      { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--bdr); }
+.vt-item:last-child { border-bottom: none; }
+.vt-left      { display: flex; flex-direction: column; align-items: center;
+                width: 20px; flex-shrink: 0; margin-top: 3px; }
+.vt-dot       { width: 14px; height: 14px; border-radius: 50%; background: var(--bdr2); flex-shrink: 0; }
+.vt-dot.done  { background: var(--g); }
+.vt-dot.pend  { background: var(--yel); animation: vpulse 1.5s infinite; }
+@keyframes vpulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+.vt-line      { width: 2px; flex: 1; min-height: 16px; background: var(--bdr); margin-top: 3px; }
+.vt-t         { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+.vt-p         { font-size: 12px; color: var(--ink3); }
+
+/* ── BAR CHART ────────────────────────────────────────────── */
+.bar-row   { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.bar-lbl   { font-size: 13px; color: var(--ink3); font-weight: 600; width: 120px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 4px; transition: .8s ease; }
+.bar-pct   { font-size: 12px; font-weight: 800; color: #fff; width: 36px;
+             text-align: right; flex-shrink: 0; }
+
+/* ── REVEAL ───────────────────────────────────────────────── */
+.rv     { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+.rv.vis { opacity: 1; transform: translateY(0); }
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+footer  { background: var(--bg); border-top: 1px solid var(--bdr); padding: 52px 5% 28px; }
+.f-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+          max-width: 1160px; margin: 0 auto 36px; }
+.f-logo { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 900; color: #fff;
+          display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.f-logo-img { height: 36px; width: auto; object-fit: contain;
+              filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
+.f-desc { font-size: 13px; color: var(--ink3); line-height: 1.65; max-width: 185px; font-weight: 500; }
+.f-col h4   { font-size: 10px; font-weight: 800; color: var(--ink4); text-transform: uppercase;
+              letter-spacing: 1px; margin-bottom: 14px; }
+.f-col a    { display: block; font-size: 13px; color: var(--ink3); margin-bottom: 9px;
+              transition: .15s; font-weight: 500; }
+.f-col a:hover { color: #fff; }
+.f-bot  { max-width: 1160px; margin: 0 auto; display: flex; justify-content: space-between;
+          padding-top: 20px; border-top: 1px solid var(--bdr); font-size: 11px;
+          color: var(--ink3); font-weight: 600; flex-wrap: wrap; gap: 8px; }
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .nav-links, .nav-btn-ghost, .nav-btn-cta { display: none; }
+  .nav-burger { display: flex !important; }
+  .dash-side  { display: none; }
+  .dash-wrap  { flex-direction: column; }
+  .dash-main  { padding: 20px 16px; }
+  .f-grid     { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .form-row   { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .section    { padding: 56px 5%; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .f-grid     { grid-template-columns: 1fr; }
+  .sec-head   { flex-direction: column; align-items: flex-start; }
+}
+
+/* ── LANG BUTTON ──────────────────────────────────────────── */
+.lang-btn {
+  padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700;
+  background: rgba(255,255,255,.06); border: 1px solid var(--bdr); color: var(--ink2);
+  cursor: pointer; transition: .15s; flex-shrink: 0;
+}
+.lang-btn:hover { border-color: var(--bdr2); color: #fff; }
+
+/* ── AUTH PAGES ───────────────────────────────────────────── */
+.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center;
+             padding: 20px; background: var(--bg); position: relative; overflow: hidden; }
+.auth-wrap::before { content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 30% 40%, rgba(0,214,143,.06) 0%, transparent 65%),
+              radial-gradient(ellipse 50% 40% at 70% 60%, rgba(124,111,255,.06) 0%, transparent 65%); }
+.auth-card { background: var(--bg2); border: 1px solid var(--bdr); border-radius: 22px;
+             padding: 40px; width: 100%; max-width: 460px; position: relative; z-index: 1;
+             box-shadow: 0 32px 80px rgba(0,0,0,.5); }
+.auth-logo { display: flex; justify-content: center; margin-bottom: 28px; }
+.auth-logo img { height: 52px; width: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,.5)); }
+.auth-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 900; color: #fff;
+              text-align: center; margin-bottom: 4px; letter-spacing: -.02em; }
+.auth-sub { font-size: 13px; color: var(--ink3); text-align: center; margin-bottom: 28px; font-weight: 600; }
+.auth-foot { font-size: 13px; color: var(--ink3); text-align: center; margin-top: 16px; font-weight: 600; }
+.auth-foot a { color: var(--g); font-weight: 700; }
+.auth-foot a:hover { color: #fff; }
+.form-err { background: rgba(255,77,79,.1); border: 1px solid rgba(255,77,79,.2); border-radius: 10px;
+            padding: 11px 14px; font-size: 13px; color: var(--red); margin-bottom: 14px; display: none; }
+.demo-hint { background: var(--gl); border: 1px solid rgba(0,214,143,.2); border-radius: 10px;
+             padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: var(--ink2); line-height: 1.7; }
+.demo-hint strong { color: var(--g); }
+.auth-lang { position: absolute; top: 16px; right: 16px; }
+
+/* ── REGISTER STEPS ───────────────────────────────────────── */
+.step-bar { display: flex; gap: 6px; margin-bottom: 28px; }
+.step-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--bdr2); transition: .3s; }
+.step-dot.done { background: var(--g); }
+.step-dot.active { background: var(--g); opacity: .5; }
+.role-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+.role-opt { padding: 18px 14px; border-radius: 14px; border: 1.5px solid var(--bdr);
+            background: var(--bg3); cursor: pointer; text-align: center; transition: .2s; }
+.role-opt:hover { border-color: var(--bdr2); }
+.role-opt.on { border-color: var(--g); background: var(--gl); }
+.role-opt.on.cl { border-color: var(--acc); background: var(--accl); }
+.ro-ico { font-size: 26px; margin-bottom: 8px; }
+.ro-t { font-size: 14px; font-weight: 800; color: #fff; }
+.ro-s { font-size: 11px; color: var(--ink3); margin-top: 3px; }
+.cats-grid-sm { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 8px; margin-top: 8px; }
+.cat-opt { padding: 10px 8px; border-radius: 10px; background: var(--bg3); border: 1.5px solid var(--bdr);
+           cursor: pointer; text-align: center; transition: .15s; font-size: 12px; font-weight: 700; color: var(--ink3); }
+.cat-opt:hover { border-color: var(--bdr2); color: #fff; }
+.cat-opt.on { border-color: var(--g); color: var(--g); background: var(--gl); }
+.cat-opt-ico { font-size: 18px; display: block; margin-bottom: 4px; }
+.upload-zone { border: 1.5px dashed var(--bdr2); border-radius: 12px; padding: 24px;
+               text-align: center; cursor: pointer; transition: .2s; background: var(--bg3); }
+.upload-zone:hover { border-color: var(--g); background: var(--gl); }
+.upload-zone-ico { font-size: 28px; margin-bottom: 8px; }
+.upload-zone-t { font-size: 13px; color: var(--ink3); font-weight: 600; }
+.upload-done { border-color: var(--g); background: var(--gl); }
+.upload-done .upload-zone-t { color: var(--g); }
+
+/* ── STEP PANELS ──────────────────────────────────────────── */
+.s-panel { display: none; }
+.s-panel.active { display: block; }
+
+/* ── TOP BADGE ────────────────────────────────────────────── */
+.top-badge { background: linear-gradient(135deg, #f5a623, #f76b1c);
+             color: #fff; padding: 3px 9px; border-radius: 50px;
+             font-size: 10px; font-weight: 900; letter-spacing: .3px; }
+
+/* ── LANG BTN ─────────────────────────────────────────────── */
+.lang-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid var(--bdr2);background:transparent;color:var(--ink3);transition:.15s;letter-spacing:.5px}
+.lang-btn:hover{border-color:var(--g);color:var(--g)}
+
+/* ── CHAT ─────────────────────────────────────────────────── */
+.chat-layout{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 68px - 64px);gap:0;border:1px solid var(--bdr);border-radius:16px;overflow:hidden;background:var(--bg2)}
+.chat-list{border-right:1px solid var(--bdr);overflow-y:auto}
+.chat-list-head{padding:16px;border-bottom:1px solid var(--bdr);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3)}
+.chat-item{padding:14px 16px;cursor:pointer;transition:.15s;border-bottom:1px solid var(--bdr)}
+.chat-item:hover{background:rgba(255,255,255,.03)}
+.chat-item.active{background:var(--gl);border-left:3px solid var(--g)}
+.ci-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ci-name{font-size:13px;font-weight:800;color:#fff}
+.ci-time{font-size:10px;color:var(--ink3)}
+.ci-msg{font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-unread{background:var(--g);color:#000;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-main{display:flex;flex-direction:column}
+.chat-head{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.chat-head-ava{width:36px;height:36px;border-radius:50%;background:var(--gl);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--g);flex-shrink:0}
+.chat-head-name{font-size:14px;font-weight:800;color:#fff}
+.chat-head-status{font-size:11px;color:var(--g);font-weight:600}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chat-empty{display:flex;align-items:center;justify-content:center;flex:1;font-size:14px;color:var(--ink3);text-align:center;padding:40px}
+.msg{max-width:68%;word-break:break-word}
+.msg.me{align-self:flex-end}
+.msg.them{align-self:flex-start}
+.msg-bubble{padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;font-weight:500}
+.msg.me   .msg-bubble{background:var(--g);color:#000;border-bottom-right-radius:4px}
+.msg.them .msg-bubble{background:var(--bg3);color:#fff;border:1px solid var(--bdr);border-bottom-left-radius:4px}
+.msg-time{font-size:10px;color:var(--ink3);margin-top:4px;text-align:right}
+.msg.them .msg-time{text-align:left}
+.chat-input{padding:14px 16px;border-top:1px solid var(--bdr);display:flex;gap:10px;align-items:flex-end;flex-shrink:0}
+.chat-input textarea{flex:1;background:var(--bg3);border:1px solid var(--bdr2);border-radius:12px;padding:11px 14px;color:#fff;font-size:14px;resize:none;outline:none;font-family:inherit;max-height:100px;transition:.2s}
+.chat-input textarea:focus{border-color:var(--g)}
+.chat-send{width:42px;height:42px;border-radius:11px;background:var(--g);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+.chat-send:hover{background:var(--g2);transform:scale(1.05)}
+
+/* ── SUBSCRIPTION CARDS ───────────────────────────────────── */
+.sub-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+.sub-card{border-radius:18px;padding:28px;border:1px solid var(--bdr);background:var(--bg2);position:relative;overflow:hidden;transition:.2s}
+.sub-card:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.sub-card.featured{border-color:rgba(0,214,143,.3);background:linear-gradient(145deg,rgba(0,214,143,.06),var(--bg2))}
+.sub-card.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--g),var(--acc))}
+.sub-badge{position:absolute;top:16px;right:16px}
+.sub-price{font-family:'Syne',sans-serif;font-size:36px;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1;margin:14px 0 4px}
+.sub-price em{font-size:16px;color:var(--ink3);font-family:'Manrope',sans-serif;font-weight:500;font-style:normal}
+.sub-period{font-size:12px;color:var(--ink3);margin-bottom:18px;font-weight:600}
+.sub-feats{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.sub-feat{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink2);font-weight:500}
+.sub-feat .ck{color:var(--g);font-weight:900;font-size:12px;flex-shrink:0}
+.sub-feat .xk{color:var(--ink4);font-size:12px;flex-shrink:0}
+
+/* ── TOP PURCHASE ─────────────────────────────────────────── */
+.top-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.top-card{border-radius:16px;padding:24px;border:1px solid var(--bdr);background:var(--bg2);transition:.2s}
+.top-card:hover{border-color:var(--yel);box-shadow:0 10px 30px rgba(255,197,61,.08)}
+.top-card-ico{font-size:28px;margin-bottom:12px}
+.top-card-t{font-family:'Syne',sans-serif;font-size:16px;font-weight:900;color:#fff;margin-bottom:6px}
+.top-card-p{font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:16px}
+.top-card-price{font-family:'Syne',sans-serif;font-size:22px;font-weight:900;color:var(--yel);margin-bottom:14px}
+.top-card-price span{font-size:12px;color:var(--ink3);font-family:'Manrope',sans-serif;font-weight:500}
+
+/* ── ORDER CARD ───────────────────────────────────────────── */
+.order-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:14px;padding:18px;margin-bottom:12px;transition:.15s}
+.order-card:hover{border-color:var(--bdr2)}
+.oc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.oc-title{font-size:15px;font-weight:800;color:#fff}
+.oc-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink3);margin-bottom:10px;font-weight:600}
+.oc-meta span{display:flex;align-items:center;gap:4px}
+.oc-desc{font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:12px}
+.oc-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.oc-budget{font-family:'Syne',sans-serif;font-size:18px;font-weight:900;color:var(--g)}
+.oc-contacts-blur{background:var(--bg3);border:1px dashed var(--bdr2);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--ink3);text-align:center;margin-top:10px}
+.oc-contacts-blur .lock{font-size:16px;display:block;margin-bottom:4px}
+
+/* ── VERIF TRACK ──────────────────────────────────────────── */
+.vt-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--bdr)}
+.vt-item:last-child{border-bottom:none}
+.vt-left{display:flex;flex-direction:column;align-items:center;width:20px;flex-shrink:0;margin-top:3px}
+.vt-dot{width:14px;height:14px;border-radius:50%;background:var(--bdr2);flex-shrink:0}
+.vt-dot.done{background:var(--g)}.vt-dot.pend{background:var(--yel);animation:vpulse 1.5s infinite}
+@keyframes vpulse{0%,100%{opacity:1}50%{opacity:.4}}
+.vt-line{width:2px;flex:1;min-height:14px;background:var(--bdr);margin-top:3px}
+.vt-t{font-size:14px;font-weight:800;color:#fff;margin-bottom:2px}
+.vt-p{font-size:12px;color:var(--ink3)}
+
+/* ── PROFILE EDIT ─────────────────────────────────────────── */
+.profile-ava-edit{position:relative;width:80px;margin-bottom:18px}
+.profile-ava-big{width:80px;height:80px;border-radius:18px;background:var(--gl);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:36px;cursor:pointer}
+.profile-ava-btn{position:absolute;bottom:-4px;right:-4px;width:24px;height:24px;border-radius:50%;background:var(--g);border:2px solid var(--bg2);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media(max-width:768px){
+  .chat-layout{grid-template-columns:1fr;height:auto}
+  .chat-list{display:none}.chat-list.show{display:block}
+  .top-cards{grid-template-columns:1fr}
+}
+
+</style>
+<style>
+.profile-hero{padding:100px 0 0;margin-bottom:32px}
+.ph-inner{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:start}
+.ph-ava{width:96px;height:96px;border-radius:22px;background:var(--gl);border:3px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:42px;flex-shrink:0}
+.ph-name{font-family:'Syne',sans-serif;font-size:32px;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:8px}
+.ph-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.ph-meta{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink3);font-weight:600}
+.ph-meta span{display:flex;align-items:center;gap:5px}
+.ph-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.profile-body{display:grid;grid-template-columns:1fr 340px;gap:20px;padding-bottom:60px}
+.skills-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.skill-chip{padding:7px 14px;border-radius:9px;background:var(--bg3);border:1px solid var(--bdr);font-size:13px;font-weight:600;color:var(--ink2)}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.port-item{aspect-ratio:1;border-radius:10px;background:var(--bg3);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:.2s}
+.port-item:hover{border-color:var(--g);transform:scale(1.03)}
+.review-card{padding:16px 0;border-bottom:1px solid var(--bdr)}
+.review-card:last-child{border-bottom:none}
+.rc-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:6px}
+.rc-author{font-size:13px;font-weight:800;color:#fff}
+.rc-date{font-size:11px;color:var(--ink3)}
+.rc-stars{color:var(--yel);font-size:13px;margin-bottom:6px}
+.rc-text{font-size:13px;color:var(--ink3);line-height:1.6}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-row .k{color:var(--ink3);font-weight:600}
+.info-row .v{color:#fff;font-weight:700}
+.rate-big{font-family:'Syne',sans-serif;font-size:56px;font-weight:900;color:var(--yel);line-height:1}
+.rate-stars{color:var(--yel);font-size:20px;margin:6px 0}
+.rate-count{font-size:13px;color:var(--ink3);font-weight:600}
+.price-big{font-family:'Syne',sans-serif;font-size:28px;font-weight:900;color:var(--g)}
+.price-big em{font-size:14px;color:var(--ink3);font-style:normal;font-family:'Manrope',sans-serif}
+@media(max-width:1024px){.profile-body{grid-template-columns:1fr}.ph-inner{grid-template-columns:auto 1fr;}.ph-actions{grid-column:1/-1;flex-direction:row}}
+@media(max-width:640px){.ph-name{font-size:24px}.ph-actions{flex-wrap:wrap}}
+</style>
+</head>
+<body class="pt">
+<nav class="nav">
+  <a href="index.html" class="nav-logo"><img src="logo.png" alt="Slavic Shkaf" class="nav-logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="catalog.html">Каталог</a></li>
+    <li><a href="order.html">Разместить заявку</a></li>
+  </ul>
+  <div id="nav-r"></div>
+  <button class="nav-burger" id="nav-burger"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mob" id="nav-mob"></div>
+
+<div class="container">
+  <div class="profile-hero rv">
+    <div style="margin-bottom:16px"><a href="catalog.html" style="font-size:13px;color:var(--ink3);font-weight:600">← Каталог</a></div>
+    <div class="ph-inner">
+      <div class="ph-ava" id="ph-ava"></div>
+      <div>
+        <div class="ph-name" id="ph-name"></div>
+        <div class="ph-badges" id="ph-badges"></div>
+        <div class="ph-meta" id="ph-meta"></div>
+      </div>
+      <div class="ph-actions" id="ph-actions"></div>
+    </div>
+  </div>
+
+  <div class="profile-body">
+    <!-- LEFT col -->
+    <div>
+      <!-- About -->
+      <div class="card card-p rv" style="margin-bottom:16px">
+        <div class="card-t" id="sec-about"></div>
+        <p style="font-size:14px;color:var(--ink2);line-height:1.7" id="about-text"></p>
+      </div>
+      <!-- Skills -->
+      <div class="card card-p rv" style="margin-bottom:16px">
+        <div class="card-t" id="sec-skills"></div>
+        <div class="skills-wrap" id="skills-wrap"></div>
+      </div>
+      <!-- Portfolio -->
+      <div class="card card-p rv" style="margin-bottom:16px">
+        <div class="card-t" id="sec-portfolio"></div>
+        <div class="portfolio-grid" id="portfolio-grid"></div>
+      </div>
+      <!-- Reviews -->
+      <div class="card card-p rv">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="card-t" id="sec-reviews" style="margin-bottom:0"></div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div>
+              <div class="rate-big" id="rate-big"></div>
+              <div class="rate-stars" id="rate-stars"></div>
+              <div class="rate-count" id="rate-count"></div>
+            </div>
+          </div>
+        </div>
+        <div id="reviews-list"></div>
+      </div>
+    </div>
+    <!-- RIGHT col -->
+    <div>
+      <!-- Price / CTA -->
+      <div class="card card-p rv" style="margin-bottom:14px;position:sticky;top:84px">
+        <div class="price-big" id="price-big"></div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:18px" id="price-sub"></div>
+        <button class="btn btn-p btn-fw" id="btn-contact" style="margin-bottom:10px"></button>
+        <button class="btn btn-tg btn-fw" id="btn-tg" style="display:flex;margin-bottom:16px">✈️ Telegram</button>
+        <div style="font-size:11px;color:var(--ink3);text-align:center;line-height:1.6" id="contact-note"></div>
+      </div>
+      <!-- Info -->
+      <div class="card card-p rv">
+        <div class="card-t" id="sec-info"></div>
+        <div id="info-rows"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="f-bot">
+      <a href="index.html"><img src="logo.png" class="f-logo-img" alt="Slavic Shkaf"></a>
+      <div style="font-size:12px;color:var(--ink4)">© 2025 Slavic Shkaf</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   SLAVIC SHKAF — CENTRAL DATA FILE v2
+   ВСЕ настройки меняются ТОЛЬКО здесь или в админке
+═══════════════════════════════════════════════════════════ */
+
+// ── Сайт ───────────────────────────────────────────────────
+const SITE = {
+  name:    'Slavic Shkaf',
+  nameRu:  'Славянский шкаф',
+  tagline: { ru: 'Проверенные мастера · 22 страны EU', en: 'Verified Masters · 22 EU Countries' },
+  logo:    'logo.png',
+  tg:      'https://t.me/slavyanskiy_shkaf_bot',
+  email:   'support@slavic-shkaf.eu',
+};
+
+// ── Настройки (меняются из админки, хранятся в localStorage) ──
+const DEFAULTS = {
+  freeResponses:    2,      // лимит откликов бесплатно в месяц
+  topLimitCity:     10,     // макс мастеров в ТОП города
+  topLimitCountry:  20,     // макс мастеров в ТОП страны
+  prices: {
+    subMonthly:  29,   // €/мес подписка
+    subYearly:   249,  // €/год подписка
+    topCity:     19,   // €/мес ТОП в городе
+    topCountry:  39,   // €/мес ТОП в стране
+  },
+  currency: '€',
+};
+
+// ── i18n ───────────────────────────────────────────────────
+const T = {
+  ru: {
+    login: 'Войти', register: 'Регистрация', logout: 'Выйти',
+    email: 'Email', password: 'Пароль', name: 'Имя', surname: 'Фамилия',
+    phone: 'Телефон', city: 'Город', country: 'Страна',
+    master: 'Мастер', client: 'Заказчик',
+    forgotPassword: 'Забыли пароль?', resetPassword: 'Сбросить пароль',
+    backToLogin: '← Назад ко входу',
+    step: 'Шаг', of: 'из',
+    next: 'Далее →', back: '← Назад', submit: 'Создать аккаунт',
+    category: 'Категория', categories: 'Категории',
+    telegram: 'Telegram (необязательно)',
+    companyName: 'Название компании / ИП',
+    workType: 'Тип работы',
+    solo: 'Работаю один',
+    company: 'В компании',
+    license: 'Лицензия / Сертификат',
+    uploadDoc: 'Загрузить документ',
+    uploadPassport: 'Загрузить паспорт',
+    verifying: 'На верификации',
+    verified: 'Верифицирован',
+    dashboard: 'Кабинет',
+    orders: 'Заявки', myOrders: 'Мои заявки',
+    responses: 'Отклики',
+    chat: 'Чат',
+    profile: 'Профиль',
+    verification: 'Верификация',
+    subscription: 'Подписка',
+    statistics: 'Статистика',
+    top: 'ТОП',
+    settings: 'Настройки',
+    save: 'Сохранить',
+    cancel: 'Отмена',
+    send: 'Отправить',
+    apply: 'Откликнуться',
+    choose: 'Выбрать',
+    complete: 'Выполнено',
+    review: 'Отзыв',
+    noData: 'Нет данных',
+    loading: 'Загрузка...',
+    or: 'или',
+    free: 'Бесплатно',
+    monthly: '/мес',
+    yearly: '/год',
+    savePercent: 'Скидка',
+  },
+  en: {
+    login: 'Sign In', register: 'Sign Up', logout: 'Sign Out',
+    email: 'Email', password: 'Password', name: 'First Name', surname: 'Last Name',
+    phone: 'Phone', city: 'City', country: 'Country',
+    master: 'Master', client: 'Client',
+    forgotPassword: 'Forgot password?', resetPassword: 'Reset Password',
+    backToLogin: '← Back to Sign In',
+    step: 'Step', of: 'of',
+    next: 'Next →', back: '← Back', submit: 'Create Account',
+    category: 'Category', categories: 'Categories',
+    telegram: 'Telegram (optional)',
+    companyName: 'Company / Business Name',
+    workType: 'Work Type',
+    solo: 'Solo worker',
+    company: 'In a company',
+    license: 'License / Certificate',
+    uploadDoc: 'Upload document',
+    uploadPassport: 'Upload passport',
+    verifying: 'Under review',
+    verified: 'Verified',
+    dashboard: 'Dashboard',
+    orders: 'Orders', myOrders: 'My Orders',
+    responses: 'Responses',
+    chat: 'Chat',
+    profile: 'Profile',
+    verification: 'Verification',
+    subscription: 'Subscription',
+    statistics: 'Statistics',
+    top: 'TOP',
+    settings: 'Settings',
+    save: 'Save',
+    cancel: 'Cancel',
+    send: 'Send',
+    apply: 'Apply',
+    choose: 'Choose',
+    complete: 'Mark Complete',
+    review: 'Review',
+    noData: 'No data',
+    loading: 'Loading...',
+    or: 'or',
+    free: 'Free',
+    monthly: '/mo',
+    yearly: '/yr',
+    savePercent: 'Save',
+  },
+};
+
+// ── Категории ──────────────────────────────────────────────
+const SK = [
+  { id: 'plumbing',  i: '🔧', ru: 'Сантехника',         en: 'Plumbing',       n: 89 },
+  { id: 'electric',  i: '⚡', ru: 'Электрика',          en: 'Electrical',     n: 74 },
+  { id: 'paint',     i: '🎨', ru: 'Покраска',           en: 'Painting',       n: 61 },
+  { id: 'carpentry', i: '🪟', ru: 'Столярка / Окна',    en: 'Carpentry',      n: 48 },
+  { id: 'masonry',   i: '🏗️', ru: 'Кладка / Бетон',     en: 'Masonry',        n: 43 },
+  { id: 'ac',        i: '❄️', ru: 'Кондиционер / Вент', en: 'AC / Ventilation',n: 37 },
+  { id: 'floor',     i: '🪵', ru: 'Паркет / Полы',      en: 'Flooring',       n: 32 },
+  { id: 'bathroom',  i: '🛁', ru: 'Ванная / Плитка',    en: 'Bathroom',       n: 29 },
+  { id: 'roof',      i: '🏠', ru: 'Кровля / Фасад',     en: 'Roofing',        n: 26 },
+  { id: 'it',        i: '🔌', ru: 'Слаботочка / IT',    en: 'IT / Network',   n: 22 },
+  { id: 'locks',     i: '🔑', ru: 'Замки / Двери',      en: 'Locks / Doors',  n: 21 },
+  { id: 'garden',    i: '🌱', ru: 'Сад / Ландшафт',     en: 'Garden',         n: 18 },
+  { id: 'clean',     i: '🧹', ru: 'Уборка / Клининг',   en: 'Cleaning',       n: 16 },
+  { id: 'move',      i: '📦', ru: 'Переезды',           en: 'Moving',         n: 12 },
+];
+
+// ── Страны ─────────────────────────────────────────────────
+const CO = [
+  { f:'🇫🇷',ru:'Франция',    en:'France'      },{ f:'🇩🇪',ru:'Германия',  en:'Germany'     },
+  { f:'🇪🇸',ru:'Испания',    en:'Spain'       },{ f:'🇮🇹',ru:'Италия',    en:'Italy'       },
+  { f:'🇧🇪',ru:'Бельгия',    en:'Belgium'     },{ f:'🇳🇱',ru:'Нидерланды',en:'Netherlands' },
+  { f:'🇵🇱',ru:'Польша',     en:'Poland'      },{ f:'🇦🇹',ru:'Австрия',   en:'Austria'     },
+  { f:'🇨🇭',ru:'Швейцария',  en:'Switzerland' },{ f:'🇵🇹',ru:'Португалия',en:'Portugal'    },
+  { f:'🇸🇪',ru:'Швеция',     en:'Sweden'      },{ f:'🇳🇴',ru:'Норвегия',  en:'Norway'      },
+  { f:'🇩🇰',ru:'Дания',      en:'Denmark'     },{ f:'🇫🇮',ru:'Финляндия', en:'Finland'     },
+  { f:'🇨🇿',ru:'Чехия',      en:'Czechia'     },{ f:'🇸🇰',ru:'Словакия',  en:'Slovakia'    },
+  { f:'🇭🇺',ru:'Венгрия',    en:'Hungary'     },{ f:'🇷🇴',ru:'Румыния',   en:'Romania'     },
+  { f:'🇧🇬',ru:'Болгария',   en:'Bulgaria'    },{ f:'🇭🇷',ru:'Хорватия',  en:'Croatia'     },
+  { f:'🇸🇮',ru:'Словения',   en:'Slovenia'    },{ f:'🇬🇷',ru:'Греция',    en:'Greece'      },
+];
+
+// ── Мастера (демо) ─────────────────────────────────────────
+const MASTERS = [
+  { id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',
+    cats:['plumbing','bathroom'],skills:['Сантехника','Ванная под ключ','Отопление'],
+    rate:4.9,reviews:47,price:45,lvl:3,online:true,experience:12,sub:true,topCity:true,topCountry:false,
+    about:'Сантехник с 12-летним опытом во Франции и Бельгии. Гарантия 2 года.',
+    portfolio:['🚿','🛁','🔧','🏠','⚙️','💧'],
+    revList:[
+      {author:'Жан-Поль Б.',date:'12 нояб 2024',stars:5,text:'Отличная работа! Приехал вовремя, сделал чисто.'},
+      {author:'Моника Р.',  date:'3 окт 2024',  stars:5,text:'Бойлер установил быстро, цена соответствует.'},
+    ]},
+  { id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',
+    cats:['electric','it'],skills:['Электрика','RGE','Умный дом'],
+    rate:4.8,reviews:32,price:55,lvl:3,online:true,experience:8,sub:true,topCity:true,topCountry:true,
+    about:'Сертифицированный электрик RGE. Умные дома, промышленные объекты.',
+    portfolio:['⚡','🔌','💡','🏭','🖥️','🔋'],
+    revList:[{author:'Клара М.',date:'5 дек 2024',stars:5,text:'Полная замена проводки. Аккуратно, с документами.'}]},
+  { id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',
+    cats:['paint','floor'],skills:['Покраска','Паркет','Шпаклёвка'],
+    rate:4.7,reviews:28,price:38,lvl:2,online:false,experience:9,sub:false,topCity:false,topCountry:false,
+    about:'Маляр-отделочник. Работаю в Берлине и пригороде.',
+    portfolio:['🎨','🖌️','🏠','🪵','✨','🏗️'],
+    revList:[{author:'Хельга Ш.',date:'20 нояб 2024',stars:5,text:'Покрасил квартиру за 3 дня. Доволен!'}]},
+  { id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',
+    cats:['masonry','bathroom'],skills:['Кладка','Плитка','Стяжка'],
+    rate:5.0,reviews:19,price:42,lvl:2,online:true,experience:7,sub:true,topCity:false,topCountry:false,
+    about:'Мастер по плитке и кладке. 7 лет опыта.',
+    portfolio:['🏗️','🪨','🏠','🛁','✨','🔨'],
+    revList:[{author:'Люсьен Д.',date:'1 янв 2025',stars:5,text:'Ванная с нуля. Превзошло ожидания!'}]},
+  { id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',
+    cats:['carpentry','floor'],skills:['Столярка','Паркет','Двери'],
+    rate:4.6,reviews:22,price:35,lvl:2,online:false,experience:11,sub:false,topCity:false,topCountry:false,
+    about:'Столяр. Окна, двери, паркет под ключ.',
+    portfolio:['🪵','🚪','🪟','🛋️','🔨','✨'],
+    revList:[{author:'Анна К.',date:'15 дек 2024',stars:5,text:'5 дверей установил идеально.'}]},
+  { id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',
+    cats:['ac','electric'],skills:['Кондиционер','Вентиляция','Электрика'],
+    rate:4.8,reviews:35,price:48,lvl:3,online:true,experience:10,sub:true,topCity:true,topCountry:false,
+    about:'Партнёр Daikin и Mitsubishi Electric.',
+    portfolio:['❄️','🌬️','⚡','🏢','🏠','🔧'],
+    revList:[{author:'Педро Г.',date:'8 дек 2024',stars:5,text:'Климат в офисе. Профессионально.'}]},
+  { id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',
+    cats:['clean','move'],skills:['Клининг','Химчистка','Переезды'],
+    rate:4.9,reviews:64,price:28,lvl:2,online:true,experience:6,sub:true,topCity:false,topCountry:false,
+    about:'Клининг квартир, офисов, после ремонта.',
+    portfolio:['🧹','✨','🏠','🧺','📦','🚚'],
+    revList:[{author:'Вернер Х.',date:'20 янв 2025',stars:5,text:'Уборка после ремонта — отлично.'}]},
+  { id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',
+    cats:['roof','masonry'],skills:['Кровля','Фасад','Гидроизоляция'],
+    rate:4.7,reviews:18,price:52,lvl:3,online:false,experience:15,sub:true,topCity:false,topCountry:true,
+    about:'Кровельщик с голландской лицензией.',
+    portfolio:['🏠','🏗️','🌧️','🔨','✨','⚙️'],
+    revList:[{author:'Ян Д.',date:'5 фев 2025',stars:5,text:'Кровля после шторма. Надёжно.'}]},
+];
+
+// ── Демо заявки ────────────────────────────────────────────
+const DEMO_ORDERS = [
+  { id:1,clientId:'c1',clientName:'Мари Д.',city:'Париж',country:'Франция',
+    cat:'plumbing',title:'Замена труб в ванной',desc:'Нужно заменить все трубы в ванной комнате, ~15 кв.м',
+    budget:800,date:'2025-03-10',status:'open',responses:[1,6],chosenMaster:null,
+    createdAt:'2025-03-01' },
+  { id:2,clientId:'c1',clientName:'Мари Д.',city:'Лион',country:'Франция',
+    cat:'electric',title:'Замена проводки в квартире',desc:'2-комнатная квартира, старая проводка 1970х годов',
+    budget:2000,date:'2025-03-15',status:'in_progress',responses:[2],chosenMaster:2,
+    createdAt:'2025-02-28' },
+  { id:3,clientId:'c2',clientName:'Ганс М.',city:'Берлин',country:'Германия',
+    cat:'paint',title:'Покраска 3 комнат',desc:'Стены и потолок, светлые тона, нужны материалы',
+    budget:1200,date:'2025-03-20',status:'open',responses:[],chosenMaster:null,
+    createdAt:'2025-03-02' },
+  { id:4,clientId:'c3',clientName:'Карин Л.',city:'Мадрид',country:'Испания',
+    cat:'ac',title:'Установка кондиционера',desc:'3 комнаты, нужен монтаж и подбор оборудования',
+    budget:1500,date:'2025-03-12',status:'open',responses:[6],chosenMaster:null,
+    createdAt:'2025-03-01' },
+  { id:5,clientId:'c4',clientName:'Лука Б.',city:'Рим',country:'Италия',
+    cat:'floor',title:'Укладка паркета',desc:'Гостиная 30 кв.м, дуб, материал есть',
+    budget:900,date:'2025-03-25',status:'completed',responses:[5],chosenMaster:5,
+    createdAt:'2025-02-20' },
+];
+
+// ── Демо чаты ──────────────────────────────────────────────
+const DEMO_CHATS = [
+  { id:'ch1', orderId:2, masterId:2, clientId:'c1',
+    messages:[
+      {from:'client',text:'Добрый день! Когда сможете приехать на осмотр?',ts:'10:30'},
+      {from:'master',text:'Здравствуйте! Могу завтра с 10 до 12.',ts:'10:45'},
+      {from:'client',text:'Отлично, завтра в 10 жду.',ts:'11:00'},
+      {from:'master',text:'Принято, буду вовремя. Адрес уточните пожалуйста.',ts:'11:02'},
+    ]},
+];
+
+// ── Уровни верификации ─────────────────────────────────────
+const VERIF_LEVELS = [
+  { ico:'🥉', lvl:{ru:'Уровень 1',en:'Level 1'}, t:{ru:'Зарегистрирован',en:'Registered'}, featured:false,
+    docs:{ru:['Профессиональная лицензия','Личность подтверждена'],en:['Professional license','Identity confirmed']},
+    bonus:{ru:'Стандартный каталог',en:'Standard catalog'} },
+  { ico:'🥈', lvl:{ru:'Уровень 2 — Рекомендуем',en:'Level 2 — Recommended'}, t:{ru:'Проверенный мастер',en:'Verified Master'}, featured:true,
+    docs:{ru:['Лицензия проверена','Страховка гражданской ответственности','Значок ✅ на профиле'],en:['License verified','Liability insurance','✅ Badge on profile']},
+    bonus:{ru:'+40% видимых заказов',en:'+40% order visibility'} },
+  { ico:'🥇', lvl:{ru:'Уровень 3 — Премиум',en:'Level 3 — Premium'}, t:{ru:'Сертифицированный эксперт',en:'Certified Expert'}, featured:false,
+    docs:{ru:['Лицензия + страховка','Гарантия на работы','Доступ к премиум-заказам'],en:['License + insurance','Work guarantee','Access to premium orders']},
+    bonus:{ru:'+70% · Премиум разблокирован',en:'+70% · Premium unlocked'} },
+];
+
+// ── Статистика сайта ───────────────────────────────────────
+const SITE_STATS = [
+  { v:'342', em:'+', l:{ru:'Мастеров',  en:'Masters'  } },
+  { v:'22',  em:'',  l:{ru:'Страны EU', en:'EU Countries'} },
+  { v:'4.9', em:'★', l:{ru:'Рейтинг',  en:'Rating'   } },
+  { v:'24',  em:'ч', l:{ru:'Верификация',en:'Verification'} },
+];
+
+// ── Контент лендинга ───────────────────────────────────────
+const FEATURES = [
+  { ico:'🛡️', t:{ru:'Лицензия · Страховка · Гарантия',en:'License · Insurance · Guarantee'}, p:{ru:'Каждый документ проверяется за 24 часа',en:'Every document verified within 24 hours'} },
+  { ico:'🌍', t:{ru:'22 страны охвачено',en:'22 countries covered'}, p:{ru:'Ваш профиль виден по всей Европе',en:'Your profile visible across Europe'} },
+  { ico:'📱', t:{ru:'Telegram необязателен',en:'Telegram optional'}, p:{ru:'Email достаточен для работы',en:'Email is sufficient'} },
+  { ico:'💰', t:{ru:'Регистрация бесплатна',en:'Free registration'}, p:{ru:'Начните получать заказы сегодня',en:'Start receiving orders today'} },
+];
+
+const HOW_STEPS = [
+  { n:'01', ico:'📋', t:{ru:'Зарегистрируйтесь',en:'Sign Up'}, p:{ru:'2 минуты. Email или телефон.',en:'2 minutes. Email or phone.'} },
+  { n:'02', ico:'✅', t:{ru:'Верификация за 24ч',en:'24h Verification'}, p:{ru:'Проверяем лицензию, страховку, документы.',en:'We verify license, insurance, documents.'} },
+  { n:'03', ico:'💼', t:{ru:'Работайте',en:'Start Working'}, p:{ru:'Заявки, чат, смета. Уведомления на email.',en:'Orders, chat, estimates. Email notifications.'} },
+];
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   SLAVIC SHKAF — CENTRAL DATA FILE v2
+   ВСЕ настройки меняются ТОЛЬКО здесь или в админке
+═══════════════════════════════════════════════════════════ */
+
+// ── Сайт ───────────────────────────────────────────────────
+const SITE = {
+  name:    'Slavic Shkaf',
+  nameRu:  'Славянский шкаф',
+  tagline: { ru: 'Проверенные мастера · 22 страны EU', en: 'Verified Masters · 22 EU Countries' },
+  logo:    'logo.png',
+  tg:      'https://t.me/slavyanskiy_shkaf_bot',
+  email:   'support@slavic-shkaf.eu',
+};
+
+// ── Настройки (меняются из админки, хранятся в localStorage) ──
+const DEFAULTS = {
+  freeResponses:    2,      // лимит откликов бесплатно в месяц
+  topLimitCity:     10,     // макс мастеров в ТОП города
+  topLimitCountry:  20,     // макс мастеров в ТОП страны
+  prices: {
+    subMonthly:  29,   // €/мес подписка
+    subYearly:   249,  // €/год подписка
+    topCity:     19,   // €/мес ТОП в городе
+    topCountry:  39,   // €/мес ТОП в стране
+  },
+  currency: '€',
+};
+
+// ── i18n ───────────────────────────────────────────────────
+const T = {
+  ru: {
+    login: 'Войти', register: 'Регистрация', logout: 'Выйти',
+    email: 'Email', password: 'Пароль', name: 'Имя', surname: 'Фамилия',
+    phone: 'Телефон', city: 'Город', country: 'Страна',
+    master: 'Мастер', client: 'Заказчик',
+    forgotPassword: 'Забыли пароль?', resetPassword: 'Сбросить пароль',
+    backToLogin: '← Назад ко входу',
+    step: 'Шаг', of: 'из',
+    next: 'Далее →', back: '← Назад', submit: 'Создать аккаунт',
+    category: 'Категория', categories: 'Категории',
+    telegram: 'Telegram (необязательно)',
+    companyName: 'Название компании / ИП',
+    workType: 'Тип работы',
+    solo: 'Работаю один',
+    company: 'В компании',
+    license: 'Лицензия / Сертификат',
+    uploadDoc: 'Загрузить документ',
+    uploadPassport: 'Загрузить паспорт',
+    verifying: 'На верификации',
+    verified: 'Верифицирован',
+    dashboard: 'Кабинет',
+    orders: 'Заявки', myOrders: 'Мои заявки',
+    responses: 'Отклики',
+    chat: 'Чат',
+    profile: 'Профиль',
+    verification: 'Верификация',
+    subscription: 'Подписка',
+    statistics: 'Статистика',
+    top: 'ТОП',
+    settings: 'Настройки',
+    save: 'Сохранить',
+    cancel: 'Отмена',
+    send: 'Отправить',
+    apply: 'Откликнуться',
+    choose: 'Выбрать',
+    complete: 'Выполнено',
+    review: 'Отзыв',
+    noData: 'Нет данных',
+    loading: 'Загрузка...',
+    or: 'или',
+    free: 'Бесплатно',
+    monthly: '/мес',
+    yearly: '/год',
+    savePercent: 'Скидка',
+  },
+  en: {
+    login: 'Sign In', register: 'Sign Up', logout: 'Sign Out',
+    email: 'Email', password: 'Password', name: 'First Name', surname: 'Last Name',
+    phone: 'Phone', city: 'City', country: 'Country',
+    master: 'Master', client: 'Client',
+    forgotPassword: 'Forgot password?', resetPassword: 'Reset Password',
+    backToLogin: '← Back to Sign In',
+    step: 'Step', of: 'of',
+    next: 'Next →', back: '← Back', submit: 'Create Account',
+    category: 'Category', categories: 'Categories',
+    telegram: 'Telegram (optional)',
+    companyName: 'Company / Business Name',
+    workType: 'Work Type',
+    solo: 'Solo worker',
+    company: 'In a company',
+    license: 'License / Certificate',
+    uploadDoc: 'Upload document',
+    uploadPassport: 'Upload passport',
+    verifying: 'Under review',
+    verified: 'Verified',
+    dashboard: 'Dashboard',
+    orders: 'Orders', myOrders: 'My Orders',
+    responses: 'Responses',
+    chat: 'Chat',
+    profile: 'Profile',
+    verification: 'Verification',
+    subscription: 'Subscription',
+    statistics: 'Statistics',
+    top: 'TOP',
+    settings: 'Settings',
+    save: 'Save',
+    cancel: 'Cancel',
+    send: 'Send',
+    apply: 'Apply',
+    choose: 'Choose',
+    complete: 'Mark Complete',
+    review: 'Review',
+    noData: 'No data',
+    loading: 'Loading...',
+    or: 'or',
+    free: 'Free',
+    monthly: '/mo',
+    yearly: '/yr',
+    savePercent: 'Save',
+  },
+};
+
+// ── Категории ──────────────────────────────────────────────
+const SK = [
+  { id: 'plumbing',  i: '🔧', ru: 'Сантехника',         en: 'Plumbing',       n: 89 },
+  { id: 'electric',  i: '⚡', ru: 'Электрика',          en: 'Electrical',     n: 74 },
+  { id: 'paint',     i: '🎨', ru: 'Покраска',           en: 'Painting',       n: 61 },
+  { id: 'carpentry', i: '🪟', ru: 'Столярка / Окна',    en: 'Carpentry',      n: 48 },
+  { id: 'masonry',   i: '🏗️', ru: 'Кладка / Бетон',     en: 'Masonry',        n: 43 },
+  { id: 'ac',        i: '❄️', ru: 'Кондиционер / Вент', en: 'AC / Ventilation',n: 37 },
+  { id: 'floor',     i: '🪵', ru: 'Паркет / Полы',      en: 'Flooring',       n: 32 },
+  { id: 'bathroom',  i: '🛁', ru: 'Ванная / Плитка',    en: 'Bathroom',       n: 29 },
+  { id: 'roof',      i: '🏠', ru: 'Кровля / Фасад',     en: 'Roofing',        n: 26 },
+  { id: 'it',        i: '🔌', ru: 'Слаботочка / IT',    en: 'IT / Network',   n: 22 },
+  { id: 'locks',     i: '🔑', ru: 'Замки / Двери',      en: 'Locks / Doors',  n: 21 },
+  { id: 'garden',    i: '🌱', ru: 'Сад / Ландшафт',     en: 'Garden',         n: 18 },
+  { id: 'clean',     i: '🧹', ru: 'Уборка / Клининг',   en: 'Cleaning',       n: 16 },
+  { id: 'move',      i: '📦', ru: 'Переезды',           en: 'Moving',         n: 12 },
+];
+
+// ── Страны ─────────────────────────────────────────────────
+const CO = [
+  { f:'🇫🇷',ru:'Франция',    en:'France'      },{ f:'🇩🇪',ru:'Германия',  en:'Germany'     },
+  { f:'🇪🇸',ru:'Испания',    en:'Spain'       },{ f:'🇮🇹',ru:'Италия',    en:'Italy'       },
+  { f:'🇧🇪',ru:'Бельгия',    en:'Belgium'     },{ f:'🇳🇱',ru:'Нидерланды',en:'Netherlands' },
+  { f:'🇵🇱',ru:'Польша',     en:'Poland'      },{ f:'🇦🇹',ru:'Австрия',   en:'Austria'     },
+  { f:'🇨🇭',ru:'Швейцария',  en:'Switzerland' },{ f:'🇵🇹',ru:'Португалия',en:'Portugal'    },
+  { f:'🇸🇪',ru:'Швеция',     en:'Sweden'      },{ f:'🇳🇴',ru:'Норвегия',  en:'Norway'      },
+  { f:'🇩🇰',ru:'Дания',      en:'Denmark'     },{ f:'🇫🇮',ru:'Финляндия', en:'Finland'     },
+  { f:'🇨🇿',ru:'Чехия',      en:'Czechia'     },{ f:'🇸🇰',ru:'Словакия',  en:'Slovakia'    },
+  { f:'🇭🇺',ru:'Венгрия',    en:'Hungary'     },{ f:'🇷🇴',ru:'Румыния',   en:'Romania'     },
+  { f:'🇧🇬',ru:'Болгария',   en:'Bulgaria'    },{ f:'🇭🇷',ru:'Хорватия',  en:'Croatia'     },
+  { f:'🇸🇮',ru:'Словения',   en:'Slovenia'    },{ f:'🇬🇷',ru:'Греция',    en:'Greece'      },
+];
+
+// ── Мастера (демо) ─────────────────────────────────────────
+const MASTERS = [
+  { id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',
+    cats:['plumbing','bathroom'],skills:['Сантехника','Ванная под ключ','Отопление'],
+    rate:4.9,reviews:47,price:45,lvl:3,online:true,experience:12,sub:true,topCity:true,topCountry:false,
+    about:'Сантехник с 12-летним опытом во Франции и Бельгии. Гарантия 2 года.',
+    portfolio:['🚿','🛁','🔧','🏠','⚙️','💧'],
+    revList:[
+      {author:'Жан-Поль Б.',date:'12 нояб 2024',stars:5,text:'Отличная работа! Приехал вовремя, сделал чисто.'},
+      {author:'Моника Р.',  date:'3 окт 2024',  stars:5,text:'Бойлер установил быстро, цена соответствует.'},
+    ]},
+  { id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',
+    cats:['electric','it'],skills:['Электрика','RGE','Умный дом'],
+    rate:4.8,reviews:32,price:55,lvl:3,online:true,experience:8,sub:true,topCity:true,topCountry:true,
+    about:'Сертифицированный электрик RGE. Умные дома, промышленные объекты.',
+    portfolio:['⚡','🔌','💡','🏭','🖥️','🔋'],
+    revList:[{author:'Клара М.',date:'5 дек 2024',stars:5,text:'Полная замена проводки. Аккуратно, с документами.'}]},
+  { id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',
+    cats:['paint','floor'],skills:['Покраска','Паркет','Шпаклёвка'],
+    rate:4.7,reviews:28,price:38,lvl:2,online:false,experience:9,sub:false,topCity:false,topCountry:false,
+    about:'Маляр-отделочник. Работаю в Берлине и пригороде.',
+    portfolio:['🎨','🖌️','🏠','🪵','✨','🏗️'],
+    revList:[{author:'Хельга Ш.',date:'20 нояб 2024',stars:5,text:'Покрасил квартиру за 3 дня. Доволен!'}]},
+  { id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',
+    cats:['masonry','bathroom'],skills:['Кладка','Плитка','Стяжка'],
+    rate:5.0,reviews:19,price:42,lvl:2,online:true,experience:7,sub:true,topCity:false,topCountry:false,
+    about:'Мастер по плитке и кладке. 7 лет опыта.',
+    portfolio:['🏗️','🪨','🏠','🛁','✨','🔨'],
+    revList:[{author:'Люсьен Д.',date:'1 янв 2025',stars:5,text:'Ванная с нуля. Превзошло ожидания!'}]},
+  { id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',
+    cats:['carpentry','floor'],skills:['Столярка','Паркет','Двери'],
+    rate:4.6,reviews:22,price:35,lvl:2,online:false,experience:11,sub:false,topCity:false,topCountry:false,
+    about:'Столяр. Окна, двери, паркет под ключ.',
+    portfolio:['🪵','🚪','🪟','🛋️','🔨','✨'],
+    revList:[{author:'Анна К.',date:'15 дек 2024',stars:5,text:'5 дверей установил идеально.'}]},
+  { id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',
+    cats:['ac','electric'],skills:['Кондиционер','Вентиляция','Электрика'],
+    rate:4.8,reviews:35,price:48,lvl:3,online:true,experience:10,sub:true,topCity:true,topCountry:false,
+    about:'Партнёр Daikin и Mitsubishi Electric.',
+    portfolio:['❄️','🌬️','⚡','🏢','🏠','🔧'],
+    revList:[{author:'Педро Г.',date:'8 дек 2024',stars:5,text:'Климат в офисе. Профессионально.'}]},
+  { id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',
+    cats:['clean','move'],skills:['Клининг','Химчистка','Переезды'],
+    rate:4.9,reviews:64,price:28,lvl:2,online:true,experience:6,sub:true,topCity:false,topCountry:false,
+    about:'Клининг квартир, офисов, после ремонта.',
+    portfolio:['🧹','✨','🏠','🧺','📦','🚚'],
+    revList:[{author:'Вернер Х.',date:'20 янв 2025',stars:5,text:'Уборка после ремонта — отлично.'}]},
+  { id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',
+    cats:['roof','masonry'],skills:['Кровля','Фасад','Гидроизоляция'],
+    rate:4.7,reviews:18,price:52,lvl:3,online:false,experience:15,sub:true,topCity:false,topCountry:true,
+    about:'Кровельщик с голландской лицензией.',
+    portfolio:['🏠','🏗️','🌧️','🔨','✨','⚙️'],
+    revList:[{author:'Ян Д.',date:'5 фев 2025',stars:5,text:'Кровля после шторма. Надёжно.'}]},
+];
+
+// ── Демо заявки ────────────────────────────────────────────
+const DEMO_ORDERS = [
+  { id:1,clientId:'c1',clientName:'Мари Д.',city:'Париж',country:'Франция',
+    cat:'plumbing',title:'Замена труб в ванной',desc:'Нужно заменить все трубы в ванной комнате, ~15 кв.м',
+    budget:800,date:'2025-03-10',status:'open',responses:[1,6],chosenMaster:null,
+    createdAt:'2025-03-01' },
+  { id:2,clientId:'c1',clientName:'Мари Д.',city:'Лион',country:'Франция',
+    cat:'electric',title:'Замена проводки в квартире',desc:'2-комнатная квартира, старая проводка 1970х годов',
+    budget:2000,date:'2025-03-15',status:'in_progress',responses:[2],chosenMaster:2,
+    createdAt:'2025-02-28' },
+  { id:3,clientId:'c2',clientName:'Ганс М.',city:'Берлин',country:'Германия',
+    cat:'paint',title:'Покраска 3 комнат',desc:'Стены и потолок, светлые тона, нужны материалы',
+    budget:1200,date:'2025-03-20',status:'open',responses:[],chosenMaster:null,
+    createdAt:'2025-03-02' },
+  { id:4,clientId:'c3',clientName:'Карин Л.',city:'Мадрид',country:'Испания',
+    cat:'ac',title:'Установка кондиционера',desc:'3 комнаты, нужен монтаж и подбор оборудования',
+    budget:1500,date:'2025-03-12',status:'open',responses:[6],chosenMaster:null,
+    createdAt:'2025-03-01' },
+  { id:5,clientId:'c4',clientName:'Лука Б.',city:'Рим',country:'Италия',
+    cat:'floor',title:'Укладка паркета',desc:'Гостиная 30 кв.м, дуб, материал есть',
+    budget:900,date:'2025-03-25',status:'completed',responses:[5],chosenMaster:5,
+    createdAt:'2025-02-20' },
+];
+
+// ── Демо чаты ──────────────────────────────────────────────
+const DEMO_CHATS = [
+  { id:'ch1', orderId:2, masterId:2, clientId:'c1',
+    messages:[
+      {from:'client',text:'Добрый день! Когда сможете приехать на осмотр?',ts:'10:30'},
+      {from:'master',text:'Здравствуйте! Могу завтра с 10 до 12.',ts:'10:45'},
+      {from:'client',text:'Отлично, завтра в 10 жду.',ts:'11:00'},
+      {from:'master',text:'Принято, буду вовремя. Адрес уточните пожалуйста.',ts:'11:02'},
+    ]},
+];
+
+// ── Уровни верификации ─────────────────────────────────────
+const VERIF_LEVELS = [
+  { ico:'🥉', lvl:{ru:'Уровень 1',en:'Level 1'}, t:{ru:'Зарегистрирован',en:'Registered'}, featured:false,
+    docs:{ru:['Профессиональная лицензия','Личность подтверждена'],en:['Professional license','Identity confirmed']},
+    bonus:{ru:'Стандартный каталог',en:'Standard catalog'} },
+  { ico:'🥈', lvl:{ru:'Уровень 2 — Рекомендуем',en:'Level 2 — Recommended'}, t:{ru:'Проверенный мастер',en:'Verified Master'}, featured:true,
+    docs:{ru:['Лицензия проверена','Страховка гражданской ответственности','Значок ✅ на профиле'],en:['License verified','Liability insurance','✅ Badge on profile']},
+    bonus:{ru:'+40% видимых заказов',en:'+40% order visibility'} },
+  { ico:'🥇', lvl:{ru:'Уровень 3 — Премиум',en:'Level 3 — Premium'}, t:{ru:'Сертифицированный эксперт',en:'Certified Expert'}, featured:false,
+    docs:{ru:['Лицензия + страховка','Гарантия на работы','Доступ к премиум-заказам'],en:['License + insurance','Work guarantee','Access to premium orders']},
+    bonus:{ru:'+70% · Премиум разблокирован',en:'+70% · Premium unlocked'} },
+];
+
+// ── Статистика сайта ───────────────────────────────────────
+const SITE_STATS = [
+  { v:'342', em:'+', l:{ru:'Мастеров',  en:'Masters'  } },
+  { v:'22',  em:'',  l:{ru:'Страны EU', en:'EU Countries'} },
+  { v:'4.9', em:'★', l:{ru:'Рейтинг',  en:'Rating'   } },
+  { v:'24',  em:'ч', l:{ru:'Верификация',en:'Verification'} },
+];
+
+// ── Контент лендинга ───────────────────────────────────────
+const FEATURES = [
+  { ico:'🛡️', t:{ru:'Лицензия · Страховка · Гарантия',en:'License · Insurance · Guarantee'}, p:{ru:'Каждый документ проверяется за 24 часа',en:'Every document verified within 24 hours'} },
+  { ico:'🌍', t:{ru:'22 страны охвачено',en:'22 countries covered'}, p:{ru:'Ваш профиль виден по всей Европе',en:'Your profile visible across Europe'} },
+  { ico:'📱', t:{ru:'Telegram необязателен',en:'Telegram optional'}, p:{ru:'Email достаточен для работы',en:'Email is sufficient'} },
+  { ico:'💰', t:{ru:'Регистрация бесплатна',en:'Free registration'}, p:{ru:'Начните получать заказы сегодня',en:'Start receiving orders today'} },
+];
+
+const HOW_STEPS = [
+  { n:'01', ico:'📋', t:{ru:'Зарегистрируйтесь',en:'Sign Up'}, p:{ru:'2 минуты. Email или телефон.',en:'2 minutes. Email or phone.'} },
+  { n:'02', ico:'✅', t:{ru:'Верификация за 24ч',en:'24h Verification'}, p:{ru:'Проверяем лицензию, страховку, документы.',en:'We verify license, insurance, documents.'} },
+  { n:'03', ico:'💼', t:{ru:'Работайте',en:'Start Working'}, p:{ru:'Заявки, чат, смета. Уведомления на email.',en:'Orders, chat, estimates. Email notifications.'} },
+];
+
+</script>
+<script>
+const id = +(getParam('id')||1);
+const m  = MASTERS.find(x=>x.id===id) || MASTERS[0];
+const ru = ()=>LANG==='ru';
+
+function render(){
+  const r=ru();
+  document.title = `${m.nm} — Slavic Shkaf`;
+
+  // Header
+  document.getElementById('ph-ava').textContent = m.a;
+  document.getElementById('ph-name').textContent = m.nm;
+  document.getElementById('ph-badges').innerHTML =
+    (m.topCountry?`<span class="badge badge-y">🏆 ТОП страны</span>`:'') +
+    (m.topCity   ?`<span class="badge badge-y">🏙️ ТОП города</span>`:'') +
+    `<span class="badge badge-g">✅ ${r?'Ур.':'Lv.'} ${m.lvl}</span>` +
+    (m.sub?`<span class="badge badge-acc">⭐ Pro</span>`:'') +
+    (m.online?`<span class="badge badge-g">${r?'Онлайн':'Online'}</span>`:`<span class="badge badge-muted">${r?'Офлайн':'Offline'}</span>`);
+
+  document.getElementById('ph-meta').innerHTML = `
+    <span>📍 ${cflag(m.country)} ${m.city}, ${m.country}</span>
+    <span>⭐ ${m.rate} (${m.reviews} ${r?'отзывов':'reviews'})</span>
+    <span>🎓 ${m.experience} ${r?'лет опыта':'years exp.'}</span>
+    <span>💼 ${m.cats.map(c=>catName(c)).join(', ')}</span>`;
+
+  const u=getUser();
+  document.getElementById('ph-actions').innerHTML = u
+    ? `<button class="btn btn-p" onclick="contactMaster()">${r?'Написать':'Message'} 💬</button>
+       <a href="order.html" class="btn btn-ghost">${r?'Создать заявку':'Post Order'}</a>`
+    : `<a href="register.html?role=client" class="btn btn-p">${r?'Связаться':'Contact'} →</a>`;
+
+  // About
+  document.getElementById('sec-about').textContent    = r?'О МАСТЕРЕ':'ABOUT';
+  document.getElementById('about-text').textContent   = m.about;
+
+  // Skills
+  document.getElementById('sec-skills').textContent   = r?'НАВЫКИ':'SKILLS';
+  document.getElementById('skills-wrap').innerHTML     = m.skills.map(s=>`<span class="skill-chip">${s}</span>`).join('');
+
+  // Portfolio
+  document.getElementById('sec-portfolio').textContent= r?'ПОРТФОЛИО':'PORTFOLIO';
+  document.getElementById('portfolio-grid').innerHTML  = m.portfolio.map(ico=>`<div class="port-item">${ico}</div>`).join('');
+
+  // Reviews
+  document.getElementById('sec-reviews').textContent  = r?'ОТЗЫВЫ':'REVIEWS';
+  document.getElementById('rate-big').textContent     = m.rate;
+  document.getElementById('rate-stars').textContent   = '★'.repeat(Math.round(m.rate)) + '☆'.repeat(5-Math.round(m.rate));
+  document.getElementById('rate-count').textContent   = `${m.reviews} ${r?'отзывов':'reviews'}`;
+  document.getElementById('reviews-list').innerHTML   = (m.revList||[]).map(rv=>`
+    <div class="review-card">
+      <div class="rc-top"><div><div class="rc-author">${rv.author}</div><div class="rc-date">${rv.date}</div></div></div>
+      <div class="rc-stars">${'★'.repeat(rv.stars)}</div>
+      <div class="rc-text">${rv.text}</div>
+    </div>`).join('');
+
+  // Price / CTA
+  const cur=cfg.currency||'€';
+  document.getElementById('price-big').innerHTML      = `${m.price}<em>${cur}/ч</em>`;
+  document.getElementById('price-sub').textContent    = r?'Почасовая ставка':'Hourly rate';
+  document.getElementById('btn-contact').textContent  = r?'Написать мастеру':'Contact Master';
+  document.getElementById('btn-contact').onclick      = contactMaster;
+  document.getElementById('btn-tg').href              = `https://t.me/${(m.telegram||SITE.tg).replace('@','')}`;
+  document.getElementById('contact-note').innerHTML   = r
+    ? '🔒 Прямые контакты доступны только зарегистрированным пользователям.'
+    : '🔒 Direct contacts available to registered users only.';
+
+  // Info
+  document.getElementById('sec-info').textContent     = r?'ИНФОРМАЦИЯ':'INFO';
+  document.getElementById('info-rows').innerHTML      = [
+    {k:r?'Страна':'Country',    v:`${cflag(m.country)} ${m.country}`},
+    {k:r?'Город':'City',        v:m.city},
+    {k:r?'Опыт':'Experience',   v:`${m.experience} ${r?'лет':'years'}`},
+    {k:r?'Категории':'Categories', v:m.cats.map(c=>catIco(c)+' '+catName(c)).join('<br>')},
+    {k:r?'Верификация':'Verified', v:`${r?'Уровень':'Level'} ${m.lvl} ✅`},
+    {k:r?'Статус':'Status',     v:m.online?`<span style="color:var(--g)">${r?'Онлайн':'Online'}</span>`:`<span style="color:var(--ink3)">${r?'Офлайн':'Offline'}</span>`},
+  ].map(row=>`<div class="info-row"><span class="k">${row.k}</span><span class="v">${row.v}</span></div>`).join('');
+}
+
+function contactMaster(){
+  const u=getUser();
+  if(!u){location.href='register.html?role=client';return;}
+  if(u.role==='client') location.href='client.html';
+  else toast(LANG==='ru'?'Откройте кабинет клиента для связи':'Open client dashboard to contact','warn');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{initNav();render();initReveal();});
+</script>
+</body>
+</html>
