@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slavic Shkaf — Каталог мастеров</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.cat-hero{padding:100px 0 40px;text-align:center}
+.cat-hero h1{font-family:'Syne',sans-serif;font-size:36px;font-weight:900;letter-spacing:-.03em;color:#fff;margin-bottom:8px}
+.cat-hero p{font-size:15px;color:var(--ink3);font-weight:500}
+.cat-filters{background:var(--bg2);border:1px solid var(--bdr);border-radius:16px;padding:20px;margin-bottom:28px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.cat-filters .fg{margin-bottom:0;min-width:160px;flex:1}
+.cat-count{font-size:13px;color:var(--ink3);font-weight:700;padding:8px 0}
+.masters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.top-section{margin-bottom:32px}
+.top-label{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.top-label-t{font-family:'Syne',sans-serif;font-size:14px;font-weight:900;color:var(--yel);text-transform:uppercase;letter-spacing:.6px}
+.top-divider{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,197,61,.3),transparent)}
+.sort-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.sort-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid var(--bdr2);background:transparent;color:var(--ink3);transition:.15s}
+.sort-btn.on{background:var(--gl);border-color:var(--g);color:var(--g)}
+.empty-state{text-align:center;padding:80px 20px;color:var(--ink3)}
+.empty-state .ico{font-size:52px;margin-bottom:16px}
+@media(max-width:640px){.cat-hero h1{font-size:26px}.cat-filters{gap:8px}}
+</style>
+</head>
+<body class="pt">
+<nav class="nav">
+  <a href="index.html" class="nav-logo"><img src="logo.png" alt="Slavic Shkaf" class="nav-logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="catalog.html" class="active" data-page="catalog">Каталог</a></li>
+    <li><a href="order.html"   data-page="order">Разместить заявку</a></li>
+  </ul>
+  <div id="nav-r"></div>
+  <button class="nav-burger" id="nav-burger"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mob" id="nav-mob">
+  <a href="catalog.html">📋 Каталог</a>
+  <a href="order.html">📝 Разместить заявку</a>
+</div>
+
+<div class="container">
+  <div class="cat-hero rv">
+    <h1 id="hero-t"></h1>
+    <p id="hero-s"></p>
+  </div>
+
+  <!-- Filters -->
+  <div class="cat-filters rv">
+    <div class="fg"><label class="fl" id="fl-search"></label>
+      <input class="fi" id="f-q" onkeyup="render()" style="min-width:200px"></div>
+    <div class="fg"><label class="fl" id="fl-cat"></label>
+      <select class="fi" id="f-cat" onchange="render()"></select></div>
+    <div class="fg"><label class="fl" id="fl-co"></label>
+      <select class="fi" id="f-co" onchange="render();renderCities()"></select></div>
+    <div class="fg"><label class="fl" id="fl-ci"></label>
+      <select class="fi" id="f-ci" onchange="render()"></select></div>
+    <div class="fg"><label class="fl" id="fl-lvl"></label>
+      <select class="fi" id="f-lvl" onchange="render()"></select></div>
+    <div class="fg" style="min-width:auto;flex:0">
+      <label class="fl" style="opacity:0">.</label>
+      <button class="btn btn-ghost" onclick="clearFilters()" id="btn-clear"></button>
+    </div>
+  </div>
+
+  <!-- Sort -->
+  <div class="sort-bar" id="sort-bar"></div>
+  <div class="cat-count" id="count-lbl"></div>
+
+  <!-- TOP section -->
+  <div id="top-section" style="display:none">
+    <div class="top-section">
+      <div class="top-label">
+        <span style="font-size:18px">🏆</span>
+        <span class="top-label-t" id="top-lbl"></span>
+        <div class="top-divider"></div>
+      </div>
+      <div class="masters-grid" id="top-grid"></div>
+    </div>
+    <div style="height:1px;background:var(--bdr);margin:28px 0"></div>
+  </div>
+
+  <!-- All masters -->
+  <div class="masters-grid" id="masters-grid"></div>
+
+  <!-- Pagination -->
+  <div style="display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap" id="pagination"></div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="container">
+    <div class="f-bot">
+      <a href="index.html"><img src="logo.png" class="f-logo-img" alt="Slavic Shkaf"></a>
+      <div style="font-size:12px;color:var(--ink4)">© 2025 Slavic Shkaf</div>
+    </div>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="utils.js"></script>
+<script>
+let sortBy='top', page=1;
+const PER_PAGE=12;
+
+function getF(id){return document.getElementById(id)?.value||'';}
+
+function renderFilters(){
+  const ru=LANG==='ru';
+  document.getElementById('hero-t').textContent=ru?'Каталог мастеров':'Master Catalog';
+  document.getElementById('hero-s').textContent=ru?`${MASTERS.length}+ проверенных специалистов в 22 странах EU`:`${MASTERS.length}+ verified specialists in 22 EU countries`;
+  document.getElementById('fl-search').textContent=ru?'Поиск':'Search';
+  document.getElementById('fl-cat').textContent=t('category');
+  document.getElementById('fl-co').textContent=t('country');
+  document.getElementById('fl-ci').textContent=t('city');
+  document.getElementById('fl-lvl').textContent=ru?'Уровень':'Level';
+  document.getElementById('btn-clear').textContent=ru?'Сбросить':'Reset';
+  document.getElementById('f-q').placeholder=ru?'Имя, навык, город...':'Name, skill, city...';
+  document.getElementById('f-cat').innerHTML=`<option value="">${ru?'Все категории':'All categories'}</option>`+SK.map(s=>`<option value="${s.id}">${s.i} ${tl(s)}</option>`).join('');
+  document.getElementById('f-co').innerHTML=`<option value="">${ru?'Все страны':'All countries'}</option>`+CO.map(c=>`<option value="${c.ru}">${c.f} ${tl(c)}</option>`).join('');
+  document.getElementById('f-lvl').innerHTML=`<option value="">${ru?'Любой уровень':'Any level'}</option><option value="1">${ru?'Уровень 1':'Level 1'}</option><option value="2">${ru?'Уровень 2':'Level 2'}</option><option value="3">${ru?'Уровень 3 — Премиум':'Level 3 — Premium'}</option>`;
+
+  // Sort bar
+  const sorts=[{id:'top',l:ru?'🏆 ТОП':'🏆 TOP'},{id:'rate',l:ru?'⭐ Рейтинг':'⭐ Rating'},{id:'price_asc',l:ru?'💰 Дешевле':'💰 Cheaper'},{id:'price_desc',l:ru?'💰 Дороже':'💰 Pricier'},{id:'exp',l:ru?'🎓 Опыт':'🎓 Experience'}];
+  document.getElementById('sort-bar').innerHTML=sorts.map(s=>`<button class="sort-btn${sortBy===s.id?' on':''}" onclick="setSort('${s.id}')">${s.l}</button>`).join('');
+
+  // Restore URL params
+  const cat=getParam('cat'), co=getParam('co');
+  if(cat) document.getElementById('f-cat').value=cat;
+  if(co)  document.getElementById('f-co').value=co;
+  renderCities();
+}
+
+function renderCities(){
+  const co=getF('f-co');
+  const cities=[...new Set(MASTERS.filter(m=>!co||m.country===co).map(m=>m.city))].sort();
+  const ru=LANG==='ru';
+  document.getElementById('f-ci').innerHTML=`<option value="">${ru?'Все города':'All cities'}</option>`+cities.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function setSort(s){sortBy=s;page=1;render();document.getElementById('sort-bar').querySelectorAll('.sort-btn').forEach(b=>b.classList.toggle('on',b.textContent.includes(s)||b.onclick.toString().includes(`'${s}'`)));document.getElementById('sort-bar').innerHTML=document.getElementById('sort-bar').innerHTML;renderFilters();}
+
+function filteredMasters(){
+  const q=getF('f-q').toLowerCase(), cat=getF('f-cat'), co=getF('f-co'), ci=getF('f-ci'), lvl=getF('f-lvl');
+  return MASTERS.filter(m=>{
+    if(cat && !m.cats.includes(cat)) return false;
+    if(co  && m.country!==co) return false;
+    if(ci  && m.city!==ci) return false;
+    if(lvl && m.lvl<+lvl) return false;
+    if(q && !m.nm.toLowerCase().includes(q) && !m.city.toLowerCase().includes(q) && !m.skills.some(s=>s.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function sortMasters(arr){
+  const co=getF('f-co'), ci=getF('f-ci');
+  return [...arr].sort((a,b)=>{
+    if(sortBy==='top'){
+      const at=(ci&&a.city===ci&&a.topCity)?2:(co&&a.country===co&&a.topCountry)?1:0;
+      const bt=(ci&&b.city===ci&&b.topCity)?2:(co&&b.country===co&&b.topCountry)?1:0;
+      if(bt!==at) return bt-at;
+      return b.rate-a.rate;
+    }
+    if(sortBy==='rate') return b.rate-a.rate;
+    if(sortBy==='price_asc') return a.price-b.price;
+    if(sortBy==='price_desc') return b.price-a.price;
+    if(sortBy==='exp') return (b.experience||0)-(a.experience||0);
+    return 0;
+  });
+}
+
+function render(){
+  const ru=LANG==='ru';
+  const all=filteredMasters();
+  const sorted=sortMasters(all);
+  const topMasters=sorted.filter(m=>m.topCity||m.topCountry);
+  const regular=sorted.filter(m=>!m.topCity&&!m.topCountry);
+
+  const total=sorted.length;
+  document.getElementById('count-lbl').textContent=`${total} ${ru?'мастеров найдено':'masters found'}`;
+
+  // TOP section
+  const topSec=document.getElementById('top-section');
+  if(topMasters.length && sortBy==='top'){
+    topSec.style.display='block';
+    const co=getF('f-co'), ci=getF('f-ci');
+    document.getElementById('top-lbl').textContent=ci?`ТОП мастера — ${ci}`:co?`ТОП мастера — ${co}`:'ТОП мастера';
+    document.getElementById('top-grid').innerHTML=topMasters.map(m=>masterCardHTML(m)).join('');
+  } else topSec.style.display='none';
+
+  // Pagination
+  const toShow=sortBy==='top'?regular:sorted;
+  const totalPages=Math.ceil(toShow.length/PER_PAGE);
+  if(page>totalPages) page=1;
+  const paged=toShow.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+  document.getElementById('masters-grid').innerHTML=paged.length
+    ? paged.map(m=>masterCardHTML(m)).join('')
+    : `<div class="empty-state" style="grid-column:1/-1"><div class="ico">🔍</div><div style="font-size:16px;font-weight:700;margin-bottom:8px">${ru?'Мастера не найдены':'No masters found'}</div><div style="font-size:13px">${ru?'Попробуйте изменить фильтры':'Try changing filters'}</div></div>`;
+
+  // Pagination controls
+  if(totalPages>1){
+    let html='';
+    if(page>1) html+=`<button class="btn btn-ghost btn-sm" onclick="goPage(${page-1})">←</button>`;
+    for(let i=1;i<=totalPages;i++){
+      if(i===1||i===totalPages||Math.abs(i-page)<=1) html+=`<button class="sort-btn${i===page?' on':''}" onclick="goPage(${i})">${i}</button>`;
+      else if(Math.abs(i-page)===2) html+=`<span style="padding:0 4px;color:var(--ink4)">…</span>`;
+    }
+    if(page<totalPages) html+=`<button class="btn btn-ghost btn-sm" onclick="goPage(${page+1})">→</button>`;
+    document.getElementById('pagination').innerHTML=html;
+  } else document.getElementById('pagination').innerHTML='';
+}
+
+function goPage(n){page=n;render();window.scrollTo({top:300,behavior:'smooth'});}
+
+function clearFilters(){
+  ['f-q','f-cat','f-co','f-ci','f-lvl'].forEach(id=>{const el=document.getElementById(id);if(el) el.value='';});
+  renderCities(); render();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initNav('catalog');
+  renderFilters();
+  render();
+  initReveal();
+});
+</script>
+</body>
+</html>

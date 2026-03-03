@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slavic Shkaf — Профиль мастера</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.profile-hero{padding:100px 0 0;margin-bottom:32px}
+.ph-inner{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:start}
+.ph-ava{width:96px;height:96px;border-radius:22px;background:var(--gl);border:3px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:42px;flex-shrink:0}
+.ph-name{font-family:'Syne',sans-serif;font-size:32px;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:8px}
+.ph-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.ph-meta{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink3);font-weight:600}
+.ph-meta span{display:flex;align-items:center;gap:5px}
+.ph-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.profile-body{display:grid;grid-template-columns:1fr 340px;gap:20px;padding-bottom:60px}
+.skills-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.skill-chip{padding:7px 14px;border-radius:9px;background:var(--bg3);border:1px solid var(--bdr);font-size:13px;font-weight:600;color:var(--ink2)}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.port-item{aspect-ratio:1;border-radius:10px;background:var(--bg3);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:.2s}
+.port-item:hover{border-color:var(--g);transform:scale(1.03)}
+.review-card{padding:16px 0;border-bottom:1px solid var(--bdr)}
+.review-card:last-child{border-bottom:none}
+.rc-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:6px}
+.rc-author{font-size:13px;font-weight:800;color:#fff}
+.rc-date{font-size:11px;color:var(--ink3)}
+.rc-stars{color:var(--yel);font-size:13px;margin-bottom:6px}
+.rc-text{font-size:13px;color:var(--ink3);line-height:1.6}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-row .k{color:var(--ink3);font-weight:600}
+.info-row .v{color:#fff;font-weight:700}
+.rate-big{font-family:'Syne',sans-serif;font-size:56px;font-weight:900;color:var(--yel);line-height:1}
+.rate-stars{color:var(--yel);font-size:20px;margin:6px 0}
+.rate-count{font-size:13px;color:var(--ink3);font-weight:600}
+.price-big{font-family:'Syne',sans-serif;font-size:28px;font-weight:900;color:var(--g)}
+.price-big em{font-size:14px;color:var(--ink3);font-style:normal;font-family:'Manrope',sans-serif}
+@media(max-width:1024px){.profile-body{grid-template-columns:1fr}.ph-inner{grid-template-columns:auto 1fr;}.ph-actions{grid-column:1/-1;flex-direction:row}}
+@media(max-width:640px){.ph-name{font-size:24px}.ph-actions{flex-wrap:wrap}}
+</style>
+</head>
+<body class="pt">
+<nav class="nav">
+  <a href="index.html" class="nav-logo"><img src="logo.png" alt="Slavic Shkaf" class="nav-logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="catalog.html">Каталог</a></li>
+    <li><a href="order.html">Разместить заявку</a></li>
+  </ul>
+  <div id="nav-r"></div>
+  <button class="nav-burger" id="nav-burger"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-mob" id="nav-mob"></div>
+
+<div class="container">
+  <div class="profile-hero rv">
+    <div style="margin-bottom:16px"><a href="catalog.html" style="font-size:13px;color:var(--ink3);font-weight:600">← Каталог</a></div>
+    <div class="ph-inner">
+      <div class="ph-ava" id="ph-ava"></div>
+      <div>
+        <div class="ph-name" id="ph-name"></div>
+        <div class="ph-badges" id="ph-badges"></div>
+        <div class="ph-meta" id="ph-meta"></div>
+      </div>
+      <div class="ph-actions" id="ph-actions"></div>
+    </div>
+  </div>
+
+  <div class="profile-body">
+    <!-- LEFT col -->
+    <div>
+      <!-- About -->
+      <div class="card card-p rv" style="margin-bottom:16px">
+        <div class="card-t" id="sec-about"></div>
+        <p style="font-size:14px;color:var(--ink2);line-height:1.7" id="about-text"></p>
+      </div>
+      <!-- Skills -->
+      <div class="card card-p rv" style="margin-bottom:16px">
+        <div class="card-t" id="sec-skills"></div>
+        <div class="skills-wrap" id="skills-wrap"></div>
+      </div>
+      <!-- Portfolio -->
+      <div class="card card-p rv" style="margin-bottom:16px">
+        <div class="card-t" id="sec-portfolio"></div>
+        <div class="portfolio-grid" id="portfolio-grid"></div>
+      </div>
+      <!-- Reviews -->
+      <div class="card card-p rv">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="card-t" id="sec-reviews" style="margin-bottom:0"></div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div>
+              <div class="rate-big" id="rate-big"></div>
+              <div class="rate-stars" id="rate-stars"></div>
+              <div class="rate-count" id="rate-count"></div>
+            </div>
+          </div>
+        </div>
+        <div id="reviews-list"></div>
+      </div>
+    </div>
+    <!-- RIGHT col -->
+    <div>
+      <!-- Price / CTA -->
+      <div class="card card-p rv" style="margin-bottom:14px;position:sticky;top:84px">
+        <div class="price-big" id="price-big"></div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:18px" id="price-sub"></div>
+        <button class="btn btn-p btn-fw" id="btn-contact" style="margin-bottom:10px"></button>
+        <button class="btn btn-tg btn-fw" id="btn-tg" style="display:flex;margin-bottom:16px">✈️ Telegram</button>
+        <div style="font-size:11px;color:var(--ink3);text-align:center;line-height:1.6" id="contact-note"></div>
+      </div>
+      <!-- Info -->
+      <div class="card card-p rv">
+        <div class="card-t" id="sec-info"></div>
+        <div id="info-rows"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="f-bot">
+      <a href="index.html"><img src="logo.png" class="f-logo-img" alt="Slavic Shkaf"></a>
+      <div style="font-size:12px;color:var(--ink4)">© 2025 Slavic Shkaf</div>
+    </div>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="utils.js"></script>
+<script>
+const id = +(getParam('id')||1);
+const m  = MASTERS.find(x=>x.id===id) || MASTERS[0];
+const ru = ()=>LANG==='ru';
+
+function render(){
+  const r=ru();
+  document.title = `${m.nm} — Slavic Shkaf`;
+
+  // Header
+  document.getElementById('ph-ava').textContent = m.a;
+  document.getElementById('ph-name').textContent = m.nm;
+  document.getElementById('ph-badges').innerHTML =
+    (m.topCountry?`<span class="badge badge-y">🏆 ТОП страны</span>`:'') +
+    (m.topCity   ?`<span class="badge badge-y">🏙️ ТОП города</span>`:'') +
+    `<span class="badge badge-g">✅ ${r?'Ур.':'Lv.'} ${m.lvl}</span>` +
+    (m.sub?`<span class="badge badge-acc">⭐ Pro</span>`:'') +
+    (m.online?`<span class="badge badge-g">${r?'Онлайн':'Online'}</span>`:`<span class="badge badge-muted">${r?'Офлайн':'Offline'}</span>`);
+
+  document.getElementById('ph-meta').innerHTML = `
+    <span>📍 ${cflag(m.country)} ${m.city}, ${m.country}</span>
+    <span>⭐ ${m.rate} (${m.reviews} ${r?'отзывов':'reviews'})</span>
+    <span>🎓 ${m.experience} ${r?'лет опыта':'years exp.'}</span>
+    <span>💼 ${m.cats.map(c=>catName(c)).join(', ')}</span>`;
+
+  const u=getUser();
+  document.getElementById('ph-actions').innerHTML = u
+    ? `<button class="btn btn-p" onclick="contactMaster()">${r?'Написать':'Message'} 💬</button>
+       <a href="order.html" class="btn btn-ghost">${r?'Создать заявку':'Post Order'}</a>`
+    : `<a href="register.html?role=client" class="btn btn-p">${r?'Связаться':'Contact'} →</a>`;
+
+  // About
+  document.getElementById('sec-about').textContent    = r?'О МАСТЕРЕ':'ABOUT';
+  document.getElementById('about-text').textContent   = m.about;
+
+  // Skills
+  document.getElementById('sec-skills').textContent   = r?'НАВЫКИ':'SKILLS';
+  document.getElementById('skills-wrap').innerHTML     = m.skills.map(s=>`<span class="skill-chip">${s}</span>`).join('');
+
+  // Portfolio
+  document.getElementById('sec-portfolio').textContent= r?'ПОРТФОЛИО':'PORTFOLIO';
+  document.getElementById('portfolio-grid').innerHTML  = m.portfolio.map(ico=>`<div class="port-item">${ico}</div>`).join('');
+
+  // Reviews
+  document.getElementById('sec-reviews').textContent  = r?'ОТЗЫВЫ':'REVIEWS';
+  document.getElementById('rate-big').textContent     = m.rate;
+  document.getElementById('rate-stars').textContent   = '★'.repeat(Math.round(m.rate)) + '☆'.repeat(5-Math.round(m.rate));
+  document.getElementById('rate-count').textContent   = `${m.reviews} ${r?'отзывов':'reviews'}`;
+  document.getElementById('reviews-list').innerHTML   = (m.revList||[]).map(rv=>`
+    <div class="review-card">
+      <div class="rc-top"><div><div class="rc-author">${rv.author}</div><div class="rc-date">${rv.date}</div></div></div>
+      <div class="rc-stars">${'★'.repeat(rv.stars)}</div>
+      <div class="rc-text">${rv.text}</div>
+    </div>`).join('');
+
+  // Price / CTA
+  const cur=cfg.currency||'€';
+  document.getElementById('price-big').innerHTML      = `${m.price}<em>${cur}/ч</em>`;
+  document.getElementById('price-sub').textContent    = r?'Почасовая ставка':'Hourly rate';
+  document.getElementById('btn-contact').textContent  = r?'Написать мастеру':'Contact Master';
+  document.getElementById('btn-contact').onclick      = contactMaster;
+  document.getElementById('btn-tg').href              = `https://t.me/${(m.telegram||SITE.tg).replace('@','')}`;
+  document.getElementById('contact-note').innerHTML   = r
+    ? '🔒 Прямые контакты доступны только зарегистрированным пользователям.'
+    : '🔒 Direct contacts available to registered users only.';
+
+  // Info
+  document.getElementById('sec-info').textContent     = r?'ИНФОРМАЦИЯ':'INFO';
+  document.getElementById('info-rows').innerHTML      = [
+    {k:r?'Страна':'Country',    v:`${cflag(m.country)} ${m.country}`},
+    {k:r?'Город':'City',        v:m.city},
+    {k:r?'Опыт':'Experience',   v:`${m.experience} ${r?'лет':'years'}`},
+    {k:r?'Категории':'Categories', v:m.cats.map(c=>catIco(c)+' '+catName(c)).join('<br>')},
+    {k:r?'Верификация':'Verified', v:`${r?'Уровень':'Level'} ${m.lvl} ✅`},
+    {k:r?'Статус':'Status',     v:m.online?`<span style="color:var(--g)">${r?'Онлайн':'Online'}</span>`:`<span style="color:var(--ink3)">${r?'Офлайн':'Offline'}</span>`},
+  ].map(row=>`<div class="info-row"><span class="k">${row.k}</span><span class="v">${row.v}</span></div>`).join('');
+}
+
+function contactMaster(){
+  const u=getUser();
+  if(!u){location.href='register.html?role=client';return;}
+  if(u.role==='client') location.href='client.html';
+  else toast(LANG==='ru'?'Откройте кабинет клиента для связи':'Open client dashboard to contact','warn');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{initNav();render();initReveal();});
+</script>
+</body>
+</html>
