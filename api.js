@@ -1,3 +1,4 @@
+// VERSION: 2.0 — no getUser conflict
 /**
  * Slavic Shkaf — API Client
  * Replaces localStorage with real Cloudflare Workers API calls
@@ -166,15 +167,6 @@ async function apiAdminDeleteUser(id) {
 async function apiAdminGetStats() {
   return GET('/api/admin/stats');
 }
-
-// ══════════════════════════════════════════════════
-// LOCAL HELPERS (kept for compatibility)
-// ══════════════════════════════════════════════════
-
-// getUser() still reads from localStorage (set by apiLogin/apiRegister)
-const getUser  = () => { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch { return null; } };
-const setUser  = u => localStorage.setItem(USER_KEY, JSON.stringify(u));
-const clearUser = () => { localStorage.removeItem(USER_KEY); localStorage.removeItem(TOKEN_KEY); };
 
 // toast (fallback if not defined)
 if (typeof window !== 'undefined' && !window._toastDefined) {
