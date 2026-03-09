@@ -283,6 +283,41 @@ button{cursor:pointer;font-family:inherit}
   .mob-tab .mt-ico{font-size:17px}
   .mob-tab span{font-size:8px}
 }
+
+/* ── MOB HEADER ── */
+.mob-header{display:none;position:fixed;top:0;left:0;right:0;height:52px;background:var(--bg2);
+  border-bottom:1px solid var(--bdr);z-index:200;align-items:center;padding:0 16px;gap:10px}
+.mob-header-title{flex:1;font-weight:800;font-size:15px;text-align:center}
+.mob-menu-btn{background:none;border:none;color:var(--ink1);font-size:24px;cursor:pointer;
+  padding:6px;min-width:36px;text-align:right}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:299;
+  backdrop-filter:blur(2px)}
+.drawer-overlay.open{display:block}
+.drawer-panel{position:fixed;top:0;right:0;bottom:0;width:260px;background:var(--bg2);
+  border-left:1px solid var(--bdr);z-index:300;transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
+.drawer-panel.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 16px 12px;border-bottom:1px solid var(--bdr)}
+.drawer-nav{flex:1;padding:8px 0;display:flex;flex-direction:column}
+.dr-item{display:flex;align-items:center;gap:12px;padding:12px 20px;
+  background:none;border:none;color:var(--ink1);font-size:14px;font-weight:600;
+  cursor:pointer;text-align:left;border-left:3px solid transparent;transition:.15s}
+.dr-item:hover,.dr-item.active{background:rgba(0,214,143,.07);border-left-color:var(--g);color:var(--g)}
+.dr-ico{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.dr-sep{height:1px;background:var(--bdr);margin:6px 16px}
+@media(max-width:640px){
+  .mob-header{display:flex!important}
+  .dash-wrap{padding-top:52px!important}
+  .dash-side{display:none}
+  .mob-tabbar{display:none!important}
+  .dash-main{padding:14px;padding-bottom:20px}
+}
+
+/* ── RATING POPUP ── */
+#rating-popup button[data-r]{transition:opacity .15s,transform .15s}
+/* ── CLIENT CHAT ── */
+#client-chat-content{background:var(--bg);border-radius:12px;padding:10px;min-height:120px}
 </style>
 </head>
 <body>
@@ -932,7 +967,8 @@ function go(tab){
   if(panel)panel.classList.add('active');
   if(btn)btn.classList.add('active');
   ({orders:renderMyOrders, new:initNew, find:renderFind, profile:renderCP,
-    notif:renderNotif, reviews:renderReviews, archive:renderArchive})[tab]?.();
+    notif:renderNotif, reviews:renderReviews, archive:renderArchive,
+    favorites:renderFavorites, chat:renderClientChat})[tab]?.();
 }
 
 // ── NOTIFICATIONS ──
@@ -1063,11 +1099,56 @@ function renderMyOrders(){
   const all=getOrders().filter(o=>o.clientId===U.id);
   const el=document.getElementById('my-orders');if(!el)return;
   if(!all.length){el.innerHTML=`<div class="form-block" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">📋</div><div style="font-weight:700">${t('general.no_data')}</div><button class="btn btn-p btn-sm" style="margin-top:12px" onclick="go('new')">${t('btn.create')}</button></div>`;return;}
-  el.innerHTML=all.map(o=>`<div class="oc">
-    <div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div>
-    <div class="oc-meta"><span>📍 ${o.city}${o.zip?' '+o.zip:''}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span><span>👥 ${(o.responses||[]).length} ${t('general.responses')}</span></div>
-    <div class="oc-desc">${o.desc}</div>
-  </div>`).join('');
+  el.innerHTML=all.map(o=>{
+    const respMasters = (o.responses||[])
+      .map(mid => MASTERS.find(m=>m.id===mid))
+      .filter(Boolean);
+    const assigned = o.assignedMasterId ? MASTERS.find(m=>m.id===o.assignedMasterId) : null;
+
+    // Кнопки откликнувшихся мастеров (только если open)
+    let respondersHtml = '';
+    if(o.status==='open' && respMasters.length){
+      respondersHtml = '<div style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:10px">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">👥 Откликнулись (' + respMasters.length + ')</div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px">' +
+        respMasters.map(m => `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--bg3);border-radius:10px">
+          <div style="font-size:24px;flex-shrink:0">${m.a}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:13px">${m.nm}</div>
+            <div style="font-size:11px;color:var(--ink3)">${m.city}, ${m.country} · ⭐${m.rate} · ${m.reviews} отзывов</div>
+          </div>
+          <button class="btn btn-p btn-sm" style="font-size:11px;white-space:nowrap" onclick="assignMaster(${o.id},${m.id})">✅ Выбрать</button>
+        </div>`).join('') +
+        '</div></div>';
+    }
+
+    // Назначенный мастер (если in_progress)
+    let assignedHtml = '';
+    if(assigned){
+      assignedHtml = '<div style="margin-top:10px;padding:10px;background:rgba(0,214,143,.08);border:1px solid var(--g);border-radius:10px;display:flex;align-items:center;gap:10px">' +
+        '<div style="font-size:22px">' + assigned.a + '</div>' +
+        '<div style="flex:1"><div style="font-weight:700;font-size:13px">Исполнитель: ' + assigned.nm + '</div>' +
+        '<div style="font-size:11px;color:var(--ink3)">' + assigned.city + ' · ⭐' + assigned.rate + '</div></div>' +
+        '<button class="btn btn-sm" style="font-size:11px;background:rgba(124,111,255,.15);color:var(--acc)" onclick="openChat(' + assigned.id + ',' + o.id + ')">💬 Чат</button>' +
+        '</div>';
+    }
+
+    // Кнопка завершить (если in_progress)
+    const doneBtn = o.status==='in_progress'
+      ? '<button class="btn btn-sm" style="font-size:12px;background:rgba(0,214,143,.12);color:var(--g);margin-top:10px" onclick="completeOrder(' + o.id + ')">✅ Завершить заказ</button>'
+      : '';
+
+    return `<div class="oc">
+      <div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div>
+      <div class="oc-meta">
+        <span>📍 ${o.city}${o.zip?' '+o.zip:''}, ${o.country}</span>
+        <span>${catIco(o.cat)} ${catName(o.cat)}</span>
+        <span>👥 ${(o.responses||[]).length} ${t('general.responses')}</span>
+      </div>
+      <div class="oc-desc">${o.desc}</div>
+      ${respondersHtml}${assignedHtml}${doneBtn}
+    </div>`;
+  }).join('');
 }
 
 function initNew(){
@@ -1102,7 +1183,12 @@ function renderFind(){
   if(cat)list=list.filter(m=>m.cats.includes(cat));
   if(country)list=list.filter(m=>m.country===country);
   const grid=document.getElementById('find-grid');if(!grid)return;
-  grid.innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}</div><div class="mc-loc">${flagImg(m.iso)} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}🔨</div></div><div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink3)">${t('catalog.not_found')}</div>`;
+  grid.innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}</div><div class="mc-loc">${flagImg(m.iso)} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}🔨</div></div><div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span class="mc-price">${m.price}€${t('general.per_hour')}</span>
+          ${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}
+          <span style="flex:1"></span>
+          <button class="btn btn-sm" style="padding:4px 10px;font-size:12px;background:${isFav(m.id)?'rgba(255,80,120,.18)':'rgba(255,255,255,.06)'};color:${isFav(m.id)?'#ff5080':'var(--ink2)'}" onclick="event.preventDefault();toggleFav(${m.id},this)" data-mid="${m.id}">${isFav(m.id)?'❤️':'🤍'}</button>
+        </div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink3)">${t('catalog.not_found')}</div>`;
 }
 
 function renderCP(){
@@ -1132,8 +1218,347 @@ function saveCP(){
   document.getElementById('f-country')?.addEventListener('change',renderFind);
   renderNav();
   renderMyOrders();
+  setTimeout(checkCompletedUnrated, 600);
 })();
 
+
+function checkCompletedUnrated(){
+  if(!U) return;
+  const unrated = getOrders().filter(o =>
+    o.clientId === U.id &&
+    o.status === 'completed' &&
+    !o.rated &&
+    o.assignedMasterId
+  );
+  if(unrated.length > 0){
+    // Показать попап для первого незакрытого
+    showRatingPopup(unrated[0].id);
+  }
+}
+
+function openDrawer(){
+  document.getElementById('drawer-panel').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  if(U){
+    var dn=document.getElementById('drawer-name');
+    if(dn) dn.textContent=U.name||'Аккаунт';
+    var dr=document.getElementById('drawer-role');
+    if(dr) dr.textContent=U.role==='admin'?'⚙️ Администратор':U.role==='master'?'🔨 Мастер':'🏠 Клиент';
+  }
+}
+function closeDrawer(){
+  document.getElementById('drawer-panel').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function goD(tab){
+  closeDrawer();
+  setTimeout(function(){go(tab);},80);
+}
+
+
+// ══════════════════════════════════════════════
+// ── ASSIGN MASTER + COMPLETE ORDER ──
+// ══════════════════════════════════════════════
+function assignMaster(orderId, masterId){
+  const master = MASTERS.find(m=>m.id===masterId);
+  if(!master) return;
+  if(!confirm('Выбрать мастера ' + master.nm + ' для этого заказа?')) return;
+  updateOrder(orderId, { status:'in_progress', assignedMasterId: masterId });
+  toast('✅ Мастер ' + master.nm + ' назначен!');
+  renderMyOrders();
+  // Создаём уведомление для отображения в чате
+  const chatKey = 'ss_chat_' + orderId;
+  const msgs = JSON.parse(localStorage.getItem(chatKey)||'[]');
+  msgs.push({
+    from:'system', text:'Мастер ' + master.nm + ' выбран исполнителем. Можно начать общение.',
+    ts: Date.now()
+  });
+  localStorage.setItem(chatKey, JSON.stringify(msgs));
+}
+
+function completeOrder(orderId){
+  if(!confirm('Отметить заказ как выполненный?')) return;
+  updateOrder(orderId, { status:'completed', completedAt: new Date().toISOString() });
+  toast('🎉 Заказ завершён!');
+  renderMyOrders();
+  // Показать попап оценки
+  setTimeout(() => showRatingPopup(orderId), 800);
+}
+
+// ══════════════════════════════════════════════
+// ── RATING POPUP (auto after complete) ──
+// ══════════════════════════════════════════════
+function showRatingPopup(orderId){
+  const order = getOrders().find(o=>o.id===orderId);
+  if(!order || order.rated) return;
+  const master = order.assignedMasterId ? MASTERS.find(m=>m.id===order.assignedMasterId) : null;
+
+  const popup = document.createElement('div');
+  popup.id = 'rating-popup';
+  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:flex;align-items:flex-end;justify-content:center;padding:16px;backdrop-filter:blur(4px)';
+
+  popup.innerHTML = '<div style="background:var(--bg2);border-radius:20px 20px 16px 16px;padding:24px;width:100%;max-width:400px;box-shadow:0 -4px 40px rgba(0,0,0,.4)">' +
+    '<div style="text-align:center;margin-bottom:20px">' +
+      '<div style="font-size:40px;margin-bottom:8px">🎉</div>' +
+      '<div style="font-weight:900;font-size:18px">Заказ выполнен!</div>' +
+      (master ? '<div style="font-size:13px;color:var(--ink3);margin-top:4px">Оцените работу мастера <strong>' + master.nm + '</strong></div>' : '') +
+    '</div>' +
+    '<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px" id="rating-stars">' +
+      [1,2,3,4,5].map(n =>
+        '<button onclick="setPopupRating(' + n + ')" data-r="' + n + '" style="font-size:32px;background:none;border:none;cursor:pointer;opacity:.4;transition:.15s;padding:4px">🔨</button>'
+      ).join('') +
+    '</div>' +
+    '<textarea id="rating-comment" placeholder="Комментарий (необязательно)..." style="width:100%;resize:none;height:70px;margin-bottom:14px;box-sizing:border-box"></textarea>' +
+    '<div style="display:flex;gap:8px">' +
+      '<button class="btn btn-p" style="flex:1" id="rating-submit-btn" onclick="submitPopupRating(' + orderId + ')" disabled>Оставить отзыв</button>' +
+      '<button class="btn" onclick="document.getElementById(\'rating-popup\').remove()" style="background:rgba(255,255,255,.06);color:var(--ink3)">Позже</button>' +
+    '</div>' +
+  '</div>';
+
+  document.body.appendChild(popup);
+}
+
+let _popupRating = 0;
+function setPopupRating(n){
+  _popupRating = n;
+  document.querySelectorAll('#rating-stars button').forEach((b,i) => {
+    b.style.opacity = i < n ? '1' : '.3';
+    b.style.transform = i < n ? 'scale(1.15)' : 'scale(1)';
+  });
+  const btn = document.getElementById('rating-submit-btn');
+  if(btn) btn.disabled = false;
+}
+
+function submitPopupRating(orderId){
+  if(!_popupRating) return;
+  const comment = document.getElementById('rating-comment')?.value.trim() || '';
+  const order   = getOrders().find(o=>o.id===orderId);
+  const master  = order?.assignedMasterId ? MASTERS.find(m=>m.id===order.assignedMasterId) : null;
+
+  // Сохранить оценку
+  updateOrder(orderId, { rated: true, clientRating: _popupRating, clientComment: comment });
+
+  // Добавить в отзывы
+  if(master && U){
+    const revKey = 'ss_reviews_client_' + U.id;
+    const revs = JSON.parse(localStorage.getItem(revKey)||'[]');
+    revs.push({ masterId: master.id, masterName: master.nm, rating: _popupRating, comment, date: new Date().toISOString(), orderId });
+    localStorage.setItem(revKey, JSON.stringify(revs));
+  }
+
+  document.getElementById('rating-popup').remove();
+  toast('🙏 Спасибо за отзыв!');
+  _popupRating = 0;
+}
+
+// ══════════════════════════════════════════════
+// ── FAVORITES ──
+// ══════════════════════════════════════════════
+const FAV_KEY = () => 'ss_favs_' + (U ? U.id : 'guest');
+
+function isFav(masterId){
+  const favs = JSON.parse(localStorage.getItem(FAV_KEY())||'[]');
+  return favs.includes(masterId);
+}
+
+function toggleFav(masterId, btn){
+  let favs = JSON.parse(localStorage.getItem(FAV_KEY())||'[]');
+  if(favs.includes(masterId)){
+    favs = favs.filter(id => id !== masterId);
+    if(btn){ btn.textContent = '🤍'; btn.style.background = 'rgba(255,255,255,.06)'; btn.style.color = 'var(--ink2)'; }
+    toast('Убрано из избранного');
+  } else {
+    favs.push(masterId);
+    if(btn){ btn.textContent = '❤️'; btn.style.background = 'rgba(255,80,120,.18)'; btn.style.color = '#ff5080'; }
+    toast('❤️ Добавлено в избранное');
+  }
+  localStorage.setItem(FAV_KEY(), JSON.stringify(favs));
+}
+
+function renderFavorites(){
+  const favs = JSON.parse(localStorage.getItem(FAV_KEY())||'[]');
+  const el = document.getElementById('fav-grid');
+  if(!el) return;
+  const list = MASTERS.filter(m => favs.includes(m.id));
+  if(!list.length){
+    el.innerHTML = '<div class="form-block" style="text-align:center;padding:40px;grid-column:1/-1">' +
+      '<div style="font-size:40px;margin-bottom:10px">🤍</div>' +
+      '<div style="font-weight:700">Нет избранных мастеров</div>' +
+      '<div style="font-size:12px;color:var(--ink3);margin-top:6px">Нажмите ❤️ на карточке мастера чтобы добавить</div>' +
+      '<button class="btn btn-p btn-sm" style="margin-top:14px" onclick="go(\'find\')">🔍 Найти мастеров</button></div>';
+    return;
+  }
+  el.innerHTML = list.map(m => `<div class="mcard" style="text-decoration:none;display:block;position:relative">
+    <div class="mc-top">
+      <div class="mc-ava">${m.a}</div>
+      <div class="mc-info">
+        <div class="mc-name">${m.nm}${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}</div>
+        <div class="mc-loc">${flagImg(m.iso)} ${m.city}, ${m.country}</div>
+      </div>
+      <div class="mc-rate">${m.rate}🔨</div>
+    </div>
+    <div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div>
+    <div class="mc-foot" style="display:flex;align-items:center;gap:6px">
+      <span class="mc-price">${m.price}€/ч</span>
+      ${m.online?'<span class="badge badge-g">🟢</span>':'<span class="badge">⚫</span>'}
+      <span style="flex:1"></span>
+      <button class="btn btn-sm" style="font-size:12px;padding:4px 10px" onclick="openCatalogProfile(${m.id})">👁</button>
+      <button class="btn btn-sm" style="font-size:12px;padding:4px 10px;background:rgba(255,80,120,.18);color:#ff5080" onclick="toggleFav(${m.id},this)">❤️</button>
+    </div>
+  </div>`).join('');
+}
+
+function openCatalogProfile(id){
+  window.location.href = 'profile.html?id=' + id;
+}
+
+// ══════════════════════════════════════════════
+// ── CLIENT CHAT WITH MASTER ──
+// ══════════════════════════════════════════════
+let _chatOrderId = null;
+let _chatMasterId = null;
+
+function openChat(masterId, orderId){
+  _chatOrderId = orderId;
+  _chatMasterId = masterId;
+  go('chat');
+  renderClientChat();
+}
+
+function renderClientChat(){
+  const infoEl    = document.getElementById('chat-master-info');
+  const contentEl = document.getElementById('client-chat-content');
+  const inputEl   = document.getElementById('chat-input-area');
+  if(!infoEl||!contentEl) return;
+
+  // Если нет активного чата — показать список активных заказов
+  if(!_chatOrderId){
+    const inProgress = getOrders().filter(o => o.clientId===U?.id && o.status==='in_progress' && o.assignedMasterId);
+    if(!inProgress.length){
+      infoEl.innerHTML = '';
+      contentEl.innerHTML = '<div class="form-block" style="text-align:center;padding:40px">' +
+        '<div style="font-size:36px;margin-bottom:8px">💬</div>' +
+        '<div style="font-weight:700">Нет активных заказов</div>' +
+        '<div style="font-size:12px;color:var(--ink3);margin-top:6px">Чат доступен после выбора исполнителя</div></div>';
+      if(inputEl) inputEl.style.display = 'none';
+      return;
+    }
+    // Показать список чатов
+    infoEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px;text-transform:uppercase">Активные заказы</div>';
+    contentEl.innerHTML = inProgress.map(o => {
+      const m = MASTERS.find(x=>x.id===o.assignedMasterId);
+      if(!m) return '';
+      const chatKey = 'ss_chat_' + o.id;
+      const msgs = JSON.parse(localStorage.getItem(chatKey)||'[]');
+      const last = msgs[msgs.length-1];
+      return '<div class="oc" style="cursor:pointer" onclick="openChat(' + m.id + ',' + o.id + ')">' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<div style="font-size:28px">' + m.a + '</div>' +
+          '<div style="flex:1"><div style="font-weight:700">' + m.nm + '</div>' +
+            '<div style="font-size:12px;color:var(--ink3)">' + o.title + '</div>' +
+            (last && last.from!=='system' ? '<div style="font-size:11px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + last.text.slice(0,40) + '</div>' : '') +
+          '</div>' +
+          '<div style="color:var(--g);font-size:20px">›</div>' +
+        '</div></div>';
+    }).join('');
+    if(inputEl) inputEl.style.display = 'none';
+    return;
+  }
+
+  // Показываем конкретный чат
+  const master = MASTERS.find(m=>m.id===_chatMasterId);
+  const order  = getOrders().find(o=>o.id===_chatOrderId);
+
+  if(master && infoEl){
+    infoEl.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:12px;margin-bottom:4px">' +
+      '<button onclick="_chatOrderId=null;_chatMasterId=null;renderClientChat()" style="background:none;border:none;color:var(--ink3);font-size:18px;cursor:pointer;padding:0 4px">←</button>' +
+      '<div style="font-size:24px">' + master.a + '</div>' +
+      '<div><div style="font-weight:800">' + master.nm + '</div>' +
+        '<div style="font-size:11px;color:var(--ink3)">' + (order?order.title:'') + '</div></div>' +
+      (master.online ? '<span class="badge badge-g" style="margin-left:auto">🟢 online</span>' : '') +
+    '</div>';
+  }
+
+  const chatKey = 'ss_chat_' + _chatOrderId;
+  const msgs = JSON.parse(localStorage.getItem(chatKey)||'[]');
+
+  contentEl.innerHTML = msgs.length ? msgs.map(msg => {
+    const isMe = msg.from === 'client';
+    const isSys = msg.from === 'system';
+    if(isSys) return '<div style="text-align:center;font-size:11px;color:var(--ink3);padding:8px 0;font-style:italic">' + msg.text + '</div>';
+    return '<div style="display:flex;flex-direction:column;align-items:' + (isMe?'flex-end':'flex-start') + ';margin-bottom:8px">' +
+      '<div style="max-width:80%;padding:8px 12px;border-radius:' + (isMe?'14px 4px 14px 14px':'4px 14px 14px 14px') + ';background:' + (isMe?'var(--g)':'var(--bg3)') + ';color:' + (isMe?'#0a0e14':'var(--ink1)') + ';font-size:13px">' + msg.text + '</div>' +
+      '<div style="font-size:10px;color:var(--ink3);margin-top:2px">' + new Date(msg.ts).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) + '</div>' +
+    '</div>';
+  }).join('') : '<div style="text-align:center;padding:30px;color:var(--ink3);font-size:13px">💬 Начните переписку</div>';
+
+  // Скролл вниз
+  contentEl.scrollTop = contentEl.scrollHeight;
+  if(inputEl) inputEl.style.display = '';
+}
+
+function sendClientMsg(){
+  if(!_chatOrderId || !U) return;
+  const input = document.getElementById('chat-msg-input');
+  const text = (input?.value||'').trim();
+  if(!text) return;
+  const chatKey = 'ss_chat_' + _chatOrderId;
+  const msgs = JSON.parse(localStorage.getItem(chatKey)||'[]');
+  msgs.push({ from:'client', name: U.name, text, ts: Date.now() });
+  localStorage.setItem(chatKey, JSON.stringify(msgs));
+  input.value = '';
+  renderClientChat();
+}
+
 </script>
+
+
+    <!-- ── FAVORITES TAB ── -->
+    <div class="tab-panel" id="tab-favorites">
+      <div class="dash-title">❤️ Избранные мастера</div>
+      <div id="fav-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+    </div>
+
+    <!-- ── CLIENT CHAT TAB ── -->
+    <div class="tab-panel" id="tab-chat">
+      <div class="dash-title">💬 Чат с мастером</div>
+      <div id="chat-master-info" style="margin-bottom:12px"></div>
+      <div id="client-chat-content" style="max-height:400px;overflow-y:auto;margin-bottom:12px;padding:4px"></div>
+      <div id="chat-input-area" style="display:none">
+        <div style="display:flex;gap:8px">
+          <input id="chat-msg-input" type="text" placeholder="Написать сообщение..." style="flex:1" onkeydown="if(event.key==='Enter')sendClientMsg()">
+          <button class="btn btn-p btn-sm" onclick="sendClientMsg()">📤</button>
+        </div>
+      </div>
+    </div>
+
+<!-- Mob header -->
+<div class="mob-header" id="mob-header">
+  <div class="mob-header-title" id="mob-header-title">Личный кабинет</div>
+  <button class="mob-menu-btn" onclick="openDrawer()">☰</button>
+</div>
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer-panel" id="drawer-panel">
+  <div class="drawer-header">
+    <div>
+      <div style="font-weight:900;font-size:15px" id="drawer-name">Аккаунт</div>
+      <div style="font-size:11px;color:var(--ink3)" id="drawer-role"></div>
+    </div>
+    <button onclick="closeDrawer()" style="background:none;border:none;color:var(--ink2);font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <div class="drawer-nav">
+    <button class="dr-item" onclick="goD('orders')"><span class="dr-ico">📋</span>Мои заявки</button>
+    <button class="dr-item" onclick="goD('new')"><span class="dr-ico">➕</span>Новая заявка</button>
+    <button class="dr-item" onclick="goD('find')"><span class="dr-ico">🔍</span>Найти мастера</button>
+    <button class="dr-item" onclick="goD('notif')"><span class="dr-ico">🔔</span>Уведомления</button>
+    <button class="dr-item" onclick="goD('reviews')"><span class="dr-ico">🔨</span>Отзывы</button>
+    <button class="dr-item" onclick="goD('archive')"><span class="dr-ico">🗂</span>История заказов</button>
+    <div class="dr-sep"></div>
+    <button class="dr-item" onclick="goD('profile')"><span class="dr-ico">👤</span>Профиль</button>
+    <button class="dr-item" onclick="goD('chat')"><span class="dr-ico">💬</span>Чат</button>
+    <div class="dr-sep"></div>
+    <button class="dr-item" onclick="clearUser();location.href='index.html'"><span class="dr-ico">🚪</span>Выйти</button>
+  </div>
+</div>
 </body>
 </html>

@@ -317,6 +317,21 @@ button{cursor:pointer;font-family:inherit}
   .mob-header{display:flex!important}
   .dash-wrap{padding-top:52px!important}
 }
+
+/* ── NOTIFICATION BADGE ── */
+.notif-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:var(--red,#ff4757);color:#fff;
+  font-size:10px;font-weight:900;
+  min-width:16px;height:16px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 3px;line-height:1;
+}
+.ds-item{position:relative}
+.dr-item{position:relative}
+
+/* ── RECEIPT STYLES ── */
+#receipt-content table{font-family:inherit}
 </style>
 </head>
 <body>
@@ -335,6 +350,7 @@ button{cursor:pointer;font-family:inherit}
     <button class="ds-item" onclick="go('chat')" id="tb-chat"><span class="ds-ico">💬</span><span data-t="tab.chat">Чат</span></button>
     <button class="ds-item" onclick="go('calendar')" id="tb-calendar"><span class="ds-ico">📅</span><span>Календарь</span></button>
     <button class="ds-item" onclick="go('earnings')" id="tb-earnings"><span class="ds-ico">📊</span><span>Заработок</span></button>
+    <button class="ds-item" onclick="go('estimate')" id="tb-estimate"><span class="ds-ico">🧾</span><span>Смета</span></button>
     <div class="ds-sep"></div>
     <button class="ds-item" onclick="go('profile')" id="tb-profile"><span class="ds-ico">👤</span><span data-t="tab.profile">Профиль</span></button>
     <button class="ds-item" onclick="go('verif')" id="tb-verif"><span class="ds-ico">✅</span><span data-t="tab.verif">Верификация</span></button>
@@ -462,8 +478,7 @@ button{cursor:pointer;font-family:inherit}
 </div>
 <!-- Мобильная шапка + правое меню-дравер -->
 <div class="mob-header" id="mob-header">
-  <button class="mob-back-btn" onclick="history.back()">←</button>
-  <div class="mob-header-title" id="mob-header-title">ЛК Мастера</div>
+  <div class="mob-header-title" id="mob-header-title">Биржа заявок</div>
   <button class="mob-menu-btn" onclick="openDrawer()">☰</button>
 </div>
 
@@ -487,6 +502,7 @@ button{cursor:pointer;font-family:inherit}
     <button class="dr-item" onclick="goD('chat')"><span class="dr-ico">💬</span>Чат</button>
     <button class="dr-item" onclick="goD('calendar')"><span class="dr-ico">📅</span>Расписание</button>
     <button class="dr-item" onclick="goD('earnings')"><span class="dr-ico">📊</span>Заработок</button>
+    <button class="dr-item" onclick="goD('estimate')"><span class="dr-ico">🧾</span>Смета</button>
     <div class="dr-sep"></div>
     <button class="dr-item" onclick="goD('profile')"><span class="dr-ico">👤</span>Профиль</button>
     <button class="dr-item" onclick="goD('verif')"><span class="dr-ico">✅</span>Верификация</button>
@@ -999,7 +1015,7 @@ function go(tab){
     browse:renderBrowse, orders:renderOrders, responses:renderResponses,
     stats:renderStats, profile:renderProfile, verif:renderVerif,
     portfolio:renderPortfolio, calendar:renderCalendar,
-    earnings:renderEarnings, chat:renderChat
+    earnings:renderEarnings, chat:renderChat, estimate:renderEstimate
   };
   if(actions[tab]) actions[tab]();
 }
@@ -1034,11 +1050,229 @@ function setActiveDrawer(tab){
   // Заголовок в шапке
   var titles={
     browse:'Биржа заявок', orders:'Мои отклики', responses:'Уведомления',
-    portfolio:'Портфолио', chat:'Чат', calendar:'Расписание', earnings:'Заработок',
+    portfolio:'Портфолио', chat:'Чат', calendar:'Расписание', earnings:'Заработок', estimate:'Смета',
     profile:'Профиль', verif:'Верификация', sub:'О платформе', stats:'Статистика'
   };
   var ht=document.getElementById('mob-header-title');
   if(ht&&titles[tab]) ht.textContent=titles[tab];
+}
+
+
+// ══════════════════════════════════════════════
+// ── СМЕТА (ESTIMATE CALCULATOR) ──
+// ══════════════════════════════════════════════
+const EST_KEY = () => 'ss_estimate_' + (U ? U.id : 'guest');
+
+function renderEstimate(){
+  // Установить дату по умолчанию
+  const dateInput = document.getElementById('est-date');
+  if(dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0,10);
+  renderReceiptPreview();
+}
+
+function addEstimateItem(){
+  const name  = (document.getElementById('est-item-name').value||'').trim();
+  const qty   = parseFloat(document.getElementById('est-item-qty').value)||1;
+  const price = parseFloat(document.getElementById('est-item-price').value)||0;
+  const type  = document.getElementById('est-item-type').value;
+  if(!name){ toast('Введите наименование','err'); return; }
+  if(!price){ toast('Введите цену','err'); return; }
+  const items = JSON.parse(localStorage.getItem(EST_KEY())||'[]');
+  items.push({ id: Date.now(), name, qty, price, type });
+  localStorage.setItem(EST_KEY(), JSON.stringify(items));
+  document.getElementById('est-item-name').value = '';
+  document.getElementById('est-item-price').value = '';
+  document.getElementById('est-item-qty').value = '1';
+  renderReceiptPreview();
+  toast('✅ Позиция добавлена');
+}
+
+function removeEstItem(id){
+  let items = JSON.parse(localStorage.getItem(EST_KEY())||'[]');
+  items = items.filter(i => i.id !== id);
+  localStorage.setItem(EST_KEY(), JSON.stringify(items));
+  renderReceiptPreview();
+}
+
+function clearEstimate(){
+  if(!confirm('Очистить всю смету?')) return;
+  localStorage.removeItem(EST_KEY());
+  document.getElementById('est-client').value = '';
+  document.getElementById('est-desc').value = '';
+  renderReceiptPreview();
+  toast('Смета очищена');
+}
+
+function copyEstimate(){
+  const txt = document.getElementById('receipt-text-content');
+  if(!txt) return;
+  navigator.clipboard.writeText(txt.innerText).then(()=>toast('📋 Скопировано в буфер'));
+}
+
+function renderReceiptPreview(){
+  const items   = JSON.parse(localStorage.getItem(EST_KEY())||'[]');
+  const emptyEl = document.getElementById('estimate-empty');
+  const rcptEl  = document.getElementById('estimate-receipt');
+  const content = document.getElementById('receipt-content');
+  if(!emptyEl||!rcptEl||!content) return;
+
+  if(!items.length){ emptyEl.style.display=''; rcptEl.style.display='none'; return; }
+  emptyEl.style.display='none'; rcptEl.style.display='';
+
+  const client  = document.getElementById('est-client')?.value || '—';
+  const desc    = document.getElementById('est-desc')?.value || '';
+  const date    = document.getElementById('est-date')?.value || new Date().toISOString().slice(0,10);
+  const master  = U ? (U.name||'Мастер') : 'Мастер';
+
+  const typeIco = { material:'🧱', work:'🔨', delivery:'🚚', other:'📦' };
+  const typeName= { material:'Материал', work:'Работа', delivery:'Доставка', other:'Прочее' };
+
+  // Группируем по типу
+  const groups = {};
+  items.forEach(i => {
+    if(!groups[i.type]) groups[i.type] = [];
+    groups[i.type].push(i);
+  });
+
+  const totalMat  = items.filter(i=>i.type==='material').reduce((s,i)=>s+i.qty*i.price,0);
+  const totalWork = items.filter(i=>i.type==='work').reduce((s,i)=>s+i.qty*i.price,0);
+  const totalOther= items.filter(i=>i.type!=='material'&&i.type!=='work').reduce((s,i)=>s+i.qty*i.price,0);
+  const total     = items.reduce((s,i)=>s+i.qty*i.price,0);
+
+  let rowsHtml = '';
+  Object.entries(groups).forEach(([type, group]) => {
+    rowsHtml += '<tr><td colspan="5" style="padding:10px 0 4px;font-size:11px;font-weight:800;color:var(--ink3);letter-spacing:.5px;text-transform:uppercase">' +
+      typeIco[type] + ' ' + typeName[type] + '</td></tr>';
+    group.forEach(item => {
+      const sum = (item.qty * item.price).toFixed(2);
+      rowsHtml += '<tr style="border-bottom:1px solid var(--bdr)">' +
+        '<td style="padding:8px 4px;font-size:13px;font-weight:600">' + item.name + '</td>' +
+        '<td style="padding:8px 4px;text-align:center;font-size:12px;color:var(--ink3)">' + item.qty + '</td>' +
+        '<td style="padding:8px 4px;text-align:right;font-size:12px;color:var(--ink3)">' + item.price.toFixed(2) + '€</td>' +
+        '<td style="padding:8px 4px;text-align:right;font-size:13px;font-weight:700;color:var(--g)">' + sum + '€</td>' +
+        '<td style="padding:8px 4px;text-align:right">' +
+          '<button onclick="removeEstItem(' + item.id + ')" style="background:none;border:none;color:#ff5050;cursor:pointer;font-size:14px;padding:0 4px">✕</button>' +
+        '</td></tr>';
+    });
+  });
+
+  content.innerHTML = '<div id="receipt-text-content">' +
+    '<div style="text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--bdr)">' +
+      '<div style="font-size:22px;margin-bottom:4px">🧾</div>' +
+      '<div style="font-size:16px;font-weight:900;letter-spacing:.5px">СМЕТА</div>' +
+      '<div style="font-size:12px;color:var(--ink3);margin-top:4px">' + date + '</div>' +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px">' +
+      '<div><span style="color:var(--ink3)">Исполнитель: </span><strong>' + master + '</strong></div>' +
+      '<div><span style="color:var(--ink3)">Клиент: </span><strong>' + client + '</strong></div>' +
+    '</div>' +
+    (desc ? '<div style="font-size:12px;color:var(--ink3);margin-bottom:12px;padding:8px;background:rgba(255,255,255,.04);border-radius:8px">' + desc + '</div>' : '') +
+    '<table style="width:100%;border-collapse:collapse">' +
+      '<thead><tr style="border-bottom:2px solid var(--bdr)">' +
+        '<th style="padding:6px 4px;text-align:left;font-size:10px;color:var(--ink3)">НАИМЕНОВАНИЕ</th>' +
+        '<th style="padding:6px 4px;text-align:center;font-size:10px;color:var(--ink3)">КОЛ</th>' +
+        '<th style="padding:6px 4px;text-align:right;font-size:10px;color:var(--ink3)">ЦЕНА</th>' +
+        '<th style="padding:6px 4px;text-align:right;font-size:10px;color:var(--ink3)">СУММА</th>' +
+        '<th></th>' +
+      '</tr></thead>' +
+      '<tbody>' + rowsHtml + '</tbody>' +
+    '</table>' +
+    '<div style="margin-top:14px;padding-top:14px;border-top:2px solid var(--bdr)">' +
+      (totalMat  ? '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0"><span style="color:var(--ink3)">🧱 Материалы</span><span>' + totalMat.toFixed(2) + '€</span></div>' : '') +
+      (totalWork ? '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0"><span style="color:var(--ink3)">🔨 Работа</span><span>' + totalWork.toFixed(2) + '€</span></div>' : '') +
+      (totalOther? '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0"><span style="color:var(--ink3)">📦 Прочее</span><span>' + totalOther.toFixed(2) + '€</span></div>' : '') +
+      '<div style="display:flex;justify-content:space-between;margin-top:10px;padding:10px;background:rgba(0,214,143,.08);border-radius:10px;border:1px solid var(--g)">' +
+        '<span style="font-weight:900;font-size:15px">ИТОГО</span>' +
+        '<span style="font-weight:900;font-size:20px;color:var(--g)">' + total.toFixed(2) + '€</span>' +
+      '</div>' +
+    '</div>' +
+    '</div>';
+}
+
+
+// ══════════════════════════════════════════════
+// ── УВЕДОМЛЕНИЯ О НОВЫХ ЗАЯВКАХ (для мастера) ──
+// ══════════════════════════════════════════════
+const NOTIF_SEEN_KEY = () => 'ss_notif_seen_' + (U ? U.id : 'guest');
+
+function checkNewOrdersForMaster(){
+  if(!U || U.role !== 'master') return;
+  const masterCats = U.cats || [];
+  if(!masterCats.length) return;
+
+  const seen  = JSON.parse(localStorage.getItem(NOTIF_SEEN_KEY())||'[]');
+  const fresh = getOrders().filter(o =>
+    o.status === 'open' &&
+    masterCats.includes(o.cat) &&
+    !(o.responses||[]).includes(U.id) &&
+    !seen.includes(o.id)
+  );
+
+  // Обновить бейдж на кнопке Browse
+  const browseBtn = document.getElementById('tb-browse');
+  if(browseBtn){
+    const old = browseBtn.querySelector('.notif-badge');
+    if(old) old.remove();
+    if(fresh.length > 0){
+      const badge = document.createElement('span');
+      badge.className = 'notif-badge';
+      badge.textContent = fresh.length;
+      browseBtn.appendChild(badge);
+    }
+  }
+
+  // Показать попап если есть новые
+  if(fresh.length > 0 && !sessionStorage.getItem('notif_shown')){
+    sessionStorage.setItem('notif_shown','1');
+    showNewOrdersPopup(fresh);
+  }
+}
+
+function markAllSeen(){
+  const seen = getOrders().filter(o=>o.status==='open').map(o=>o.id);
+  localStorage.setItem(NOTIF_SEEN_KEY(), JSON.stringify(seen));
+  // Убрать бейдж
+  const badge = document.querySelector('.notif-badge');
+  if(badge) badge.remove();
+  const popup = document.getElementById('new-orders-popup');
+  if(popup) popup.remove();
+}
+
+function showNewOrdersPopup(orders){
+  // Удалим старый если есть
+  const old = document.getElementById('new-orders-popup');
+  if(old) old.remove();
+
+  const popup = document.createElement('div');
+  popup.id = 'new-orders-popup';
+  popup.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);' +
+    'width:calc(100% - 32px);max-width:380px;background:var(--bg2);border:1px solid var(--g);' +
+    'border-radius:16px;padding:16px;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,.4)';
+
+  const items = orders.slice(0,3).map(o =>
+    '<div style="padding:6px 0;border-bottom:1px solid var(--bdr);font-size:13px">' +
+    '<span style="font-weight:700">' + o.title + '</span> ' +
+    '<span style="color:var(--g);font-weight:800">' + o.budget + '€</span>' +
+    '<span style="color:var(--ink3);font-size:11px;margin-left:6px">📍 ' + o.city + '</span></div>'
+  ).join('');
+
+  const more = orders.length > 3 ? '<div style="font-size:12px;color:var(--ink3);padding-top:6px">+ ещё ' + (orders.length-3) + ' заявок</div>' : '';
+
+  popup.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+      '<div><div style="font-weight:900;font-size:14px">🔔 Новые заявки по вашим категориям</div>' +
+      '<div style="font-size:11px;color:var(--ink3);margin-top:2px">Telegram-уведомление отправлено</div></div>' +
+      '<button onclick="markAllSeen()" style="background:none;border:none;color:var(--ink3);font-size:20px;cursor:pointer">✕</button>' +
+    '</div>' +
+    items + more +
+    '<div style="display:flex;gap:8px;margin-top:12px">' +
+      '<button class="btn btn-p btn-sm" style="flex:1" onclick="markAllSeen();goD(\'browse\')">Смотреть заявки</button>' +
+      '<button class="btn btn-sm" style="flex:1" onclick="markAllSeen()">Понятно</button>' +
+    '</div>';
+
+  document.body.appendChild(popup);
+  // Авто-закрытие через 10 сек
+  setTimeout(() => { if(popup.parentNode) popup.remove(); }, 10000);
 }
 
 
@@ -1258,6 +1492,7 @@ function renderVerif(){
   document.getElementById('d-role').textContent = U.verifLevel?'✅ Level '+U.verifLevel:'⏳ Pending verification';
   renderNav();
   go('browse');
+  setTimeout(checkNewOrdersForMaster, 500);
 })();
 
 
@@ -1429,4 +1664,74 @@ function renderChat(){
 
 </script>
 </body>
-</html>
+</html
+    <!-- ── СМЕТА TAB ── -->
+    <div class="tab-panel" id="tab-estimate">
+      <div class="dash-title">🧾 Калькулятор сметы</div>
+
+      <!-- Шапка сметы -->
+      <div class="form-block" style="margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="font-size:11px;color:var(--ink3);font-weight:700">КЛИЕНТ / ЗАЯВКА</label>
+            <input id="est-client" type="text" placeholder="Имя клиента или №заявки" style="margin-top:4px">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--ink3);font-weight:700">ДАТА</label>
+            <input id="est-date" type="date" style="margin-top:4px">
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label style="font-size:11px;color:var(--ink3);font-weight:700">ОПИСАНИЕ РАБОТ</label>
+          <input id="est-desc" type="text" placeholder="Краткое описание объекта/работ" style="margin-top:4px">
+        </div>
+      </div>
+
+      <!-- Добавить позицию -->
+      <div class="form-block" style="margin-bottom:12px">
+        <div style="font-weight:700;margin-bottom:12px">➕ Добавить позицию</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:3;min-width:150px">
+            <label style="font-size:10px;color:var(--ink3)">НАИМЕНОВАНИЕ</label>
+            <input id="est-item-name" type="text" placeholder="Напр: Краска Dulux 10л" style="margin-top:3px">
+          </div>
+          <div style="flex:1;min-width:80px">
+            <label style="font-size:10px;color:var(--ink3)">КОЛ-ВО</label>
+            <input id="est-item-qty" type="number" value="1" min="1" style="margin-top:3px">
+          </div>
+          <div style="flex:1;min-width:80px">
+            <label style="font-size:10px;color:var(--ink3)">ЦЕНА €</label>
+            <input id="est-item-price" type="number" placeholder="0" style="margin-top:3px">
+          </div>
+          <div style="flex:1;min-width:100px">
+            <label style="font-size:10px;color:var(--ink3)">ТИП</label>
+            <select id="est-item-type" style="margin-top:3px">
+              <option value="material">🧱 Материал</option>
+              <option value="work">🔨 Работа</option>
+              <option value="delivery">🚚 Доставка</option>
+              <option value="other">📦 Прочее</option>
+            </select>
+          </div>
+          <button class="btn btn-p btn-sm" onclick="addEstimateItem()" style="height:38px;white-space:nowrap">+ Добавить</button>
+        </div>
+      </div>
+
+      <!-- ЧЕК / СМЕТА -->
+      <div id="estimate-receipt" style="display:none">
+        <div class="form-block" id="receipt-content" style="font-family:monospace">
+          <!-- Рендерится JS -->
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="copyEstimate()" style="flex:1">📋 Скопировать</button>
+          <button class="btn" onclick="clearEstimate()" style="flex:1;background:rgba(255,80,80,.12);color:#ff5050">🗑 Очистить</button>
+        </div>
+      </div>
+
+      <div id="estimate-empty" class="form-block" style="text-align:center;padding:30px;color:var(--ink3)">
+        <div style="font-size:36px;margin-bottom:8px">🧾</div>
+        <div style="font-weight:700">Смета пуста</div>
+        <div style="font-size:12px;margin-top:4px">Добавьте позиции выше</div>
+      </div>
+    </div>
+
+>
