@@ -299,6 +299,9 @@ button{cursor:pointer;font-family:inherit}
     <button class="ds-item" onclick="go('orders')" id="tb-orders"><span class="ds-ico">📋</span><span data-t="tab.orders">Заявки</span></button>
     <button class="ds-item" onclick="go('top')" id="tb-top"><span class="ds-ico">🏆</span><span data-t="tab.top">ТОП</span></button>
     <button class="ds-item" onclick="go('verif')" id="tb-verif"><span class="ds-ico">✅</span><span data-t="tab.verif">Верификация</span></button>
+    <button class="ds-item" onclick="go('complaints')" id="tb-complaints"><span class="ds-ico">🚨</span><span id="complaints-badge-nav">Жалобы</span></button>
+    <button class="ds-item" onclick="go('analytics')" id="tb-analytics"><span class="ds-ico">📈</span><span>Аналитика</span></button>
+    <button class="ds-item" onclick="go('broadcast')" id="tb-broadcast"><span class="ds-ico">📨</span><span>Рассылка</span></button>
     <button class="ds-item" onclick="go('stats')" id="tb-stats"><span class="ds-ico">📊</span><span data-t="tab.admin_stats">Статистика</span></button>
     <div class="ds-sep"></div>
     <button class="ds-item" onclick="clearUser();location.href='index.html'" style="color:var(--red)"><span class="ds-ico">🚪</span><span data-t="tab.exit">Выйти</span></button>
@@ -316,11 +319,11 @@ button{cursor:pointer;font-family:inherit}
         <select id="fm-city"><option value="">📍 All cities</option></select>
         <select id="fm-cat"><option value="">🔧 Category</option></select>
         <select id="fm-verif"><option value="">✅ Verification</option><option value="ok">Verified</option><option value="no">Not verified</option></select>
-        <select id="fm-sub"><option value="">⭐ Plan</option><option value="1">Pro</option><option value="0">Free</option></select>
+        <select id="fm-sub"><option value="">🔨 Plan</option><option value="1">Pro</option><option value="0">Free</option></select>
         <select id="fm-top"><option value="">🏆 TOP</option><option value="city">TOP city</option><option value="country">TOP country</option></select>
       </div>
       <div class="adm-tbl-wrap"><table class="adm-tbl">
-        <thead><tr><th>Master</th><th>Contacts</th><th>City</th><th>Country</th><th>Verif</th><th>Plan</th><th>TOP</th><th>⭐</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Master</th><th>Contacts</th><th>City</th><th>Country</th><th>Verif</th><th>Plan</th><th>TOP</th><th>🔨</th><th>Actions</th></tr></thead>
         <tbody id="m-tbody"></tbody>
       </table></div>
     </div>
@@ -407,6 +410,80 @@ button{cursor:pointer;font-family:inherit}
   <button class="mob-tab" onclick="go('top');setMT(this)"><div class="mt-ico">🏆</div><span>TOP</span></button>
   <button class="mob-tab" onclick="go('stats');setMT(this)"><div class="mt-ico">📊</div><span>Stats</span></button>
 </div></div>
+
+<!-- ── COMPLAINTS TAB ── -->
+<div class="tab-panel" id="tab-complaints">
+  <div class="dash-title">🚨 Жалобы и репорты</div>
+  <div id="complaints-list"></div>
+  <div class="form-block" style="margin-top:16px">
+    <div style="font-weight:700;margin-bottom:12px">Добавить запись (тест)</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <select id="cmp-type" style="flex:1">
+        <option value="spam">Спам</option>
+        <option value="fraud">Мошенничество</option>
+        <option value="quality">Плохое качество</option>
+        <option value="other">Другое</option>
+      </select>
+      <input id="cmp-target" placeholder="ID пользователя" style="flex:1">
+      <input id="cmp-text" placeholder="Описание жалобы" style="flex:2">
+      <button class="btn btn-p btn-sm" onclick="addComplaint()">+ Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ANALYTICS TAB ── -->
+<div class="tab-panel" id="tab-analytics">
+  <div class="dash-title">📈 Аналитика платформы</div>
+  <div id="analytics-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap">
+    <div class="form-block">
+      <div style="font-weight:700;margin-bottom:14px">Мастера по странам</div>
+      <div id="chart-country" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <div class="form-block">
+      <div style="font-weight:700;margin-bottom:14px">Заявки по статусам</div>
+      <div id="chart-status" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+  <div class="form-block" style="margin-top:16px">
+    <div style="font-weight:700;margin-bottom:14px">Активность по категориям</div>
+    <div id="chart-cats" style="display:flex;align-items:flex-end;gap:4px;height:100px"></div>
+    <div id="chart-cats-labels" style="display:flex;gap:4px;margin-top:6px;font-size:10px;color:var(--ink3)"></div>
+  </div>
+</div>
+
+<!-- ── BROADCAST TAB ── -->
+<div class="tab-panel" id="tab-broadcast">
+  <div class="dash-title">📨 Рассылка сообщений</div>
+  <div class="form-block" style="max-width:560px">
+    <div style="margin-bottom:12px">
+      <div class="pf-label">Получатели</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="bc-audience" value="all" checked> Все пользователи</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="bc-audience" value="masters"> Только мастера</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="bc-audience" value="clients"> Только клиенты</label>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="pf-label">Заголовок</div>
+      <input id="bc-title" placeholder="Заголовок уведомления" style="width:100%">
+    </div>
+    <div style="margin-bottom:16px">
+      <div class="pf-label">Сообщение</div>
+      <textarea id="bc-body" rows="4" placeholder="Текст сообщения для пользователей..." style="width:100%;resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-p" onclick="sendBroadcast()">📨 Отправить рассылку</button>
+      <button class="btn" onclick="previewBroadcast()" style="background:rgba(255,255,255,.08)">👁 Предпросмотр</button>
+    </div>
+    <div id="bc-preview" style="display:none;margin-top:16px;padding:14px;background:rgba(0,214,143,.07);border:1px solid rgba(0,214,143,.2);border-radius:12px"></div>
+  </div>
+  <div style="margin-top:20px">
+    <div class="pf-label" style="margin-bottom:10px">История рассылок</div>
+    <div id="bc-history"></div>
+  </div>
+</div>
+
 <script>// ═══ i18n TRANSLATIONS ═══
 const TRANSLATIONS = {
   ru: {
@@ -717,62 +794,77 @@ const SK=[
   {id:'move',i:'📦',ru:'Переезды',en:'Moving',n:12},
 ];
 const CO=[
-  {f:'🇫🇷',ru:'Франция',en:'France'},{f:'🇩🇪',ru:'Германия',en:'Germany'},
-  {f:'🇪🇸',ru:'Испания',en:'Spain'},{f:'🇮🇹',ru:'Италия',en:'Italy'},
-  {f:'🇧🇪',ru:'Бельгия',en:'Belgium'},{f:'🇳🇱',ru:'Нидерланды',en:'Netherlands'},
-  {f:'🇵🇱',ru:'Польша',en:'Poland'},{f:'🇦🇹',ru:'Австрия',en:'Austria'},
-  {f:'🇨🇭',ru:'Швейцария',en:'Switzerland'},{f:'🇵🇹',ru:'Португалия',en:'Portugal'},
-  {f:'🇸🇪',ru:'Швеция',en:'Sweden'},{f:'🇳🇴',ru:'Норвегия',en:'Norway'},
-  {f:'🇩🇰',ru:'Дания',en:'Denmark'},{f:'🇫🇮',ru:'Финляндия',en:'Finland'},
-  {f:'🇨🇿',ru:'Чехия',en:'Czechia'},{f:'🇸🇰',ru:'Словакия',en:'Slovakia'},
-  {f:'🇭🇺',ru:'Венгрия',en:'Hungary'},{f:'🇷🇴',ru:'Румыния',en:'Romania'},
-  {f:'🇧🇬',ru:'Болгария',en:'Bulgaria'},{f:'🇭🇷',ru:'Хорватия',en:'Croatia'},
-  {f:'🇸🇮',ru:'Словения',en:'Slovenia'},{f:'🇬🇷',ru:'Греция',en:'Greece'},
+  {iso:'fr',ru:'Франция',en:'France'},
+  {iso:'de',ru:'Германия',en:'Germany'},
+  {iso:'es',ru:'Испания',en:'Spain'},
+  {iso:'it',ru:'Италия',en:'Italy'},
+  {iso:'be',ru:'Бельгия',en:'Belgium'},
+  {iso:'nl',ru:'Нидерланды',en:'Netherlands'},
+  {iso:'pl',ru:'Польша',en:'Poland'},
+  {iso:'at',ru:'Австрия',en:'Austria'},
+  {iso:'ch',ru:'Швейцария',en:'Switzerland'},
+  {iso:'pt',ru:'Португалия',en:'Portugal'},
+  {iso:'se',ru:'Швеция',en:'Sweden'},
+  {iso:'no',ru:'Норвегия',en:'Norway'},
+  {iso:'dk',ru:'Дания',en:'Denmark'},
+  {iso:'fi',ru:'Финляндия',en:'Finland'},
+  {iso:'cz',ru:'Чехия',en:'Czechia'},
+  {iso:'sk',ru:'Словакия',en:'Slovakia'},
+  {iso:'hu',ru:'Венгрия',en:'Hungary'},
+  {iso:'ro',ru:'Румыния',en:'Romania'},
+  {iso:'bg',ru:'Болгария',en:'Bulgaria'},
+  {iso:'hr',ru:'Хорватия',en:'Croatia'},
+  {iso:'si',ru:'Словения',en:'Slovenia'},
+  {iso:'gr',ru:'Греция',en:'Greece'},
 ];
+function flagImg(iso,size){
+  size=size||20;
+  return '<img src="https://flagcdn.com/'+size+'x'+Math.round(size*0.75)+'/'+iso+'.png" style="width:'+size+'px;height:'+Math.round(size*0.75)+'px;border-radius:2px;vertical-align:middle;object-fit:cover;display:inline-block;margin-right:4px" loading="lazy">';
+}
 const MASTERS=[
-  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',f:'🇫🇷',
+  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',iso:'fr',
    cats:['plumbing','bathroom'],skills:['Сантехника','Ванная под ключ','Отопление'],
    rate:4.9,reviews:47,price:45,lvl:3,online:true,exp:12,sub:true,topCity:true,topCountry:false,
    phone:'+33 6 12 34 56 78',email:'aleksey@example.com',telegram:'@aleksey_m',
    about:'Сантехник с 12-летним опытом. Гарантия 2 года.',
    revs:[{a:'Жан-Поль Б.',d:'12 нояб 2024',s:5,t:'Отличная работа!'},{a:'Моника Р.',d:'3 окт 2024',s:5,t:'Бойлер установил быстро.'}]},
-  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',f:'🇧🇪',
+  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',iso:'be',
    cats:['electric','it'],skills:['Электрика','RGE','Умный дом'],
    rate:4.8,reviews:32,price:55,lvl:3,online:true,exp:8,sub:true,topCity:true,topCountry:true,
    phone:'+32 4 98 76 54 32',email:'etien@example.com',telegram:'@etien_b',
    about:'Сертифицированный электрик RGE.',
    revs:[{a:'Клара М.',d:'5 дек 2024',s:5,t:'Полная замена проводки.'}]},
-  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',f:'🇩🇪',
+  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',iso:'de',
    cats:['paint','floor'],skills:['Покраска','Паркет','Шпаклёвка'],
    rate:4.7,reviews:28,price:38,lvl:2,online:false,exp:9,sub:false,topCity:false,topCountry:false,
    phone:'+49 170 123 4567',email:'pavel@example.com',telegram:'@pavel_k',
    about:'Маляр-отделочник.',
    revs:[{a:'Хельга Ш.',d:'20 нояб 2024',s:5,t:'Покрасил квартиру за 3 дня.'}]},
-  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',f:'🇫🇷',
+  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',iso:'fr',
    cats:['masonry','bathroom'],skills:['Кладка','Плитка','Стяжка'],
    rate:5.0,reviews:19,price:42,lvl:2,online:true,exp:7,sub:true,topCity:false,topCountry:false,
    phone:'+33 6 98 76 54 32',email:'sonia@example.com',telegram:'@sonya_l',
    about:'Мастер по плитке и кладке.',
    revs:[{a:'Люсьен Д.',d:'1 янв 2025',s:5,t:'Ванная с нуля!'}]},
-  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',f:'🇵🇱',
+  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',iso:'pl',
    cats:['carpentry','floor'],skills:['Столярка','Паркет','Двери'],
    rate:4.6,reviews:22,price:35,lvl:2,online:false,exp:11,sub:false,topCity:false,topCountry:false,
    phone:'+48 600 123 456',email:'dmitry@example.com',telegram:'@dmitry_v',
    about:'Столяр. Окна, двери, паркет.',
    revs:[{a:'Анна К.',d:'15 дек 2024',s:5,t:'5 дверей.'}]},
-  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',f:'🇪🇸',
+  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',iso:'es',
    cats:['ac','electric'],skills:['Кондиционер','Вентиляция','Daikin'],
    rate:4.8,reviews:35,price:48,lvl:3,online:true,exp:10,sub:true,topCity:true,topCountry:false,
    phone:'+34 612 345 678',email:'carlos@example.com',telegram:'@carlos_m',
    about:'Партнёр Daikin и Mitsubishi.',
    revs:[{a:'Педро Г.',d:'8 дек 2024',s:5,t:'Климат в офисе.'}]},
-  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',f:'🇦🇹',
+  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',iso:'at',
    cats:['clean','move'],skills:['Клининг','Химчистка','Переезды'],
    rate:4.9,reviews:64,price:28,lvl:2,online:true,exp:6,sub:true,topCity:false,topCountry:false,
    phone:'+43 664 123 4567',email:'irina@example.com',telegram:'@irina_s',
    about:'Клининг квартир и офисов.',
    revs:[{a:'Вернер Х.',d:'20 янв 2025',s:5,t:'Уборка после ремонта.'}]},
-  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',f:'🇳🇱',
+  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',iso:'nl',
    cats:['roof','masonry'],skills:['Кровля','Фасад','Гидроизоляция'],
    rate:4.7,reviews:18,price:52,lvl:3,online:false,exp:15,sub:true,topCity:false,topCountry:true,
    phone:'+31 6 12345678',email:'tomas@example.com',telegram:'@tomas_b',
@@ -887,10 +979,162 @@ function go(tab){
   document.querySelectorAll('[id^="tb-"]').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab)?.classList.add('active');
   document.getElementById('tb-'+tab)?.classList.add('active');
-  ({masters:renderMasters,clients:renderClients,orders:renderOrders,top:renderTop,verif:renderVerif,stats:renderStats})[tab]?.();
+  ({masters:renderMasters, clients:renderClients, orders:renderOrders,
+    top:renderTop, verif:renderVerif, stats:renderStats,
+    complaints:renderComplaints, analytics:renderAnalytics, broadcast:renderBroadcast
+  })[tab]?.();
 }
 
-function initFilters(){
+// ── COMPLAINTS ──
+function renderComplaints(){
+  const key='ss_admin_complaints';
+  const list=JSON.parse(localStorage.getItem(key)||'[]');
+  const el=document.getElementById('complaints-list');if(!el)return;
+  const badge=document.getElementById('complaints-badge-nav');
+  const open=list.filter(c=>c.status==='open');
+  if(badge) badge.textContent='Жалобы'+(open.length?` (${open.length})`:'');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--ink3)">🚨 Жалоб нет</div>';return;}
+  const typeLabels={spam:'Спам',fraud:'Мошенничество',quality:'Качество',other:'Другое'};
+  el.innerHTML=list.slice().reverse().map((c,i)=>`
+    <div class="oc" style="padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
+      <div style="flex:1">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          <span class="badge" style="background:${c.status==='open'?'rgba(255,80,80,.2)':'rgba(0,214,143,.2)';color:${c.status==='open'?'#ff5050':'var(--g)'}">${c.status==='open'?'🔴 Открыта':'✅ Закрыта'}</span>
+          <span class="badge" style="font-size:10px">${typeLabels[c.type]||c.type}</span>
+        </div>
+        <div style="font-size:13px"><strong>На:</strong> ${c.target||'—'}</div>
+        <div style="font-size:13px;color:var(--ink2);margin-top:4px">${c.text}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:6px">${new Date(c.date).toLocaleString('ru')}</div>
+      </div>
+      ${c.status==='open'?`<button class="btn btn-sm" onclick="closeComplaint(${list.length-1-i})" style="background:rgba(0,214,143,.15);color:var(--g)">✅ Закрыть</button>`:''}
+    </div>`).join('');
+}
+function addComplaint(){
+  const type=document.getElementById('cmp-type').value;
+  const target=document.getElementById('cmp-target').value.trim();
+  const text=document.getElementById('cmp-text').value.trim();
+  if(!text){toast('Введите описание','err');return;}
+  const key='ss_admin_complaints';
+  const list=JSON.parse(localStorage.getItem(key)||'[]');
+  list.push({type,target,text,status:'open',date:new Date().toISOString()});
+  localStorage.setItem(key,JSON.stringify(list));
+  document.getElementById('cmp-text').value='';
+  toast('✅ Жалоба добавлена');
+  renderComplaints();
+}
+function closeComplaint(i){
+  const key='ss_admin_complaints';
+  const list=JSON.parse(localStorage.getItem(key)||'[]');
+  if(list[i]) list[i].status='closed';
+  localStorage.setItem(key,JSON.stringify(list));
+  renderComplaints();
+}
+
+// ── ANALYTICS ──
+function renderAnalytics(){
+  const masters=MASTERS;
+  const orders=getOrders();
+  const users=getUsers()||[];
+  // Cards
+  const cards=document.getElementById('analytics-cards');
+  if(cards) cards.innerHTML=`
+    <div class="stat-card"><div class="stat-v" style="color:var(--g)">${masters.length}</div><div class="stat-l">Мастеров</div></div>
+    <div class="stat-card"><div class="stat-v" style="color:var(--acc)">${users.filter(u=>u.role==='client').length}</div><div class="stat-l">Клиентов</div></div>
+    <div class="stat-card"><div class="stat-v">${orders.length}</div><div class="stat-l">Заявок всего</div></div>
+    <div class="stat-card"><div class="stat-v" style="color:var(--yellow)">${orders.filter(o=>o.status==='completed').length}</div><div class="stat-l">Выполнено</div></div>
+    <div class="stat-card"><div class="stat-v" style="color:var(--g)">${masters.filter(m=>m.online).length}</div><div class="stat-l">Онлайн</div></div>
+    <div class="stat-card"><div class="stat-v">${orders.filter(o=>o.status==='open').length}</div><div class="stat-l">Открытых заявок</div></div>`;
+
+  // Masters by country
+  const byCountry={};
+  masters.forEach(m=>{byCountry[m.country]=(byCountry[m.country]||0)+1;});
+  const topCountries=Object.entries(byCountry).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxC=Math.max(...topCountries.map(e=>e[1]),1);
+  const ccEl=document.getElementById('chart-country');
+  if(ccEl) ccEl.innerHTML=topCountries.map(([c,n])=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:80px;font-size:12px;color:var(--ink2);text-align:right">${c}</div>
+      <div style="flex:1;height:16px;background:rgba(0,214,143,.15);border-radius:4px;overflow:hidden">
+        <div style="width:${Math.round(n/maxC*100)}%;height:100%;background:var(--g);border-radius:4px"></div>
+      </div>
+      <div style="width:24px;font-size:12px;font-weight:700">${n}</div>
+    </div>`).join('');
+
+  // Orders by status
+  const statuses=['open','in_progress','completed','cancelled'];
+  const statusLabels={open:'Открыты',in_progress:'В работе',completed:'Готово',cancelled:'Отменены'};
+  const statusColors={open:'var(--acc)',in_progress:'var(--yellow)',completed:'var(--g)',cancelled:'#ff5050'};
+  const maxS=Math.max(...statuses.map(s=>orders.filter(o=>o.status===s).length),1);
+  const csEl=document.getElementById('chart-status');
+  if(csEl) csEl.innerHTML=statuses.map(s=>{
+    const n=orders.filter(o=>o.status===s).length;
+    return `<div style="display:flex;align-items:center;gap:8px">
+      <div style="width:80px;font-size:12px;color:var(--ink2);text-align:right">${statusLabels[s]}</div>
+      <div style="flex:1;height:16px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden">
+        <div style="width:${Math.round(n/maxS*100)}%;height:100%;background:${statusColors[s]};border-radius:4px"></div>
+      </div>
+      <div style="width:24px;font-size:12px;font-weight:700">${n}</div>
+    </div>`;}).join('');
+
+  // Categories bar chart
+  const byCat={};
+  orders.forEach(o=>{byCat[o.cat]=(byCat[o.cat]||0)+1;});
+  const topCats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxCat=Math.max(...topCats.map(e=>e[1]),1);
+  const ccatEl=document.getElementById('chart-cats');
+  const ccatLbl=document.getElementById('chart-cats-labels');
+  if(ccatEl) ccatEl.innerHTML=topCats.map(([c,n])=>`
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div style="font-size:9px;color:var(--g);font-weight:700">${n}</div>
+      <div style="width:100%;height:${Math.round(n/maxCat*80)}px;background:var(--g);border-radius:4px 4px 0 0;min-height:4px"></div>
+    </div>`).join('');
+  if(ccatLbl) ccatLbl.innerHTML=topCats.map(([c])=>`<div style="flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis">${catIco(c)}</div>`).join('');
+}
+
+// ── BROADCAST ──
+function renderBroadcast(){
+  const key='ss_broadcasts';
+  const history=JSON.parse(localStorage.getItem(key)||'[]');
+  const el=document.getElementById('bc-history');if(!el)return;
+  el.innerHTML=history.length
+    ? history.slice().reverse().slice(0,10).map(b=>`
+        <div class="oc" style="padding:12px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700">${b.title}</div>
+            <div style="font-size:11px;color:var(--ink3)">${new Date(b.date).toLocaleString('ru')}</div>
+          </div>
+          <div style="font-size:13px;color:var(--ink2);margin-top:4px">${b.body}</div>
+          <div style="font-size:11px;color:var(--g);margin-top:6px">→ ${b.audience==='all'?'Все':b.audience==='masters'?'Мастера':'Клиенты'}</div>
+        </div>`).join('')
+    : '<div style="color:var(--ink3);padding:16px">История рассылок пуста</div>';
+}
+function previewBroadcast(){
+  const title=document.getElementById('bc-title').value.trim();
+  const body=document.getElementById('bc-body').value.trim();
+  const preview=document.getElementById('bc-preview');
+  if(!preview)return;
+  if(!title&&!body){preview.style.display='none';return;}
+  preview.style.display='block';
+  preview.innerHTML=`<div style="font-weight:700;margin-bottom:6px">📨 ${title||'(без заголовка)'}</div><div style="font-size:13px;color:var(--ink2)">${body||'(пусто)'}</div>`;
+}
+function sendBroadcast(){
+  const title=document.getElementById('bc-title').value.trim();
+  const body=document.getElementById('bc-body').value.trim();
+  const audience=document.querySelector('input[name="bc-audience"]:checked')?.value||'all';
+  if(!title||!body){toast('Заполните заголовок и текст','err');return;}
+  const key='ss_broadcasts';
+  const history=JSON.parse(localStorage.getItem(key)||'[]');
+  history.push({title,body,audience,date:new Date().toISOString()});
+  localStorage.setItem(key,JSON.stringify(history));
+  document.getElementById('bc-title').value='';
+  document.getElementById('bc-body').value='';
+  document.getElementById('bc-preview').style.display='none';
+  const count=audience==='all'?MASTERS.length+10:audience==='masters'?MASTERS.length:10;
+  toast(`✅ Рассылка отправлена (~${count} получателей)`);
+  renderBroadcast();
+}
+
+
   const countries=[...new Set(MASTERS.map(m=>m.country))].sort();
   ['fm-country','fc-country','fo-country'].forEach(id=>{
     const s=document.getElementById(id);
@@ -959,7 +1203,7 @@ function renderMasters(){
         <input type="checkbox" ${m.topCountry?'checked':''} onchange="toggleTop(${m.id},'country',this.checked)"> 🌍
       </label>
     </td>
-    <td style="color:var(--yellow);font-weight:800;font-size:12px">${m.rate?m.rate+'★':'—'}</td>
+    <td style="color:var(--yellow);font-weight:800;font-size:12px">${m.rate?m.rate+'🔨':'—'}</td>
     <td><div style="display:flex;gap:4px;flex-wrap:wrap">
       <button class="btn btn-sm" style="background:rgba(124,111,255,.15);color:var(--acc);font-size:11px" onclick="openMasterModal(${m.id})">👁</button>
       <button class="btn btn-sm btn-r" style="font-size:11px" onclick="blockUser('${m.id}')">🚫</button>
@@ -980,7 +1224,7 @@ function openMasterModal(id){
         <div style="font-size:12px;color:var(--ink3)">${m.f||''} ${m.city||''}, ${m.country||''}</div>
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">
           ${(m.lvl||m.verifLevel)?`<span class="badge badge-g">✅ L${m.lvl||m.verifLevel}</span>`:'<span class="badge badge-y">⏳</span>'}
-          ${m.sub||hasSub(m)?'<span class="badge badge-y">⭐ Pro</span>':''}
+          ${m.sub||hasSub(m)?'<span class="badge badge-y">🔨 Pro</span>':''}
           ${m.topCity?'<span class="badge badge-o">🏆 City</span>':''}
           ${m.topCountry?'<span class="badge badge-o">🌍 Country</span>':''}
         </div>
@@ -1010,7 +1254,7 @@ function openMasterModal(id){
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-        <div style="padding:10px;background:var(--bg3);border-radius:8px;text-align:center"><div style="font-size:18px;font-weight:900;color:var(--yellow)">${m.rate||'—'}★</div><div style="font-size:10px;color:var(--ink3)">Rating</div></div>
+        <div style="padding:10px;background:var(--bg3);border-radius:8px;text-align:center"><div style="font-size:18px;font-weight:900;color:var(--yellow)">${m.rate||'—'}🔨</div><div style="font-size:10px;color:var(--ink3)">Rating</div></div>
         <div style="padding:10px;background:var(--bg3);border-radius:8px;text-align:center"><div style="font-size:18px;font-weight:900">${m.reviews||0}</div><div style="font-size:10px;color:var(--ink3)">Reviews</div></div>
         <div style="padding:10px;background:var(--bg3);border-radius:8px;text-align:center"><div style="font-size:18px;font-weight:900;color:var(--g)">${m.price?m.price+'€/h':'—'}</div><div style="font-size:10px;color:var(--ink3)">Rate</div></div>
         <div style="padding:10px;background:var(--bg3);border-radius:8px;text-align:center"><div style="font-size:18px;font-weight:900">${m.exp?m.exp+' yrs':'—'}</div><div style="font-size:10px;color:var(--ink3)">Exp</div></div>
@@ -1099,7 +1343,7 @@ function openOrderModal(id){
     </div>
     <div style="padding:12px;background:var(--bg3);border-radius:10px;font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:14px">${o.desc}</div>
     <div style="font-size:12px;color:var(--ink3);margin-bottom:14px">Client: <strong style="color:#fff">${o.clientName||'—'}</strong> · Created: ${o.createdAt?new Date(o.createdAt).toLocaleDateString():'—'}</div>
-    ${respondedMasters.length?`<div class="form-block"><div class="form-block-title">👷 Bids (${respondedMasters.length})</div>${respondedMasters.map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr);cursor:pointer" onclick="document.getElementById('order-modal').style.display='none';openMasterModal(${m.id})"><div style="font-size:20px">${m.a||'👷'}</div><div><div style="font-weight:700;font-size:13px">${m.nm||m.name}</div><div style="font-size:11px;color:var(--ink3)">${m.city}, ${m.country} · ${m.rate?m.rate+'★':''}</div></div></div>`).join('')}</div>`:'<div style="text-align:center;padding:20px;color:var(--ink3)">No bids yet</div>'}
+    ${respondedMasters.length?`<div class="form-block"><div class="form-block-title">👷 Bids (${respondedMasters.length})</div>${respondedMasters.map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr);cursor:pointer" onclick="document.getElementById('order-modal').style.display='none';openMasterModal(${m.id})"><div style="font-size:20px">${m.a||'👷'}</div><div><div style="font-weight:700;font-size:13px">${m.nm||m.name}</div><div style="font-size:11px;color:var(--ink3)">${m.city}, ${m.country} · ${m.rate?m.rate+'🔨':''}</div></div></div>`).join('')}</div>`:'<div style="text-align:center;padding:20px;color:var(--ink3)">No bids yet</div>'}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
       <select id="om-status-sel" style="flex:1"><option value="open" ${o.status==='open'?'selected':''}>Open</option><option value="in_progress" ${o.status==='in_progress'?'selected':''}>In Progress</option><option value="completed" ${o.status==='completed'?'selected':''}>Done</option><option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option></select>
       <button class="btn btn-p btn-sm" onclick="updateOrder(${o.id},{status:document.getElementById('om-status-sel').value});toast('✅ Status updated');document.getElementById('order-modal').style.display='none';renderOrders()">Update Status</button>

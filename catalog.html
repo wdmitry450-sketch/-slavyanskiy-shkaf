@@ -617,62 +617,77 @@ const SK=[
   {id:'move',i:'📦',ru:'Переезды',en:'Moving',n:12},
 ];
 const CO=[
-  {f:'🇫🇷',ru:'Франция',en:'France'},{f:'🇩🇪',ru:'Германия',en:'Germany'},
-  {f:'🇪🇸',ru:'Испания',en:'Spain'},{f:'🇮🇹',ru:'Италия',en:'Italy'},
-  {f:'🇧🇪',ru:'Бельгия',en:'Belgium'},{f:'🇳🇱',ru:'Нидерланды',en:'Netherlands'},
-  {f:'🇵🇱',ru:'Польша',en:'Poland'},{f:'🇦🇹',ru:'Австрия',en:'Austria'},
-  {f:'🇨🇭',ru:'Швейцария',en:'Switzerland'},{f:'🇵🇹',ru:'Португалия',en:'Portugal'},
-  {f:'🇸🇪',ru:'Швеция',en:'Sweden'},{f:'🇳🇴',ru:'Норвегия',en:'Norway'},
-  {f:'🇩🇰',ru:'Дания',en:'Denmark'},{f:'🇫🇮',ru:'Финляндия',en:'Finland'},
-  {f:'🇨🇿',ru:'Чехия',en:'Czechia'},{f:'🇸🇰',ru:'Словакия',en:'Slovakia'},
-  {f:'🇭🇺',ru:'Венгрия',en:'Hungary'},{f:'🇷🇴',ru:'Румыния',en:'Romania'},
-  {f:'🇧🇬',ru:'Болгария',en:'Bulgaria'},{f:'🇭🇷',ru:'Хорватия',en:'Croatia'},
-  {f:'🇸🇮',ru:'Словения',en:'Slovenia'},{f:'🇬🇷',ru:'Греция',en:'Greece'},
+  {iso:'fr',ru:'Франция',en:'France'},
+  {iso:'de',ru:'Германия',en:'Germany'},
+  {iso:'es',ru:'Испания',en:'Spain'},
+  {iso:'it',ru:'Италия',en:'Italy'},
+  {iso:'be',ru:'Бельгия',en:'Belgium'},
+  {iso:'nl',ru:'Нидерланды',en:'Netherlands'},
+  {iso:'pl',ru:'Польша',en:'Poland'},
+  {iso:'at',ru:'Австрия',en:'Austria'},
+  {iso:'ch',ru:'Швейцария',en:'Switzerland'},
+  {iso:'pt',ru:'Португалия',en:'Portugal'},
+  {iso:'se',ru:'Швеция',en:'Sweden'},
+  {iso:'no',ru:'Норвегия',en:'Norway'},
+  {iso:'dk',ru:'Дания',en:'Denmark'},
+  {iso:'fi',ru:'Финляндия',en:'Finland'},
+  {iso:'cz',ru:'Чехия',en:'Czechia'},
+  {iso:'sk',ru:'Словакия',en:'Slovakia'},
+  {iso:'hu',ru:'Венгрия',en:'Hungary'},
+  {iso:'ro',ru:'Румыния',en:'Romania'},
+  {iso:'bg',ru:'Болгария',en:'Bulgaria'},
+  {iso:'hr',ru:'Хорватия',en:'Croatia'},
+  {iso:'si',ru:'Словения',en:'Slovenia'},
+  {iso:'gr',ru:'Греция',en:'Greece'},
 ];
+function flagImg(iso,size){
+  size=size||20;
+  return '<img src="https://flagcdn.com/'+size+'x'+Math.round(size*0.75)+'/'+iso+'.png" style="width:'+size+'px;height:'+Math.round(size*0.75)+'px;border-radius:2px;vertical-align:middle;object-fit:cover;display:inline-block;margin-right:4px" loading="lazy">';
+}
 const MASTERS=[
-  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',f:'🇫🇷',
+  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',iso:'fr',
    cats:['plumbing','bathroom'],skills:['Сантехника','Ванная под ключ','Отопление'],
    rate:4.9,reviews:47,price:45,lvl:3,online:true,exp:12,sub:true,topCity:true,topCountry:false,
    phone:'+33 6 12 34 56 78',email:'aleksey@example.com',telegram:'@aleksey_m',
    about:'Сантехник с 12-летним опытом. Гарантия 2 года.',
    revs:[{a:'Жан-Поль Б.',d:'12 нояб 2024',s:5,t:'Отличная работа!'},{a:'Моника Р.',d:'3 окт 2024',s:5,t:'Бойлер установил быстро.'}]},
-  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',f:'🇧🇪',
+  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',iso:'be',
    cats:['electric','it'],skills:['Электрика','RGE','Умный дом'],
    rate:4.8,reviews:32,price:55,lvl:3,online:true,exp:8,sub:true,topCity:true,topCountry:true,
    phone:'+32 4 98 76 54 32',email:'etien@example.com',telegram:'@etien_b',
    about:'Сертифицированный электрик RGE.',
    revs:[{a:'Клара М.',d:'5 дек 2024',s:5,t:'Полная замена проводки.'}]},
-  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',f:'🇩🇪',
+  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',iso:'de',
    cats:['paint','floor'],skills:['Покраска','Паркет','Шпаклёвка'],
    rate:4.7,reviews:28,price:38,lvl:2,online:false,exp:9,sub:false,topCity:false,topCountry:false,
    phone:'+49 170 123 4567',email:'pavel@example.com',telegram:'@pavel_k',
    about:'Маляр-отделочник.',
    revs:[{a:'Хельга Ш.',d:'20 нояб 2024',s:5,t:'Покрасил квартиру за 3 дня.'}]},
-  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',f:'🇫🇷',
+  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',iso:'fr',
    cats:['masonry','bathroom'],skills:['Кладка','Плитка','Стяжка'],
    rate:5.0,reviews:19,price:42,lvl:2,online:true,exp:7,sub:true,topCity:false,topCountry:false,
    phone:'+33 6 98 76 54 32',email:'sonia@example.com',telegram:'@sonya_l',
    about:'Мастер по плитке и кладке.',
    revs:[{a:'Люсьен Д.',d:'1 янв 2025',s:5,t:'Ванная с нуля!'}]},
-  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',f:'🇵🇱',
+  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',iso:'pl',
    cats:['carpentry','floor'],skills:['Столярка','Паркет','Двери'],
    rate:4.6,reviews:22,price:35,lvl:2,online:false,exp:11,sub:false,topCity:false,topCountry:false,
    phone:'+48 600 123 456',email:'dmitry@example.com',telegram:'@dmitry_v',
    about:'Столяр. Окна, двери, паркет.',
    revs:[{a:'Анна К.',d:'15 дек 2024',s:5,t:'5 дверей.'}]},
-  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',f:'🇪🇸',
+  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',iso:'es',
    cats:['ac','electric'],skills:['Кондиционер','Вентиляция','Daikin'],
    rate:4.8,reviews:35,price:48,lvl:3,online:true,exp:10,sub:true,topCity:true,topCountry:false,
    phone:'+34 612 345 678',email:'carlos@example.com',telegram:'@carlos_m',
    about:'Партнёр Daikin и Mitsubishi.',
    revs:[{a:'Педро Г.',d:'8 дек 2024',s:5,t:'Климат в офисе.'}]},
-  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',f:'🇦🇹',
+  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',iso:'at',
    cats:['clean','move'],skills:['Клининг','Химчистка','Переезды'],
    rate:4.9,reviews:64,price:28,lvl:2,online:true,exp:6,sub:true,topCity:false,topCountry:false,
    phone:'+43 664 123 4567',email:'irina@example.com',telegram:'@irina_s',
    about:'Клининг квартир и офисов.',
    revs:[{a:'Вернер Х.',d:'20 янв 2025',s:5,t:'Уборка после ремонта.'}]},
-  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',f:'🇳🇱',
+  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',iso:'nl',
    cats:['roof','masonry'],skills:['Кровля','Фасад','Гидроизоляция'],
    rate:4.7,reviews:18,price:52,lvl:3,online:false,exp:15,sub:true,topCity:false,topCountry:true,
    phone:'+31 6 12345678',email:'tomas@example.com',telegram:'@tomas_b',
@@ -778,7 +793,7 @@ const setMT=(el)=>{document.querySelectorAll('.mob-tab').forEach(b=>b.classList.
 
 function applyTranslations(){document.querySelectorAll("[data-t]").forEach(el=>{const v=t(el.getAttribute("data-t"));if(el.tagName==="INPUT"||el.tagName==="TEXTAREA"){el.placeholder=v;}else{el.textContent=v;}});}applyTranslations();
 SK.forEach(s=>document.getElementById('f-cat').innerHTML+=`<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
-CO.forEach(c=>document.getElementById('f-country').innerHTML+=`<option value="${c.ru}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
+CO.forEach(c=>document.getElementById('f-country').innerHTML+=`<option value="${c.ru}">${flagImg(c.iso)} ${getLang()==='ru'?c.ru:c.en}</option>`);
 [...new Set(MASTERS.map(m=>m.city))].sort().forEach(c=>document.getElementById('f-city').innerHTML+=`<option value="${c}">${c}</option>`);
 const usp=new URLSearchParams(location.search);
 if(usp.get('cat'))document.getElementById('f-cat').value=usp.get('cat');
@@ -800,15 +815,9 @@ function render(){
   else if(sort==='price_desc')list.sort((a,b)=>b.price-a.price);
   else if(sort==='reviews')list.sort((a,b)=>b.reviews-a.reviews);
   document.getElementById('count-lbl').textContent=t('catalog.found')+': '+list.length+' '+t('catalog.masters');
-  document.getElementById('cat-grid').innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?' <span class="badge badge-y" style="font-size:9px">🏆</span>':''}${m.topCountry?' <span class="badge badge-o" style="font-size:9px">🌍</span>':''}</div><div class="mc-loc">${m.f} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}★</div></div><div class="mc-skills">${m.skills.map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div><div style="font-size:11px;color:var(--ink3);margin-top:7px">⭐ ${m.reviews} ${t('lbl.reviews')} · ${m.exp} ${t('general.years')}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink3)"><div style="font-size:36px;margin-bottom:10px">🔍</div><div style="font-weight:700">${t('catalog.not_found')}</div></div>`;
+  document.getElementById('cat-grid').innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?' <span class="badge badge-y" style="font-size:9px">🏆</span>':''}${m.topCountry?' <span class="badge badge-o" style="font-size:9px">🌍</span>':''}</div><div class="mc-loc">${flagImg(m.iso)} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}🔨</div></div><div class="mc-skills">${m.skills.map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div><div style="font-size:11px;color:var(--ink3);margin-top:7px">🔨 ${m.reviews} ${t('lbl.reviews')} · ${m.exp} ${t('general.years')}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink3)"><div style="font-size:36px;margin-bottom:10px">🔍</div><div style="font-weight:700">${t('catalog.not_found')}</div></div>`;
 }
 ['q','f-cat','f-country','f-city','f-online','f-sort'].forEach(id=>{const el=document.getElementById(id);el?.addEventListener('input',render);el?.addEventListener('change',render);});
 renderNav();render();</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js"></script>
-<script>
-// Заменить флаг-эмодзи везде на картинки Twemoji
-document.addEventListener('DOMContentLoaded',()=>{
-  twemoji.parse(document.body,{folder:'svg',ext:'.svg',base:'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/'});
-});
-</script>
+
 </body></html>
