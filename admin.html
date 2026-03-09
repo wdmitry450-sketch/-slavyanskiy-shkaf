@@ -1139,7 +1139,7 @@ function sendBroadcast(){
   renderBroadcast();
 }
 
-
+function initFilters(){
   const countries=[...new Set(MASTERS.map(m=>m.country))].sort();
   ['fm-country','fc-country','fo-country'].forEach(id=>{
     const s=document.getElementById(id);

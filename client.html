@@ -1057,10 +1057,6 @@ function renderArchive(){
     </div>`;
 }
 
-el.classList.add('active');
-  if(btn)btn.classList.add('active');
-  ({orders:renderMyOrders,new:initNew,find:renderFind,profile:renderCP})[tab]?.();
-}
 
 function renderMyOrders(){
   if(!U)return;
