@@ -821,96 +821,127 @@ const setMT=(el)=>{document.querySelectorAll('.mob-tab').forEach(b=>b.classList.
 function applyTranslations(){document.querySelectorAll('[data-t]').forEach(el=>{const v=t(el.getAttribute('data-t'));if(el.tagName==='INPUT'||el.tagName==='TEXTAREA'){el.placeholder=v;}else{el.textContent=v;}});}
 applyTranslations();
 const U=(()=>{const u=getUser();if(!u){location.href='login.html';return null;}if(u.role==='client'){location.href='client.html';return null;}if(u.role==='admin'){location.href='admin.html';return null;}return u;})();
-if(U){
-  document.getElementById('d-name').textContent=U.name||'Master';
-  document.getElementById('d-role').textContent=U.verifLevel?'✅ Level '+U.verifLevel:'⏳ Pending verification';
-  
-  function go(tab){
-    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('[id^="tb-"]').forEach(b=>b.classList.remove('active'));
-    document.getElementById('tab-'+tab)?.classList.add('active');
-    document.getElementById('tb-'+tab)?.classList.add('active');
-    ({orders:renderOrders,responses:renderResponses,stats:renderStats,profile:renderProfile,verif:renderVerif})[tab]?.();
-  }
+// ── DASHBOARD FUNCTIONS (global — accessible from onclick) ──
+let U = null;
 
-  function renderOrders(){
-    const orders=getOrders().filter(o=>o.status==='open');
-    const el=document.getElementById('ord-list');
-    if(!orders.length){el.innerHTML=`<div class="form-block" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">📋</div><div style="font-weight:700">${t('general.no_data')}</div></div>`;return;}
-    el.innerHTML=orders.map(o=>{
-      const applied=(o.responses||[]).includes(U.id);
-      return `<div class="oc">
-        <div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div>
-        <div class="oc-meta"><span>📍 ${o.city}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span><span>👥 ${(o.responses||[]).length} ${t('general.responses')}</span></div>
-        <div class="oc-desc">${o.desc}</div>
-        ${!hasSub(U)?`<div class="lock-box">${t('general.no_sub')}</div>`:''}
-        <div class="oc-foot">${applied?`<span class="badge badge-g">✅ ${t('general.apply_done')}</span>`:`<button class="btn btn-p btn-sm" onclick="applyOrder(${o.id})">${t('btn.apply')}</button>`}</div>
-      </div>`;
-    }).join('');
-  }
+function go(tab){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('[id^="tb-"]').forEach(b=>b.classList.remove('active'));
+  const panel = document.getElementById('tab-'+tab);
+  const btn   = document.getElementById('tb-'+tab);
+  if(panel) panel.classList.add('active');
+  if(btn)   btn.classList.add('active');
+  const actions = {orders:renderOrders,responses:renderResponses,stats:renderStats,profile:renderProfile,verif:renderVerif};
+  if(actions[tab]) actions[tab]();
+}
 
-  function applyOrder(id){
-    const os=getOrders();const o=os.find(x=>x.id===id);if(!o)return;
-    if(!o.responses)o.responses=[];
-    if(o.responses.includes(U.id)){toast(t('general.apply_done'),'warn');return;}
-    o.responses.push(U.id);updateOrder(id,{responses:o.responses});
-    toast('✅ '+t('btn.apply'));renderOrders();
-  }
+function renderOrders(){
+  if(!U) return;
+  const orders=getOrders().filter(o=>o.status==='open');
+  const el=document.getElementById('ord-list');
+  if(!el) return;
+  if(!orders.length){el.innerHTML=`<div class="form-block" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">📋</div><div style="font-weight:700">${t('general.no_data')}</div></div>`;return;}
+  el.innerHTML=orders.map(o=>{
+    const applied=(o.responses||[]).includes(U.id);
+    return `<div class="oc">
+      <div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div>
+      <div class="oc-meta"><span>📍 ${o.city}${o.zip?' '+o.zip:''}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span><span>👥 ${(o.responses||[]).length} ${t('general.responses')}</span></div>
+      <div class="oc-desc">${o.desc}</div>
+      ${!hasSub(U)?`<div class="lock-box">${t('general.no_sub')}</div>`:''}
+      <div class="oc-foot">${applied
+        ?`<span class="badge badge-g">✅ ${t('general.apply_done')}</span>`
+        :`<button class="btn btn-p btn-sm" onclick="applyOrder(${o.id})">${t('btn.apply')}</button>`
+      }</div>
+    </div>`;
+  }).join('');
+}
 
-  function renderResponses(){
-    const orders=getOrders().filter(o=>(o.responses||[]).includes(U.id));
-    const el=document.getElementById('resp-list');
-    if(!orders.length){el.innerHTML=`<div class="form-block" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">🔔</div><div style="font-weight:700">${t('general.no_data')}</div></div>`;return;}
-    el.innerHTML=orders.map(o=>`<div class="oc"><div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div><div class="oc-meta"><span>📍 ${o.city}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span></div><div class="oc-desc">${o.desc}</div></div>`).join('');
-  }
+function applyOrder(id){
+  if(!U) return;
+  const os=getOrders();const o=os.find(x=>x.id===id);if(!o)return;
+  if(!o.responses)o.responses=[];
+  if(o.responses.includes(U.id)){toast(t('general.apply_done'),'warn');return;}
+  o.responses.push(U.id);updateOrder(id,{responses:o.responses});
+  toast('✅ '+t('btn.apply'));renderOrders();
+}
 
-  function renderStats(){
-    const all=getOrders(),applied=all.filter(o=>(o.responses||[]).includes(U.id));
-    const done=applied.filter(o=>o.status==='completed');
-    document.getElementById('stats-cards').innerHTML=`
-      <div class="stat-card"><div class="stat-v" style="color:var(--g)">${applied.length}</div><div class="stat-l">${getLang()==='ru'?'Откликов':'Bids'}</div></div>
-      <div class="stat-card"><div class="stat-v" style="color:var(--yellow)">${done.length}</div><div class="stat-l">${getLang()==='ru'?'Выполнено':'Done'}</div></div>
-      <div class="stat-card"><div class="stat-v">${done.reduce((s,o)=>s+o.budget,0)}€</div><div class="stat-l">${getLang()==='ru'?'Заработано':'Earned'}</div></div>
-      <div class="stat-card"><div class="stat-v" style="color:var(--acc)">${hasSub(U)?'Pro':'Free'}</div><div class="stat-l">${getLang()==='ru'?'Подписка':'Plan'}</div></div>`;
-  }
+function renderResponses(){
+  if(!U) return;
+  const orders=getOrders().filter(o=>(o.responses||[]).includes(U.id));
+  const el=document.getElementById('resp-list');if(!el)return;
+  if(!orders.length){el.innerHTML=`<div class="form-block" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">🔔</div><div style="font-weight:700">${t('general.no_data')}</div></div>`;return;}
+  el.innerHTML=orders.map(o=>`<div class="oc">
+    <div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div>
+    <div class="oc-meta"><span>📍 ${o.city}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span></div>
+    <div class="oc-desc">${o.desc}</div>
+  </div>`).join('');
+}
 
-  function renderProfile(){
-    document.getElementById('pf-name').value=U.name||'';
-    document.getElementById('pf-email').value=U.email||'';
-    document.getElementById('pf-phone').value=U.phone||'';
-    document.getElementById('pf-tg').value=U.telegram||'';
-    document.getElementById('pf-country').value=U.country||'';
-    document.getElementById('pf-city').value=U.city||'';
-    document.getElementById('pf-about').value=U.about||'';
-  }
-  function saveProfile(){
-    updateUser(U.id,{name:document.getElementById('pf-name').value,phone:document.getElementById('pf-phone').value,telegram:document.getElementById('pf-tg').value,country:document.getElementById('pf-country').value,city:document.getElementById('pf-city').value,about:document.getElementById('pf-about').value});
-    toast('✅ '+t('btn.save'));
-  }
+function renderStats(){
+  if(!U) return;
+  const all=getOrders(),applied=all.filter(o=>(o.responses||[]).includes(U.id));
+  const done=applied.filter(o=>o.status==='completed');
+  const el=document.getElementById('stats-cards');if(!el)return;
+  const isRu=getLang()==='ru';
+  el.innerHTML=`
+    <div class="stat-card"><div class="stat-v" style="color:var(--g)">${applied.length}</div><div class="stat-l">${isRu?'Откликов':'Bids'}</div></div>
+    <div class="stat-card"><div class="stat-v" style="color:var(--yellow)">${done.length}</div><div class="stat-l">${isRu?'Выполнено':'Done'}</div></div>
+    <div class="stat-card"><div class="stat-v">${done.reduce((s,o)=>s+o.budget,0)}€</div><div class="stat-l">${isRu?'Заработано':'Earned'}</div></div>
+    <div class="stat-card"><div class="stat-v" style="color:var(--acc)">${hasSub(U)?'Pro':'Free'}</div><div class="stat-l">${isRu?'Подписка':'Plan'}</div></div>`;
+}
 
-  function renderVerif(){
-    const lvl=U.verifLevel||0;
-    const isRu=getLang()==='ru';
-    document.getElementById('verif-content').innerHTML=`
-      <div class="form-block">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
-          <div style="font-size:44px">${['⏳','🥉','🥈','🥇'][lvl]||'⏳'}</div>
-          <div><div style="font-weight:900;font-size:17px">${lvl>0?(isRu?'Уровень ':'Level ')+lvl+(isRu?' — верифицирован':' — verified'):(isRu?'Не верифицирован':'Not verified')}</div>
-          <div style="font-size:12px;color:var(--ink3);margin-top:4px">${U.verifStatus==='verified'?'✅':(isRu?'⏳ На проверке (до 24ч)':'⏳ Under review (24h)')}</div></div>
-        </div>
-        <div style="font-size:13px;line-height:2.2;color:var(--ink2)">
-          ✓ ${isRu?'Уровень 1 — Лицензия + личность':'Level 1 — License + ID'}<br>
-          ${lvl>=2?'✓':'○'} ${isRu?'Уровень 2 — Страховка + 3 отзыва':'Level 2 — Insurance + 3 reviews'}<br>
-          ${lvl>=3?'✓':'○'} ${isRu?'Уровень 3 — Портфолио + 10 отзывов':'Level 3 — Portfolio + 10 reviews'}
+function renderProfile(){
+  if(!U) return;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';}
+  set('pf-name',U.name);set('pf-email',U.email);set('pf-phone',U.phone);
+  set('pf-tg',U.telegram);set('pf-country',U.country);set('pf-city',U.city);
+  set('pf-about',U.about);
+}
+
+function saveProfile(){
+  if(!U) return;
+  const g=id=>document.getElementById(id)?.value||'';
+  updateUser(U.id,{name:g('pf-name'),phone:g('pf-phone'),telegram:g('pf-tg'),country:g('pf-country'),city:g('pf-city'),about:g('pf-about')});
+  toast('✅ '+t('btn.save'));
+}
+
+function renderVerif(){
+  if(!U) return;
+  const lvl=U.verifLevel||0;
+  const isRu=getLang()==='ru';
+  const el=document.getElementById('verif-content');if(!el)return;
+  el.innerHTML=`
+    <div class="form-block">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div style="font-size:44px">${['⏳','🥉','🥈','🥇'][lvl]||'⏳'}</div>
+        <div>
+          <div style="font-weight:900;font-size:17px">${lvl>0?(isRu?'Уровень ':'Level ')+lvl+(isRu?' — верифицирован':' — verified'):(isRu?'Не верифицирован':'Not verified')}</div>
+          <div style="font-size:12px;color:var(--ink3);margin-top:4px">${U.verifStatus==='verified'?'✅':(isRu?'⏳ На проверке (до 24ч)':'⏳ Under review (24h)')}</div>
         </div>
       </div>
-      <div style="background:rgba(0,214,143,.06);border:1px solid rgba(0,214,143,.2);border-radius:12px;padding:14px;font-size:13px;color:var(--g)">
-        📧 ${isRu?'Документы на':'Documents to'} <strong>support@slavic-shkaf.eu</strong> ${isRu?'или в':'or'} <a href="https://t.me/slavyanskiy_shkaf_bot" style="color:var(--g);font-weight:700">Telegram</a>
-      </div>`;
-  }
-
-  renderNav();renderOrders();
+      <div style="font-size:13px;line-height:2.2;color:var(--ink2)">
+        ✓ ${isRu?'Уровень 1 — Лицензия + личность':'Level 1 — License + ID'}<br>
+        ${lvl>=2?'✓':'○'} ${isRu?'Уровень 2 — Страховка + 3 отзыва':'Level 2 — Insurance + 3 reviews'}<br>
+        ${lvl>=3?'✓':'○'} ${isRu?'Уровень 3 — Портфолио + 10 отзывов':'Level 3 — Portfolio + 10 reviews'}
+      </div>
+    </div>
+    <div style="background:rgba(0,214,143,.06);border:1px solid rgba(0,214,143,.2);border-radius:12px;padding:14px;font-size:13px;color:var(--g)">
+      📧 ${isRu?'Документы на':'Documents to'} <strong>support@slavic-shkaf.eu</strong> ${isRu?'или в':'or'} <a href="https://t.me/slavyanskiy_shkaf_bot" style="color:var(--g);font-weight:700">Telegram</a>
+    </div>`;
 }
+
+// ── INIT ──
+(function init(){
+  const u = getUser();
+  if(!u){ location.href='login.html'; return; }
+  if(u.role==='client'){ location.href='client.html'; return; }
+  if(u.role==='admin'){ location.href='admin.html'; return; }
+  U = u;
+  document.getElementById('d-name').textContent = U.name||'Master';
+  document.getElementById('d-role').textContent = U.verifLevel?'✅ Level '+U.verifLevel:'⏳ Pending verification';
+  renderNav();
+  renderOrders();
+})();
 
 </script>
 </body>

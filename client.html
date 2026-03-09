@@ -842,52 +842,95 @@ function applyTranslations(){
 }
 applyTranslations();
 const U=(()=>{const u=getUser();if(!u){location.href='login.html';return null;}if(u.role==='master'){location.href='dashboard.html';return null;}if(u.role==='admin'){location.href='admin.html';return null;}return u;})();
-if(U){
-  document.getElementById('c-name').textContent=U.name||'Client';
-  function go(tab){
-    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('[id^="tb-"]').forEach(b=>b.classList.remove('active'));
-    document.getElementById('tab-'+tab)?.classList.add('active');
-    document.getElementById('tb-'+tab)?.classList.add('active');
-    ({orders:renderMyOrders,new:initNew,find:renderFind,profile:renderCP})[tab]?.();
-  }
-  function renderMyOrders(){
-    const all=getOrders().filter(o=>o.clientId===U.id);
-    const el=document.getElementById('my-orders');
-    if(!all.length){el.innerHTML=`<div class="form-block" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">📋</div><div style="font-weight:700">${t('general.no_data')}</div><button class="btn btn-p btn-sm" style="margin-top:12px" onclick="go('new')">${t('btn.create')}</button></div>`;return;}
-    el.innerHTML=all.map(o=>`<div class="oc"><div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div><div class="oc-meta"><span>📍 ${o.city}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span><span>👥 ${(o.responses||[]).length} ${t('general.responses')}</span></div><div class="oc-desc">${o.desc}</div></div>`).join('');
-  }
-  function initNew(){
-    const cs=document.getElementById('n-cat');if(cs.options.length<2)SK.forEach(s=>cs.innerHTML+=`<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
-    const co=document.getElementById('n-country');if(co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${getLang()==='ru'?c.ru:c.en}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
-  }
-  function createOrder(){
-    const v=id=>document.getElementById(id).value;
-    const title=v('n-title').trim(),cat=v('n-cat'),budget=v('n-budget'),country=v('n-country'),city=v('n-city').trim(),zip=(document.getElementById('n-zip').value||'').trim(),desc=v('n-desc').trim();
-    if(!title||!cat||!budget||!country||!city||!desc){toast(getLang()==='ru'?'Заполните все поля':'Fill all fields','err');return;}
-    const os=getOrders();
-    saveOrders([...os,{id:Date.now(),clientId:U.id,clientName:U.name,title,cat,budget:+budget,country,city,zip:zip||undefined,desc,status:'open',responses:[],createdAt:new Date().toISOString()}]);
-    toast('✅ '+(getLang()==='ru'?'Заявка создана':'Order created'));go('orders');
-  }
-  function renderFind(){
-    const q=(document.getElementById('fq').value||'').toLowerCase();
-    const cat=document.getElementById('f-cat').value;
-    const country=document.getElementById('f-country').value;
-    const cs=document.getElementById('f-cat');if(cs.options.length<2)SK.forEach(s=>cs.innerHTML+=`<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
-    const co=document.getElementById('f-country');if(co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${c.ru}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
-    let list=MASTERS;
-    if(q)list=list.filter(m=>m.nm.toLowerCase().includes(q)||m.skills.some(s=>s.toLowerCase().includes(q)));
-    if(cat)list=list.filter(m=>m.cats.includes(cat));
-    if(country)list=list.filter(m=>m.country===country);
-    document.getElementById('find-grid').innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}</div><div class="mc-loc">${m.f} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}★</div></div><div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink3)">${t('catalog.not_found')}</div>`;
-  }
-  function renderCP(){document.getElementById('cp-name').value=U.name||'';document.getElementById('cp-email').value=U.email||'';document.getElementById('cp-country').value=U.country||'';document.getElementById('cp-city').value=U.city||'';}
-  function saveCP(){updateUser(U.id,{name:document.getElementById('cp-name').value,country:document.getElementById('cp-country').value,city:document.getElementById('cp-city').value});toast('✅ '+t('btn.save'));}
+let U = null;
+
+// ── Global nav functions ──
+function go(tab){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('[id^="tb-"]').forEach(b=>b.classList.remove('active'));
+  const panel=document.getElementById('tab-'+tab);
+  const btn=document.getElementById('tb-'+tab);
+  if(panel)panel.classList.add('active');
+  if(btn)btn.classList.add('active');
+  ({orders:renderMyOrders,new:initNew,find:renderFind,profile:renderCP})[tab]?.();
+}
+
+function renderMyOrders(){
+  if(!U)return;
+  const all=getOrders().filter(o=>o.clientId===U.id);
+  const el=document.getElementById('my-orders');if(!el)return;
+  if(!all.length){el.innerHTML=`<div class="form-block" style="text-align:center;padding:40px"><div style="font-size:40px;margin-bottom:10px">📋</div><div style="font-weight:700">${t('general.no_data')}</div><button class="btn btn-p btn-sm" style="margin-top:12px" onclick="go('new')">${t('btn.create')}</button></div>`;return;}
+  el.innerHTML=all.map(o=>`<div class="oc">
+    <div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div>
+    <div class="oc-meta"><span>📍 ${o.city}${o.zip?' '+o.zip:''}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span><span>👥 ${(o.responses||[]).length} ${t('general.responses')}</span></div>
+    <div class="oc-desc">${o.desc}</div>
+  </div>`).join('');
+}
+
+function initNew(){
+  const cs=document.getElementById('n-cat');
+  if(cs&&cs.options.length<2)SK.forEach(s=>cs.innerHTML+=`<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
+  const co=document.getElementById('n-country');
+  if(co&&co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${getLang()==='ru'?c.ru:c.en}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
+}
+
+function createOrder(){
+  const v=id=>document.getElementById(id)?.value||'';
+  const title=v('n-title').trim(),cat=v('n-cat'),budget=v('n-budget');
+  const country=v('n-country'),city=v('n-city').trim();
+  const zip=v('n-zip').trim(),desc=v('n-desc').trim();
+  if(!title||!cat||!budget||!country||!city||!desc){toast(getLang()==='ru'?'Заполните все поля':'Fill all fields','err');return;}
+  const os=getOrders();
+  saveOrders([...os,{id:Date.now(),clientId:U.id,clientName:U.name,title,cat,budget:+budget,country,city,zip:zip||undefined,desc,status:'open',responses:[],createdAt:new Date().toISOString()}]);
+  toast('✅ '+(getLang()==='ru'?'Заявка создана':'Order created'));
+  go('orders');
+}
+
+function renderFind(){
+  const q=(document.getElementById('fq')?.value||'').toLowerCase();
+  const cat=document.getElementById('f-cat')?.value||'';
+  const country=document.getElementById('f-country')?.value||'';
+  const cs=document.getElementById('f-cat');
+  if(cs&&cs.options.length<2)SK.forEach(s=>cs.innerHTML+=`<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
+  const co=document.getElementById('f-country');
+  if(co&&co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${c.ru}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
+  let list=[...MASTERS];
+  if(q)list=list.filter(m=>m.nm.toLowerCase().includes(q)||m.skills.some(s=>s.toLowerCase().includes(q)));
+  if(cat)list=list.filter(m=>m.cats.includes(cat));
+  if(country)list=list.filter(m=>m.country===country);
+  const grid=document.getElementById('find-grid');if(!grid)return;
+  grid.innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}</div><div class="mc-loc">${m.f} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}★</div></div><div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink3)">${t('catalog.not_found')}</div>`;
+}
+
+function renderCP(){
+  if(!U)return;
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+  s('cp-name',U.name);s('cp-email',U.email);s('cp-country',U.country);s('cp-city',U.city);
+}
+
+function saveCP(){
+  if(!U)return;
+  const g=id=>document.getElementById(id)?.value||'';
+  updateUser(U.id,{name:g('cp-name'),country:g('cp-country'),city:g('cp-city')});
+  toast('✅ '+t('btn.save'));
+}
+
+// ── Init ──
+(function(){
+  const u=getUser();
+  if(!u){location.href='login.html';return;}
+  if(u.role==='master'){location.href='dashboard.html';return;}
+  if(u.role==='admin'){location.href='admin.html';return;}
+  U=u;
+  const nameEl=document.getElementById('c-name');
+  if(nameEl)nameEl.textContent=U.name||'Client';
   document.getElementById('fq')?.addEventListener('input',renderFind);
   document.getElementById('f-cat')?.addEventListener('change',renderFind);
   document.getElementById('f-country')?.addEventListener('change',renderFind);
-  renderNav();renderMyOrders();
-}
+  renderNav();
+  renderMyOrders();
+})();
+
 </script>
 </body>
 </html>
