@@ -22,7 +22,8 @@ body{background:var(--bg);color:var(--ink1);font-family:'Manrope',sans-serif;fon
 a{color:inherit;text-decoration:none}
 input,select,textarea{
   background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:10px;
-  color:#fff;padding:11px 14px;font-family:inherit;font-size:14px;width:100%;outline:none;transition:.2s
+  color:#fff;padding:11px 14px;font-family:inherit;font-size:14px;width:100%;outline:none;transition:.2s;
+  -webkit-appearance:none;-moz-appearance:none;appearance:none
 }
 input:focus,select:focus,textarea:focus{border-color:var(--g);background:rgba(0,214,143,.05)}
 select option{background:#1a1f2e;color:#fff}
@@ -283,6 +284,53 @@ button{cursor:pointer;font-family:inherit}
   .mob-tab .mt-ico{font-size:17px}
   .mob-tab span{font-size:8px}
 }
+
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffffff' stroke-opacity='0.4' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:36px;
+  cursor:pointer;
+}
+
+/* ── CUSTOM SELECT (работает на iOS/Android/Telegram) ── */
+.cust-sel-wrap{position:relative;width:100%}
+.cust-sel-box{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.06);border:1px solid var(--bdr);
+  border-radius:10px;color:#fff;padding:11px 14px;
+  font-family:inherit;font-size:14px;width:100%;
+  cursor:pointer;transition:.2s;user-select:none;
+  -webkit-user-select:none;min-height:46px;
+}
+.cust-sel-box:active,.cust-sel-box.open{border-color:var(--g);background:rgba(0,214,143,.05)}
+.cust-sel-arr{color:rgba(255,255,255,.4);font-size:11px;flex-shrink:0;margin-left:6px;transition:.2s}
+.cust-sel-box.open .cust-sel-arr{transform:rotate(180deg);color:var(--g)}
+.cust-sel-list{
+  display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:#1a1f2e;border:1px solid var(--bdr2);border-radius:10px;
+  max-height:220px;overflow-y:auto;z-index:9999;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+}
+.cust-sel-list.open{display:block}
+.cust-sel-list::-webkit-scrollbar{width:4px}
+.cust-sel-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.cust-sel-opt{
+  padding:10px 14px;font-size:14px;color:#fff;cursor:pointer;
+  transition:.15s;display:flex;align-items:center;gap:8px;
+}
+.cust-sel-opt:hover,.cust-sel-opt:active{background:rgba(0,214,143,.1);color:var(--g)}
+.cust-sel-opt.selected{background:rgba(0,214,143,.08);color:var(--g);font-weight:700}
+/* Поиск внутри dropdown */
+.cust-sel-search{
+  padding:8px 10px;border-bottom:1px solid var(--bdr);
+  position:sticky;top:0;background:#1a1f2e;z-index:1;
+}
+.cust-sel-search input{
+  background:rgba(255,255,255,.06);border:1px solid var(--bdr);
+  border-radius:7px;color:#fff;padding:7px 10px;
+  font-size:13px;width:100%;
+}
 </style>
 <script>
   window.API_BASE = 'https://slavic-shkaf-api.vadimrudom.workers.dev';
@@ -310,6 +358,9 @@ button{cursor:pointer;font-family:inherit}
       </div>
     </div>
     <div class="form-block">
+      <!-- Prevent browser autofill -->
+      <input type="text" style="display:none" aria-hidden="true">
+      <input type="password" style="display:none" aria-hidden="true">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div><div class="pf-label" data-t="auth.firstname">Имя</div><input id="r-fn" data-t="auth.firstname" placeholder="Имя"></div>
         <div><div class="pf-label" data-t="auth.lastname">Фамилия</div><input id="r-ln" data-t="auth.lastname" placeholder="Фамилия"></div>
@@ -317,7 +368,12 @@ button{cursor:pointer;font-family:inherit}
       <div style="margin-bottom:12px"><div class="pf-label" data-t="lbl.email">Email</div><input type="email" id="r-em" placeholder="email@example.com"></div>
       <div style="margin-bottom:12px"><div class="pf-label" data-t="lbl.phone">Телефон</div><input type="tel" id="r-ph" placeholder="+33 6 XX XX XX XX"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div><div class="pf-label" data-t="lbl.country">Страна</div><select id="r-co"><option value="">—</option></select></div>
+        <div>
+          <div class="pf-label" data-t="lbl.country">Страна</div>
+          <select id="r-co" style="background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:10px;color:#fff;padding:11px 14px;font-size:14px;width:100%;-webkit-appearance:none;appearance:none">
+            <option value="">— Страна —</option>
+          </select>
+        </div>
         <div><div class="pf-label" data-t="lbl.city">Город</div><input id="r-ci" placeholder="Paris"></div>
       </div>
       <div id="master-extra" style="margin-bottom:12px">
@@ -328,12 +384,11 @@ button{cursor:pointer;font-family:inherit}
         <div class="pf-label" data-t="lbl.password">Пароль</div>
         <div style="position:relative">
           <input type="password" id="r-pw"
-            autocomplete="new-password"
+            autocomplete="off"
+            name="new-password-field"
             data-t="auth.min_pass"
             placeholder="Минимум 6 символов"
-            style="padding-right:44px"
-            onfocus="this.removeAttribute('readonly')"
-            readonly>
+            style="padding-right:44px">
           <button type="button" id="pw-toggle"
             onclick="togglePwVisibility()"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
@@ -863,7 +918,19 @@ const setMT=(el)=>{document.querySelectorAll('.mob-tab').forEach(b=>b.classList.
 function applyTranslations(){document.querySelectorAll("[data-t]").forEach(el=>{const v=t(el.getAttribute("data-t"));if(el.tagName==="INPUT"||el.tagName==="TEXTAREA"){el.placeholder=v;}else{el.textContent=v;}});}applyTranslations();
 const u=getUser();if(u)location.href=u.role==='master'?'dashboard.html':u.role==='admin'?'admin.html':'client.html';
 let regRole='master',selCats=[];
-CO.forEach(c=>{document.getElementById('r-co').innerHTML+=`<option value="${c.ru}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`;});
+// Заполняем кастомный dropdown стран
+// Заполняем select стран
+(function fillCountrySelect(){
+  const sel = document.getElementById('r-co');
+  if(!sel) return;
+  const isRu = getLang()==='ru';
+  CO.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c.ru;
+    opt.textContent = c.f + ' ' + (isRu ? c.ru : c.en);
+    sel.appendChild(opt);
+  });
+})();
 SK.forEach(s=>{
   const b=document.createElement('div');
   b.style.cssText='padding:5px 10px;border-radius:7px;border:1px solid var(--bdr);cursor:pointer;font-size:12px;font-weight:700;transition:.2s;user-select:none';
@@ -891,12 +958,60 @@ function setRole(r){
   if(r==='master'){M.style.borderColor='var(--g)';M.style.background='rgba(0,214,143,.06)';C.style.borderColor='var(--bdr)';C.style.background='';document.getElementById('master-extra').style.display='';}
   else{C.style.borderColor='var(--acc)';C.style.background='rgba(124,111,255,.06)';M.style.borderColor='var(--bdr)';M.style.background='';document.getElementById('master-extra').style.display='none';}
 }
+// ── КАСТОМНЫЙ DROPDOWN СТРАН ──
+function toggleCoDropdown(){
+  const box  = document.getElementById('co-box');
+  const list = document.getElementById('co-list');
+  const isOpen = list.classList.contains('open');
+  // Закрываем все открытые
+  document.querySelectorAll('.cust-sel-list.open').forEach(l=>l.classList.remove('open'));
+  document.querySelectorAll('.cust-sel-box.open').forEach(b=>b.classList.remove('open'));
+  if(!isOpen){
+    list.classList.add('open');
+    box.classList.add('open');
+    // Фокус на поиске
+    setTimeout(()=>{const s=document.getElementById('co-search');if(s)s.focus();},50);
+  }
+}
+function selectCountry(val, label){
+  document.getElementById('r-co').value = val;
+  document.getElementById('co-display').textContent = label;
+  const list = document.getElementById('co-list');
+  const box  = document.getElementById('co-box');
+  list.classList.remove('open');
+  box.classList.remove('open');
+  // Подсвечиваем выбранный
+  list.querySelectorAll('.cust-sel-opt').forEach(o=>{
+    o.classList.toggle('selected', o.dataset.val===val);
+  });
+}
+function filterCountries(q){
+  const query = q.toLowerCase();
+  document.querySelectorAll('#co-list .cust-sel-opt').forEach(opt=>{
+    const name = (opt.dataset.val+opt.dataset.en).toLowerCase();
+    opt.style.display = name.includes(query) ? '' : 'none';
+  });
+}
+// Закрыть dropdown при клике вне
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#co-wrap')){
+    document.querySelectorAll('.cust-sel-list.open').forEach(l=>l.classList.remove('open'));
+    document.querySelectorAll('.cust-sel-box.open').forEach(b=>b.classList.remove('open'));
+  }
+});
+
 function doRegister(){
   const fn=document.getElementById('r-fn').value.trim(),ln=document.getElementById('r-ln').value.trim();
   const em=document.getElementById('r-em').value.trim(),ph=document.getElementById('r-ph').value.trim();
   const co=document.getElementById('r-co').value,ci=document.getElementById('r-ci').value.trim();
   const pw=document.getElementById('r-pw').value;
-  if(!fn||!em||!co||!ci||!pw){toast(getLang()==='ru'?'Заполните обязательные поля':'Fill required fields','err');return;}
+  if(!fn||!em||!pw){toast(getLang()==='ru'?'Заполните обязательные поля':'Fill required fields','err');return;}
+  if(!co){
+    const box=document.getElementById('co-box');
+    if(box){box.style.borderColor='var(--red)';setTimeout(()=>box.style.borderColor='',2000);}
+    toast(getLang()==='ru'?'Выберите страну':'Select country','err');return;
+  }
+  if(!ci){toast(getLang()==='ru'?'Укажите город':'Enter city','err');return;}
   if(pw.length<6){toast(getLang()==='ru'?'Пароль минимум 6 символов':'Minimum 6 characters','err');return;}
   const res=registerUser({name:fn+(ln?' '+ln:''),email:em,phone:ph,country:co,city:ci,password:pw,role:regRole,cats:selCats,verifStatus:'pending',verifLevel:0});
   if(!res.ok){toast(res.err,'err');return;}
