@@ -297,6 +297,9 @@ button{cursor:pointer;font-family:inherit}
     <button class="ds-item active" onclick="go('orders')" id="tb-orders"><span class="ds-ico">📋</span><span data-t="tab.my_orders">Мои заявки</span></button>
     <button class="ds-item" onclick="go('new')" id="tb-new"><span class="ds-ico">➕</span><span data-t="tab.new_order">Новая заявка</span></button>
     <button class="ds-item" onclick="go('find')" id="tb-find"><span class="ds-ico">🔍</span><span data-t="tab.find">Мастера</span></button>
+    <button class="ds-item" onclick="go('notif')" id="tb-notif"><span class="ds-ico">🔔</span><span id="notif-badge-nav">Уведомления</span></button>
+    <button class="ds-item" onclick="go('reviews')" id="tb-reviews"><span class="ds-ico">🔨</span><span>Отзывы</span></button>
+    <button class="ds-item" onclick="go('archive')" id="tb-archive"><span class="ds-ico">🗂</span><span>Архив</span></button>
     <button class="ds-item" onclick="go('chat')" id="tb-chat"><span class="ds-ico">💬</span><span data-t="tab.chat">Чат</span></button>
     <div class="ds-sep"></div>
     <button class="ds-item" onclick="go('profile')" id="tb-profile"><span class="ds-ico">👤</span><span data-t="tab.profile">Профиль</span></button>
@@ -363,6 +366,65 @@ button{cursor:pointer;font-family:inherit}
   <button class="mob-tab" onclick="go('chat');setMT(this)"><div class="mt-ico">💬</div><span data-t="tab.chat">Чат</span></button>
   <button class="mob-tab" onclick="go('profile');setMT(this)"><div class="mt-ico">👤</div><span data-t="tab.profile">Профиль</span></button>
 </div></div>
+
+<!-- NOTIFICATIONS -->
+<div class="tab-panel" id="tab-notif">
+  <div class="dash-title">🔔 Уведомления</div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- REVIEWS -->
+<div class="tab-panel" id="tab-reviews">
+  <div class="dash-title">🔨 Оставить отзыв</div>
+  <div class="form-block" style="max-width:500px">
+    <div style="font-weight:700;margin-bottom:12px">Выберите мастера и заказ</div>
+    <div style="margin-bottom:10px"><div class="pf-label">Мастер</div>
+      <select id="rv-master" style="width:100%">
+        <option value="">— Выберите мастера —</option>
+      </select>
+    </div>
+    <div style="margin-bottom:10px"><div class="pf-label">Оценка</div>
+      <div id="rv-stars" style="display:flex;gap:6px;font-size:28px;cursor:pointer">
+        <span onclick="setRating(1)" data-v="1">🔨</span>
+        <span onclick="setRating(2)" data-v="2">🔨</span>
+        <span onclick="setRating(3)" data-v="3">🔨</span>
+        <span onclick="setRating(4)" data-v="4">🔨</span>
+        <span onclick="setRating(5)" data-v="5">🔨</span>
+      </div>
+    </div>
+    <div style="margin-bottom:16px"><div class="pf-label">Комментарий</div>
+      <textarea id="rv-text" rows="3" placeholder="Расскажите о работе мастера..." style="width:100%;resize:vertical"></textarea>
+    </div>
+    <button class="btn btn-p" onclick="submitReview()">Отправить отзыв</button>
+  </div>
+  <div style="margin-top:20px"><div class="pf-label" style="margin-bottom:10px">Ваши отзывы</div>
+    <div id="my-reviews-list"></div>
+  </div>
+</div>
+
+<!-- ARCHIVE -->
+<div class="tab-panel" id="tab-archive">
+  <div class="dash-title">🗂 История заказов</div>
+  <div id="archive-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+    <select id="arch-status" onchange="renderArchive()" style="flex:1;min-width:130px">
+      <option value="">Все статусы</option>
+      <option value="open">Открытые</option>
+      <option value="in_progress">В работе</option>
+      <option value="completed">Завершённые</option>
+      <option value="cancelled">Отменённые</option>
+    </select>
+    <select id="arch-cat" onchange="renderArchive()" style="flex:1;min-width:130px">
+      <option value="">Все категории</option>
+    </select>
+  </div>
+  <div id="archive-list"></div>
+  <!-- Cost summary -->
+  <div class="form-block" style="margin-top:16px">
+    <div style="font-weight:700;margin-bottom:10px">💰 Итоговая смета</div>
+    <div id="cost-summary"></div>
+  </div>
+</div>
+
 <script>// ═══ i18n TRANSLATIONS ═══
 const TRANSLATIONS = {
   ru: {
@@ -673,62 +735,77 @@ const SK=[
   {id:'move',i:'📦',ru:'Переезды',en:'Moving',n:12},
 ];
 const CO=[
-  {f:'🇫🇷',ru:'Франция',en:'France'},{f:'🇩🇪',ru:'Германия',en:'Germany'},
-  {f:'🇪🇸',ru:'Испания',en:'Spain'},{f:'🇮🇹',ru:'Италия',en:'Italy'},
-  {f:'🇧🇪',ru:'Бельгия',en:'Belgium'},{f:'🇳🇱',ru:'Нидерланды',en:'Netherlands'},
-  {f:'🇵🇱',ru:'Польша',en:'Poland'},{f:'🇦🇹',ru:'Австрия',en:'Austria'},
-  {f:'🇨🇭',ru:'Швейцария',en:'Switzerland'},{f:'🇵🇹',ru:'Португалия',en:'Portugal'},
-  {f:'🇸🇪',ru:'Швеция',en:'Sweden'},{f:'🇳🇴',ru:'Норвегия',en:'Norway'},
-  {f:'🇩🇰',ru:'Дания',en:'Denmark'},{f:'🇫🇮',ru:'Финляндия',en:'Finland'},
-  {f:'🇨🇿',ru:'Чехия',en:'Czechia'},{f:'🇸🇰',ru:'Словакия',en:'Slovakia'},
-  {f:'🇭🇺',ru:'Венгрия',en:'Hungary'},{f:'🇷🇴',ru:'Румыния',en:'Romania'},
-  {f:'🇧🇬',ru:'Болгария',en:'Bulgaria'},{f:'🇭🇷',ru:'Хорватия',en:'Croatia'},
-  {f:'🇸🇮',ru:'Словения',en:'Slovenia'},{f:'🇬🇷',ru:'Греция',en:'Greece'},
+  {iso:'fr',ru:'Франция',en:'France'},
+  {iso:'de',ru:'Германия',en:'Germany'},
+  {iso:'es',ru:'Испания',en:'Spain'},
+  {iso:'it',ru:'Италия',en:'Italy'},
+  {iso:'be',ru:'Бельгия',en:'Belgium'},
+  {iso:'nl',ru:'Нидерланды',en:'Netherlands'},
+  {iso:'pl',ru:'Польша',en:'Poland'},
+  {iso:'at',ru:'Австрия',en:'Austria'},
+  {iso:'ch',ru:'Швейцария',en:'Switzerland'},
+  {iso:'pt',ru:'Португалия',en:'Portugal'},
+  {iso:'se',ru:'Швеция',en:'Sweden'},
+  {iso:'no',ru:'Норвегия',en:'Norway'},
+  {iso:'dk',ru:'Дания',en:'Denmark'},
+  {iso:'fi',ru:'Финляндия',en:'Finland'},
+  {iso:'cz',ru:'Чехия',en:'Czechia'},
+  {iso:'sk',ru:'Словакия',en:'Slovakia'},
+  {iso:'hu',ru:'Венгрия',en:'Hungary'},
+  {iso:'ro',ru:'Румыния',en:'Romania'},
+  {iso:'bg',ru:'Болгария',en:'Bulgaria'},
+  {iso:'hr',ru:'Хорватия',en:'Croatia'},
+  {iso:'si',ru:'Словения',en:'Slovenia'},
+  {iso:'gr',ru:'Греция',en:'Greece'},
 ];
+function flagImg(iso,size){
+  size=size||20;
+  return '<img src="https://flagcdn.com/'+size+'x'+Math.round(size*0.75)+'/'+iso+'.png" style="width:'+size+'px;height:'+Math.round(size*0.75)+'px;border-radius:2px;vertical-align:middle;object-fit:cover;display:inline-block;margin-right:4px" loading="lazy">';
+}
 const MASTERS=[
-  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',f:'🇫🇷',
+  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',iso:'fr',
    cats:['plumbing','bathroom'],skills:['Сантехника','Ванная под ключ','Отопление'],
    rate:4.9,reviews:47,price:45,lvl:3,online:true,exp:12,sub:true,topCity:true,topCountry:false,
    phone:'+33 6 12 34 56 78',email:'aleksey@example.com',telegram:'@aleksey_m',
    about:'Сантехник с 12-летним опытом. Гарантия 2 года.',
    revs:[{a:'Жан-Поль Б.',d:'12 нояб 2024',s:5,t:'Отличная работа!'},{a:'Моника Р.',d:'3 окт 2024',s:5,t:'Бойлер установил быстро.'}]},
-  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',f:'🇧🇪',
+  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',iso:'be',
    cats:['electric','it'],skills:['Электрика','RGE','Умный дом'],
    rate:4.8,reviews:32,price:55,lvl:3,online:true,exp:8,sub:true,topCity:true,topCountry:true,
    phone:'+32 4 98 76 54 32',email:'etien@example.com',telegram:'@etien_b',
    about:'Сертифицированный электрик RGE.',
    revs:[{a:'Клара М.',d:'5 дек 2024',s:5,t:'Полная замена проводки.'}]},
-  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',f:'🇩🇪',
+  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',iso:'de',
    cats:['paint','floor'],skills:['Покраска','Паркет','Шпаклёвка'],
    rate:4.7,reviews:28,price:38,lvl:2,online:false,exp:9,sub:false,topCity:false,topCountry:false,
    phone:'+49 170 123 4567',email:'pavel@example.com',telegram:'@pavel_k',
    about:'Маляр-отделочник.',
    revs:[{a:'Хельга Ш.',d:'20 нояб 2024',s:5,t:'Покрасил квартиру за 3 дня.'}]},
-  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',f:'🇫🇷',
+  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',iso:'fr',
    cats:['masonry','bathroom'],skills:['Кладка','Плитка','Стяжка'],
    rate:5.0,reviews:19,price:42,lvl:2,online:true,exp:7,sub:true,topCity:false,topCountry:false,
    phone:'+33 6 98 76 54 32',email:'sonia@example.com',telegram:'@sonya_l',
    about:'Мастер по плитке и кладке.',
    revs:[{a:'Люсьен Д.',d:'1 янв 2025',s:5,t:'Ванная с нуля!'}]},
-  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',f:'🇵🇱',
+  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',iso:'pl',
    cats:['carpentry','floor'],skills:['Столярка','Паркет','Двери'],
    rate:4.6,reviews:22,price:35,lvl:2,online:false,exp:11,sub:false,topCity:false,topCountry:false,
    phone:'+48 600 123 456',email:'dmitry@example.com',telegram:'@dmitry_v',
    about:'Столяр. Окна, двери, паркет.',
    revs:[{a:'Анна К.',d:'15 дек 2024',s:5,t:'5 дверей.'}]},
-  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',f:'🇪🇸',
+  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',iso:'es',
    cats:['ac','electric'],skills:['Кондиционер','Вентиляция','Daikin'],
    rate:4.8,reviews:35,price:48,lvl:3,online:true,exp:10,sub:true,topCity:true,topCountry:false,
    phone:'+34 612 345 678',email:'carlos@example.com',telegram:'@carlos_m',
    about:'Партнёр Daikin и Mitsubishi.',
    revs:[{a:'Педро Г.',d:'8 дек 2024',s:5,t:'Климат в офисе.'}]},
-  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',f:'🇦🇹',
+  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',iso:'at',
    cats:['clean','move'],skills:['Клининг','Химчистка','Переезды'],
    rate:4.9,reviews:64,price:28,lvl:2,online:true,exp:6,sub:true,topCity:false,topCountry:false,
    phone:'+43 664 123 4567',email:'irina@example.com',telegram:'@irina_s',
    about:'Клининг квартир и офисов.',
    revs:[{a:'Вернер Х.',d:'20 янв 2025',s:5,t:'Уборка после ремонта.'}]},
-  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',f:'🇳🇱',
+  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',iso:'nl',
    cats:['roof','masonry'],skills:['Кровля','Фасад','Гидроизоляция'],
    rate:4.7,reviews:18,price:52,lvl:3,online:false,exp:15,sub:true,topCity:false,topCountry:true,
    phone:'+31 6 12345678',email:'tomas@example.com',telegram:'@tomas_b',
@@ -841,16 +918,146 @@ function applyTranslations(){
   });
 }
 applyTranslations();
-const U=(()=>{const u=getUser();if(!u){location.href='login.html';return null;}if(u.role==='master'){location.href='dashboard.html';return null;}if(u.role==='admin'){location.href='admin.html';return null;}return u;})();
+
 let U = null;
 
 // ── Global nav functions ──
+let _reviewRating = 0;
+
 function go(tab){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('[id^="tb-"]').forEach(b=>b.classList.remove('active'));
   const panel=document.getElementById('tab-'+tab);
   const btn=document.getElementById('tb-'+tab);
   if(panel)panel.classList.add('active');
+  if(btn)btn.classList.add('active');
+  ({orders:renderMyOrders, new:initNew, find:renderFind, profile:renderCP,
+    notif:renderNotif, reviews:renderReviews, archive:renderArchive})[tab]?.();
+}
+
+// ── NOTIFICATIONS ──
+function renderNotif(){
+  if(!U)return;
+  const el=document.getElementById('notif-list');if(!el)return;
+  const all=getOrders().filter(o=>o.clientId===U.id);
+  const notifs=[];
+  all.forEach(o=>{
+    if((o.responses||[]).length>0){
+      notifs.push({
+        icon:'🔨', type:'response',
+        text:`На заявку «${o.title}» откликнулось мастеров: ${o.responses.length}`,
+        time:o.createdAt
+      });
+    }
+    if(o.status==='completed') notifs.push({icon:'✅',type:'done',text:`Заявка «${o.title}» — завершена`,time:o.updatedAt||o.createdAt});
+    if(o.status==='in_progress') notifs.push({icon:'⚙️',type:'work',text:`Заявка «${o.title}» — в работе`,time:o.updatedAt||o.createdAt});
+  });
+  if(!notifs.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--ink3)">🔔 Нет уведомлений</div>';
+    return;
+  }
+  el.innerHTML=notifs.map(n=>`<div class="oc" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px">
+    <div style="font-size:24px">${n.icon}</div>
+    <div style="flex:1">
+      <div style="font-size:14px">${n.text}</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:4px">${n.time?new Date(n.time).toLocaleString('ru'):''}</div>
+    </div>
+  </div>`).join('');
+}
+
+// ── REVIEWS ──
+function renderReviews(){
+  if(!U)return;
+  // Заполним список мастеров
+  const sel=document.getElementById('rv-master');
+  if(sel&&sel.options.length<2){
+    MASTERS.forEach(m=>sel.innerHTML+=`<option value="${m.id}">${m.nm} — ${m.city}</option>`);
+  }
+  // Загрузим свои отзывы
+  const key='ss_reviews_'+U.id;
+  const reviews=JSON.parse(localStorage.getItem(key)||'[]');
+  const el=document.getElementById('my-reviews-list');
+  if(el){
+    el.innerHTML=reviews.length
+      ? reviews.map(r=>`<div class="oc" style="padding:12px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700">${r.masterName}</div>
+            <div style="color:var(--yellow)">${'🔨'.repeat(r.rating)}</div>
+          </div>
+          <div style="font-size:13px;color:var(--ink2);margin-top:6px">${r.text||'Без комментария'}</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:4px">${new Date(r.date).toLocaleDateString('ru')}</div>
+        </div>`).join('')
+      : '<div style="color:var(--ink3);padding:16px">Вы ещё не оставляли отзывов</div>';
+  }
+  setRating(0);
+}
+function setRating(n){
+  _reviewRating=n;
+  document.querySelectorAll('#rv-stars span').forEach(s=>{
+    s.style.opacity=Number(s.dataset.v)<=n?'1':'0.3';
+  });
+}
+function submitReview(){
+  if(!U)return;
+  const masterId=document.getElementById('rv-master').value;
+  const text=document.getElementById('rv-text').value.trim();
+  if(!masterId){toast('Выберите мастера','err');return;}
+  if(!_reviewRating){toast('Поставьте оценку','err');return;}
+  const master=MASTERS.find(m=>m.id==masterId)||{nm:'Мастер'};
+  const key='ss_reviews_'+U.id;
+  const reviews=JSON.parse(localStorage.getItem(key)||'[]');
+  reviews.push({masterId,masterName:master.nm,rating:_reviewRating,text,date:new Date().toISOString()});
+  localStorage.setItem(key,JSON.stringify(reviews));
+  document.getElementById('rv-text').value='';
+  setRating(0);
+  toast('✅ Отзыв отправлен');
+  renderReviews();
+}
+
+// ── ARCHIVE ──
+function renderArchive(){
+  if(!U)return;
+  // Заполним фильтр категорий
+  const catSel=document.getElementById('arch-cat');
+  if(catSel&&catSel.options.length<2) SK.forEach(s=>catSel.innerHTML+=`<option value="${s.id}">${s.i} ${s.ru}</option>`);
+  const statusFilter=document.getElementById('arch-status')?.value||'';
+  const catFilter=document.getElementById('arch-cat')?.value||'';
+  let orders=getOrders().filter(o=>o.clientId===U.id);
+  if(statusFilter) orders=orders.filter(o=>o.status===statusFilter);
+  if(catFilter) orders=orders.filter(o=>o.cat===catFilter);
+  orders.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const el=document.getElementById('archive-list');
+  if(el){
+    el.innerHTML=orders.length
+      ? orders.map(o=>`<div class="oc">
+          <div class="oc-top">
+            <div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div>
+            <div class="oc-budget">${o.budget}€</div>
+          </div>
+          <div class="oc-meta">
+            <span>📍 ${o.city}${o.zip?' '+o.zip:''}, ${o.country}</span>
+            <span>${catName(o.cat)}</span>
+            <span>📅 ${new Date(o.createdAt).toLocaleDateString('ru')}</span>
+            <span>👥 ${(o.responses||[]).length} откликов</span>
+          </div>
+          ${o.desc?`<div class="oc-desc">${o.desc}</div>`:''}
+        </div>`).join('')
+      : '<div style="text-align:center;padding:30px;color:var(--ink3)">Нет заказов</div>';
+  }
+  // Cost summary
+  const total=orders.reduce((s,o)=>s+o.budget,0);
+  const completed=orders.filter(o=>o.status==='completed');
+  const costEl=document.getElementById('cost-summary');
+  if(costEl) costEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px">
+      <div class="stat-card"><div class="stat-v">${orders.length}</div><div class="stat-l">Заказов</div></div>
+      <div class="stat-card"><div class="stat-v" style="color:var(--g)">${completed.length}</div><div class="stat-l">Выполнено</div></div>
+      <div class="stat-card"><div class="stat-v">${total}€</div><div class="stat-l">Общий бюджет</div></div>
+      <div class="stat-card"><div class="stat-v" style="color:var(--yellow)">${completed.reduce((s,o)=>s+o.budget,0)}€</div><div class="stat-l">Потрачено</div></div>
+    </div>`;
+}
+
+el.classList.add('active');
   if(btn)btn.classList.add('active');
   ({orders:renderMyOrders,new:initNew,find:renderFind,profile:renderCP})[tab]?.();
 }
@@ -871,7 +1078,7 @@ function initNew(){
   const cs=document.getElementById('n-cat');
   if(cs&&cs.options.length<2)SK.forEach(s=>cs.innerHTML+=`<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
   const co=document.getElementById('n-country');
-  if(co&&co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${getLang()==='ru'?c.ru:c.en}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
+  if(co&&co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${getLang()==='ru'?c.ru:c.en}">${flagImg(c.iso)} ${getLang()==='ru'?c.ru:c.en}</option>`);
 }
 
 function createOrder(){
@@ -893,13 +1100,13 @@ function renderFind(){
   const cs=document.getElementById('f-cat');
   if(cs&&cs.options.length<2)SK.forEach(s=>cs.innerHTML+=`<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
   const co=document.getElementById('f-country');
-  if(co&&co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${c.ru}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
+  if(co&&co.options.length<2)CO.forEach(c=>co.innerHTML+=`<option value="${c.ru}">${flagImg(c.iso)} ${getLang()==='ru'?c.ru:c.en}</option>`);
   let list=[...MASTERS];
   if(q)list=list.filter(m=>m.nm.toLowerCase().includes(q)||m.skills.some(s=>s.toLowerCase().includes(q)));
   if(cat)list=list.filter(m=>m.cats.includes(cat));
   if(country)list=list.filter(m=>m.country===country);
   const grid=document.getElementById('find-grid');if(!grid)return;
-  grid.innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}</div><div class="mc-loc">${m.f} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}★</div></div><div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink3)">${t('catalog.not_found')}</div>`;
+  grid.innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}</div><div class="mc-loc">${flagImg(m.iso)} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}🔨</div></div><div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink3)">${t('catalog.not_found')}</div>`;
 }
 
 function renderCP(){

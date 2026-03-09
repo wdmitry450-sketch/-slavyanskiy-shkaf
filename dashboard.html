@@ -296,12 +296,14 @@ button{cursor:pointer;font-family:inherit}
     </div>
     <button class="ds-item active" onclick="go('orders')" id="tb-orders"><span class="ds-ico">📋</span><span data-t="tab.orders">Заявки</span></button>
     <button class="ds-item" onclick="go('responses')" id="tb-responses"><span class="ds-ico">🔔</span><span data-t="tab.responses">Отклики</span></button>
+    <button class="ds-item" onclick="go('portfolio')" id="tb-portfolio"><span class="ds-ico">📸</span><span>Портфолио</span></button>
     <button class="ds-item" onclick="go('chat')" id="tb-chat"><span class="ds-ico">💬</span><span data-t="tab.chat">Чат</span></button>
-    <button class="ds-item" onclick="go('stats')" id="tb-stats"><span class="ds-ico">📊</span><span data-t="tab.stats">Статистика</span></button>
+    <button class="ds-item" onclick="go('calendar')" id="tb-calendar"><span class="ds-ico">📅</span><span>Календарь</span></button>
+    <button class="ds-item" onclick="go('earnings')" id="tb-earnings"><span class="ds-ico">📊</span><span>Заработок</span></button>
     <div class="ds-sep"></div>
     <button class="ds-item" onclick="go('profile')" id="tb-profile"><span class="ds-ico">👤</span><span data-t="tab.profile">Профиль</span></button>
     <button class="ds-item" onclick="go('verif')" id="tb-verif"><span class="ds-ico">✅</span><span data-t="tab.verif">Верификация</span></button>
-    <button class="ds-item" onclick="go('sub')" id="tb-sub"><span class="ds-ico">⭐</span><span data-t="tab.sub">Подписка</span></button>
+    <button class="ds-item" onclick="go('sub')" id="tb-sub"><span class="ds-ico">🔨</span><span data-t="tab.sub">Подписка</span></button>
     <div class="ds-sep"></div>
     <button class="ds-item" onclick="clearUser();location.href='index.html'" style="color:var(--red)"><span class="ds-ico">🚪</span><span data-t="tab.exit">Выйти</span></button>
   </div>
@@ -329,8 +331,71 @@ button{cursor:pointer;font-family:inherit}
     </div>
     <div class="tab-panel" id="tab-verif"><div class="dash-title" data-t="tab.verif">Верификация</div><div id="verif-content"></div></div>
     <div class="tab-panel" id="tab-sub">
-      <div class="dash-title" data-t="tab.sub">Подписка Pro</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+      <div class="dash-title">🎉 Платформа бесплатна</div>
+      <div class="form-block" style="text-align:center;padding:32px">
+        <div style="font-size:48px;margin-bottom:12px">🔨</div>
+        <div style="font-size:20px;font-weight:900;margin-bottom:8px">Slavic Shkaf — бесплатно для всех</div>
+        <div style="color:var(--ink3);font-size:14px;line-height:1.8">
+          ✅ Все функции открыты<br>
+          ✅ Без ограничений на отклики<br>
+          ✅ Контакты клиентов доступны<br>
+          ✅ Верификация без доплаты
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PORTFOLIO TAB ── -->
+    <div class="tab-panel" id="tab-portfolio">
+      <div class="dash-title">📸 Портфолио</div>
+      <div id="portfolio-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
+      <div class="form-block">
+        <div style="font-weight:700;margin-bottom:10px">Добавить фото работы</div>
+        <input type="text" id="port-url" placeholder="Ссылка на фото (URL)" style="width:100%;margin-bottom:8px">
+        <input type="text" id="port-cap" placeholder="Описание работы" style="width:100%;margin-bottom:12px">
+        <button class="btn btn-p" onclick="addPortfolio()">+ Добавить</button>
+      </div>
+    </div>
+
+    <!-- ── CALENDAR TAB ── -->
+    <div class="tab-panel" id="tab-calendar">
+      <div class="dash-title">📅 Расписание занятости</div>
+      <div class="form-block" style="margin-bottom:16px">
+        <div style="font-weight:700;margin-bottom:12px">Отметить занятые даты</div>
+        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px"></div>
+        <div style="display:flex;gap:12px;font-size:12px;color:var(--ink3)">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:var(--g);display:inline-block"></span>Свободен</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,80,80,.6);display:inline-block"></span>Занят</span>
+        </div>
+      </div>
+      <div class="form-block">
+        <div style="font-weight:700;margin-bottom:8px">Рабочие часы</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div><div class="pf-label">С</div><input type="time" id="work-from" value="09:00" style="width:100px"></div>
+          <div><div class="pf-label">До</div><input type="time" id="work-to" value="18:00" style="width:100px"></div>
+          <button class="btn btn-p btn-sm" onclick="saveWorkHours()">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EARNINGS TAB ── -->
+    <div class="tab-panel" id="tab-earnings">
+      <div class="dash-title">📊 Заработок</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px" id="earn-cards"></div>
+      <div class="form-block">
+        <div style="font-weight:700;margin-bottom:14px">По месяцам (€)</div>
+        <div id="earn-chart" style="display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px"></div>
+        <div id="earn-labels" style="display:flex;gap:6px;margin-top:6px;font-size:10px;color:var(--ink3)"></div>
+      </div>
+      <div class="form-block">
+        <div style="font-weight:700;margin-bottom:12px">Добавить доход</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="number" id="earn-amount" placeholder="Сумма €" style="width:120px">
+          <input type="text" id="earn-desc" placeholder="Описание" style="flex:1;min-width:140px">
+          <input type="month" id="earn-month" style="width:140px">
+          <button class="btn btn-p btn-sm" onclick="addEarning()">+ Добавить</button>
+        </div>
+      </div>
+    </div>
         <div class="form-block"><div style="font-size:11px;font-weight:800;color:var(--ink3);margin-bottom:8px">MONTHLY</div><div style="font-size:32px;font-weight:900;font-family:'Syne',sans-serif">29€</div><div style="font-size:12px;color:var(--ink3);margin-bottom:14px">/month</div><div style="font-size:12px;line-height:2;color:var(--ink2);margin-bottom:14px">✓ Unlimited bids<br>✓ Client contacts<br>✓ Priority search</div><button class="btn btn-o btn-fw" onclick="toast('Payment coming soon','warn')">Subscribe</button></div>
         <div class="form-block" style="border-color:var(--g);position:relative"><div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--g);color:#000;font-size:10px;font-weight:900;padding:2px 10px;border-radius:99px">−30%</div><div style="font-size:11px;font-weight:800;color:var(--g);margin-bottom:8px">ANNUAL</div><div style="font-size:32px;font-weight:900;font-family:'Syne',sans-serif">249€</div><div style="font-size:12px;color:var(--ink3);margin-bottom:14px">/year</div><div style="font-size:12px;line-height:2;color:var(--ink2);margin-bottom:14px">✓ All monthly features<br>✓ TOP city 1 month<br>✓ Gold badge</div><button class="btn btn-p btn-fw" onclick="toast('Payment coming soon','warn')">Subscribe</button></div>
       </div>
@@ -344,7 +409,7 @@ button{cursor:pointer;font-family:inherit}
     <button class="mob-tab" onclick="go('responses');setMT(this)"><div class="mt-ico">🔔</div><span data-t="tab.responses">Отклики</span></button>
     <button class="mob-tab" onclick="go('stats');setMT(this)"><div class="mt-ico">📊</div><span data-t="tab.stats">Стат.</span></button>
     <button class="mob-tab" onclick="go('profile');setMT(this)"><div class="mt-ico">👤</div><span data-t="tab.profile">Профиль</span></button>
-    <button class="mob-tab" onclick="go('sub');setMT(this)"><div class="mt-ico">⭐</div><span>Pro</span></button>
+    <button class="mob-tab" onclick="go('sub');setMT(this)"><div class="mt-ico">🔨</div><span>Pro</span></button>
   </div>
 </div>
 <script>
@@ -658,62 +723,77 @@ const SK=[
   {id:'move',i:'📦',ru:'Переезды',en:'Moving',n:12},
 ];
 const CO=[
-  {f:'🇫🇷',ru:'Франция',en:'France'},{f:'🇩🇪',ru:'Германия',en:'Germany'},
-  {f:'🇪🇸',ru:'Испания',en:'Spain'},{f:'🇮🇹',ru:'Италия',en:'Italy'},
-  {f:'🇧🇪',ru:'Бельгия',en:'Belgium'},{f:'🇳🇱',ru:'Нидерланды',en:'Netherlands'},
-  {f:'🇵🇱',ru:'Польша',en:'Poland'},{f:'🇦🇹',ru:'Австрия',en:'Austria'},
-  {f:'🇨🇭',ru:'Швейцария',en:'Switzerland'},{f:'🇵🇹',ru:'Португалия',en:'Portugal'},
-  {f:'🇸🇪',ru:'Швеция',en:'Sweden'},{f:'🇳🇴',ru:'Норвегия',en:'Norway'},
-  {f:'🇩🇰',ru:'Дания',en:'Denmark'},{f:'🇫🇮',ru:'Финляндия',en:'Finland'},
-  {f:'🇨🇿',ru:'Чехия',en:'Czechia'},{f:'🇸🇰',ru:'Словакия',en:'Slovakia'},
-  {f:'🇭🇺',ru:'Венгрия',en:'Hungary'},{f:'🇷🇴',ru:'Румыния',en:'Romania'},
-  {f:'🇧🇬',ru:'Болгария',en:'Bulgaria'},{f:'🇭🇷',ru:'Хорватия',en:'Croatia'},
-  {f:'🇸🇮',ru:'Словения',en:'Slovenia'},{f:'🇬🇷',ru:'Греция',en:'Greece'},
+  {iso:'fr',ru:'Франция',en:'France'},
+  {iso:'de',ru:'Германия',en:'Germany'},
+  {iso:'es',ru:'Испания',en:'Spain'},
+  {iso:'it',ru:'Италия',en:'Italy'},
+  {iso:'be',ru:'Бельгия',en:'Belgium'},
+  {iso:'nl',ru:'Нидерланды',en:'Netherlands'},
+  {iso:'pl',ru:'Польша',en:'Poland'},
+  {iso:'at',ru:'Австрия',en:'Austria'},
+  {iso:'ch',ru:'Швейцария',en:'Switzerland'},
+  {iso:'pt',ru:'Португалия',en:'Portugal'},
+  {iso:'se',ru:'Швеция',en:'Sweden'},
+  {iso:'no',ru:'Норвегия',en:'Norway'},
+  {iso:'dk',ru:'Дания',en:'Denmark'},
+  {iso:'fi',ru:'Финляндия',en:'Finland'},
+  {iso:'cz',ru:'Чехия',en:'Czechia'},
+  {iso:'sk',ru:'Словакия',en:'Slovakia'},
+  {iso:'hu',ru:'Венгрия',en:'Hungary'},
+  {iso:'ro',ru:'Румыния',en:'Romania'},
+  {iso:'bg',ru:'Болгария',en:'Bulgaria'},
+  {iso:'hr',ru:'Хорватия',en:'Croatia'},
+  {iso:'si',ru:'Словения',en:'Slovenia'},
+  {iso:'gr',ru:'Греция',en:'Greece'},
 ];
+function flagImg(iso,size){
+  size=size||20;
+  return '<img src="https://flagcdn.com/'+size+'x'+Math.round(size*0.75)+'/'+iso+'.png" style="width:'+size+'px;height:'+Math.round(size*0.75)+'px;border-radius:2px;vertical-align:middle;object-fit:cover;display:inline-block;margin-right:4px" loading="lazy">';
+}
 const MASTERS=[
-  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',f:'🇫🇷',
+  {id:1,a:'👷',nm:'Алексей М.',city:'Париж',country:'Франция',iso:'fr',
    cats:['plumbing','bathroom'],skills:['Сантехника','Ванная под ключ','Отопление'],
    rate:4.9,reviews:47,price:45,lvl:3,online:true,exp:12,sub:true,topCity:true,topCountry:false,
    phone:'+33 6 12 34 56 78',email:'aleksey@example.com',telegram:'@aleksey_m',
    about:'Сантехник с 12-летним опытом. Гарантия 2 года.',
    revs:[{a:'Жан-Поль Б.',d:'12 нояб 2024',s:5,t:'Отличная работа!'},{a:'Моника Р.',d:'3 окт 2024',s:5,t:'Бойлер установил быстро.'}]},
-  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',f:'🇧🇪',
+  {id:2,a:'👨‍🔧',nm:'Этьен Б.',city:'Брюссель',country:'Бельгия',iso:'be',
    cats:['electric','it'],skills:['Электрика','RGE','Умный дом'],
    rate:4.8,reviews:32,price:55,lvl:3,online:true,exp:8,sub:true,topCity:true,topCountry:true,
    phone:'+32 4 98 76 54 32',email:'etien@example.com',telegram:'@etien_b',
    about:'Сертифицированный электрик RGE.',
    revs:[{a:'Клара М.',d:'5 дек 2024',s:5,t:'Полная замена проводки.'}]},
-  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',f:'🇩🇪',
+  {id:3,a:'🧑‍🏭',nm:'Павел К.',city:'Берлин',country:'Германия',iso:'de',
    cats:['paint','floor'],skills:['Покраска','Паркет','Шпаклёвка'],
    rate:4.7,reviews:28,price:38,lvl:2,online:false,exp:9,sub:false,topCity:false,topCountry:false,
    phone:'+49 170 123 4567',email:'pavel@example.com',telegram:'@pavel_k',
    about:'Маляр-отделочник.',
    revs:[{a:'Хельга Ш.',d:'20 нояб 2024',s:5,t:'Покрасил квартиру за 3 дня.'}]},
-  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',f:'🇫🇷',
+  {id:4,a:'👩‍🔧',nm:'Соня Л.',city:'Лион',country:'Франция',iso:'fr',
    cats:['masonry','bathroom'],skills:['Кладка','Плитка','Стяжка'],
    rate:5.0,reviews:19,price:42,lvl:2,online:true,exp:7,sub:true,topCity:false,topCountry:false,
    phone:'+33 6 98 76 54 32',email:'sonia@example.com',telegram:'@sonya_l',
    about:'Мастер по плитке и кладке.',
    revs:[{a:'Люсьен Д.',d:'1 янв 2025',s:5,t:'Ванная с нуля!'}]},
-  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',f:'🇵🇱',
+  {id:5,a:'🧔',nm:'Дмитрий В.',city:'Варшава',country:'Польша',iso:'pl',
    cats:['carpentry','floor'],skills:['Столярка','Паркет','Двери'],
    rate:4.6,reviews:22,price:35,lvl:2,online:false,exp:11,sub:false,topCity:false,topCountry:false,
    phone:'+48 600 123 456',email:'dmitry@example.com',telegram:'@dmitry_v',
    about:'Столяр. Окна, двери, паркет.',
    revs:[{a:'Анна К.',d:'15 дек 2024',s:5,t:'5 дверей.'}]},
-  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',f:'🇪🇸',
+  {id:6,a:'👱',nm:'Карлос М.',city:'Мадрид',country:'Испания',iso:'es',
    cats:['ac','electric'],skills:['Кондиционер','Вентиляция','Daikin'],
    rate:4.8,reviews:35,price:48,lvl:3,online:true,exp:10,sub:true,topCity:true,topCountry:false,
    phone:'+34 612 345 678',email:'carlos@example.com',telegram:'@carlos_m',
    about:'Партнёр Daikin и Mitsubishi.',
    revs:[{a:'Педро Г.',d:'8 дек 2024',s:5,t:'Климат в офисе.'}]},
-  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',f:'🇦🇹',
+  {id:7,a:'👩',nm:'Ирина С.',city:'Вена',country:'Австрия',iso:'at',
    cats:['clean','move'],skills:['Клининг','Химчистка','Переезды'],
    rate:4.9,reviews:64,price:28,lvl:2,online:true,exp:6,sub:true,topCity:false,topCountry:false,
    phone:'+43 664 123 4567',email:'irina@example.com',telegram:'@irina_s',
    about:'Клининг квартир и офисов.',
    revs:[{a:'Вернер Х.',d:'20 янв 2025',s:5,t:'Уборка после ремонта.'}]},
-  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',f:'🇳🇱',
+  {id:8,a:'🧑',nm:'Томас Б.',city:'Амстердам',country:'Нидерланды',iso:'nl',
    cats:['roof','masonry'],skills:['Кровля','Фасад','Гидроизоляция'],
    rate:4.7,reviews:18,price:52,lvl:3,online:false,exp:15,sub:true,topCity:false,topCountry:true,
    phone:'+31 6 12345678',email:'tomas@example.com',telegram:'@tomas_b',
@@ -831,7 +911,12 @@ function go(tab){
   const btn   = document.getElementById('tb-'+tab);
   if(panel) panel.classList.add('active');
   if(btn)   btn.classList.add('active');
-  const actions = {orders:renderOrders,responses:renderResponses,stats:renderStats,profile:renderProfile,verif:renderVerif};
+  const actions = {
+    orders:renderOrders, responses:renderResponses,
+    stats:renderStats, profile:renderProfile, verif:renderVerif,
+    portfolio:renderPortfolio, calendar:renderCalendar,
+    earnings:renderEarnings, chat:renderChat
+  };
   if(actions[tab]) actions[tab]();
 }
 
@@ -847,7 +932,7 @@ function renderOrders(){
       <div class="oc-top"><div>${statusBadge(o.status)}<div class="oc-title">${o.title}</div></div><div class="oc-budget">${o.budget}€</div></div>
       <div class="oc-meta"><span>📍 ${o.city}${o.zip?' '+o.zip:''}, ${o.country}</span><span>${catIco(o.cat)} ${catName(o.cat)}</span><span>👥 ${(o.responses||[]).length} ${t('general.responses')}</span></div>
       <div class="oc-desc">${o.desc}</div>
-      ${!hasSub(U)?`<div class="lock-box">${t('general.no_sub')}</div>`:''}
+      
       <div class="oc-foot">${applied
         ?`<span class="badge badge-g">✅ ${t('general.apply_done')}</span>`
         :`<button class="btn btn-p btn-sm" onclick="applyOrder(${o.id})">${t('btn.apply')}</button>`
@@ -945,4 +1030,170 @@ function renderVerif(){
 
 </script>
 </body>
-</html>
+</html// ── PORTFOLIO ──
+function renderPortfolio(){
+  if(!U)return;
+  const key='ss_portfolio_'+U.id;
+  const items=JSON.parse(localStorage.getItem(key)||'[]');
+  const grid=document.getElementById('portfolio-grid');
+  if(!grid)return;
+  if(!items.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--ink3)">📸 Фото работ не добавлены</div>';
+    return;
+  }
+  grid.innerHTML=items.map((it,i)=>`
+    <div style="position:relative;border-radius:12px;overflow:hidden;background:var(--card);aspect-ratio:1">
+      <img src="${it.url}" style="width:100%;height:100%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect fill=\'%23333\'/><text y=\'55\' x=\'50\' text-anchor=\'middle\' fill=\'%23666\' font-size=\'30\'>📷</text></svg>'">
+      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.8));padding:8px;font-size:11px;font-weight:600">${it.cap||''}</div>
+      <button onclick="removePortfolio(${i})" style="position:absolute;top:6px;right:6px;background:rgba(255,60,60,.8);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>`).join('');
+}
+function addPortfolio(){
+  if(!U)return;
+  const url=document.getElementById('port-url').value.trim();
+  const cap=document.getElementById('port-cap').value.trim();
+  if(!url){toast('Введите URL фото','err');return;}
+  const key='ss_portfolio_'+U.id;
+  const items=JSON.parse(localStorage.getItem(key)||'[]');
+  items.push({url,cap,added:new Date().toISOString()});
+  localStorage.setItem(key,JSON.stringify(items));
+  document.getElementById('port-url').value='';
+  document.getElementById('port-cap').value='';
+  toast('📸 Фото добавлено');
+  renderPortfolio();
+}
+function removePortfolio(i){
+  if(!U)return;
+  const key='ss_portfolio_'+U.id;
+  const items=JSON.parse(localStorage.getItem(key)||'[]');
+  items.splice(i,1);
+  localStorage.setItem(key,JSON.stringify(items));
+  renderPortfolio();
+}
+
+// ── CALENDAR ──
+function renderCalendar(){
+  if(!U)return;
+  const key='ss_busy_'+U.id;
+  const busy=JSON.parse(localStorage.getItem(key)||'[]');
+  const grid=document.getElementById('cal-grid');
+  if(!grid)return;
+  const now=new Date();
+  const year=now.getFullYear(), month=now.getMonth();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const firstDay=(new Date(year,month,1).getDay()+6)%7; // Mon=0
+  const days=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  let html='';
+  days.forEach(d=>{ html+=`<div style="text-align:center;font-size:10px;font-weight:700;color:var(--ink3);padding:4px">${d}</div>`; });
+  for(let i=0;i<firstDay;i++) html+='<div></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isBusy=busy.includes(dateStr);
+    const isToday=d===now.getDate();
+    html+=`<div onclick="toggleBusy('${dateStr}')" style="text-align:center;padding:6px 2px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;
+      background:${isBusy?'rgba(255,80,80,.3)':isToday?'rgba(0,214,143,.2)':'rgba(255,255,255,.04)'};
+      border:${isToday?'1px solid var(--g)':'1px solid transparent'};
+      color:${isBusy?'#ff5050':isToday?'var(--g)':'var(--ink1)'}">
+      ${d}</div>`;
+  }
+  grid.innerHTML=html;
+  // Рабочие часы
+  const wh=JSON.parse(localStorage.getItem('ss_workhours_'+U.id)||'{"from":"09:00","to":"18:00"}');
+  if(document.getElementById('work-from')) document.getElementById('work-from').value=wh.from;
+  if(document.getElementById('work-to')) document.getElementById('work-to').value=wh.to;
+}
+function toggleBusy(dateStr){
+  if(!U)return;
+  const key='ss_busy_'+U.id;
+  const busy=JSON.parse(localStorage.getItem(key)||'[]');
+  const idx=busy.indexOf(dateStr);
+  if(idx>=0) busy.splice(idx,1); else busy.push(dateStr);
+  localStorage.setItem(key,JSON.stringify(busy));
+  renderCalendar();
+}
+function saveWorkHours(){
+  if(!U)return;
+  const from=document.getElementById('work-from').value;
+  const to=document.getElementById('work-to').value;
+  localStorage.setItem('ss_workhours_'+U.id,JSON.stringify({from,to}));
+  toast('✅ Рабочие часы сохранены');
+}
+
+// ── EARNINGS ──
+function renderEarnings(){
+  if(!U)return;
+  const key='ss_earnings_'+U.id;
+  const earnings=JSON.parse(localStorage.getItem(key)||'[]');
+  // Считаем суммы по месяцам
+  const byMonth={};
+  earnings.forEach(e=>{
+    const m=e.month||new Date(e.date||Date.now()).toISOString().slice(0,7);
+    byMonth[m]=(byMonth[m]||0)+Number(e.amount);
+  });
+  const months=Object.keys(byMonth).sort().slice(-6);
+  const total=earnings.reduce((s,e)=>s+Number(e.amount),0);
+  const thisMonth=new Date().toISOString().slice(0,7);
+  const thisMonthTotal=byMonth[thisMonth]||0;
+  // Cards
+  const cards=document.getElementById('earn-cards');
+  if(cards) cards.innerHTML=`
+    <div class="stat-card"><div class="stat-v" style="color:var(--g)">${total}€</div><div class="stat-l">Всего заработано</div></div>
+    <div class="stat-card"><div class="stat-v" style="color:var(--yellow)">${thisMonthTotal}€</div><div class="stat-l">В этом месяце</div></div>
+    <div class="stat-card"><div class="stat-v">${earnings.length}</div><div class="stat-l">Записей</div></div>`;
+  // Bar chart
+  const chart=document.getElementById('earn-chart');
+  const labels=document.getElementById('earn-labels');
+  if(chart&&months.length){
+    const maxVal=Math.max(...months.map(m=>byMonth[m]),1);
+    chart.innerHTML=months.map(m=>{
+      const h=Math.round((byMonth[m]/maxVal)*100);
+      const lbl=m.slice(5); // MM
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:10px;color:var(--g);font-weight:700">${byMonth[m]}€</div>
+        <div style="width:100%;height:${h}px;background:var(--g);border-radius:6px 6px 0 0;min-height:4px;transition:.3s"></div>
+      </div>`;
+    }).join('');
+    if(labels) labels.innerHTML=months.map(m=>`<div style="flex:1;text-align:center">${m.slice(5)}</div>`).join('');
+  } else if(chart){
+    chart.innerHTML='<div style="color:var(--ink3);font-size:13px;padding:20px">Нет данных</div>';
+  }
+  // Set default month
+  if(document.getElementById('earn-month')) document.getElementById('earn-month').value=thisMonth;
+}
+function addEarning(){
+  if(!U)return;
+  const amount=Number(document.getElementById('earn-amount').value);
+  const desc=document.getElementById('earn-desc').value.trim();
+  const month=document.getElementById('earn-month').value;
+  if(!amount||amount<=0){toast('Введите сумму','err');return;}
+  const key='ss_earnings_'+U.id;
+  const earnings=JSON.parse(localStorage.getItem(key)||'[]');
+  earnings.push({amount,desc,month,date:new Date().toISOString()});
+  localStorage.setItem(key,JSON.stringify(earnings));
+  document.getElementById('earn-amount').value='';
+  document.getElementById('earn-desc').value='';
+  toast('✅ Доход добавлен');
+  renderEarnings();
+}
+
+// ── CHAT ──
+function renderChat(){
+  if(!U)return;
+  const el=document.getElementById('chat-content');
+  if(!el)return;
+  const key='ss_chats_'+U.id;
+  const msgs=JSON.parse(localStorage.getItem(key)||'[]');
+  if(!msgs.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--ink3)">💬 Нет сообщений.<br>Клиенты смогут написать вам через Telegram.</div>';
+    return;
+  }
+  el.innerHTML=msgs.map(m=>`<div style="padding:10px 14px;background:${m.from==='me'?'rgba(0,214,143,.1)':'rgba(255,255,255,.04)'};border-radius:12px;margin-bottom:8px;max-width:80%;${m.from==='me'?'margin-left:auto':''}">
+    <div style="font-size:12px;font-weight:700;color:${m.from==='me'?'var(--g)':'var(--acc)'}">
+      ${m.from==='me'?'Вы':m.name}
+    </div>
+    <div style="margin-top:4px">${m.text}</div>
+    <div style="font-size:10px;color:var(--ink3);margin-top:4px">${new Date(m.ts).toLocaleString('ru')}</div>
+  </div>`).join('');
+}
+
+>
