@@ -283,6 +283,31 @@ button{cursor:pointer;font-family:inherit}
   .mob-tab .mt-ico{font-size:17px}
   .mob-tab span{font-size:8px}
 }
+
+/* ── INDEX MOBILE NAV ── */
+@media(max-width:640px){
+  .nav-r{ gap:6px }
+  .nav-btn-ghost{
+    padding:6px 10px;
+    font-size:12px;
+    border-radius:8px;
+  }
+  .nav-btn-cta{
+    padding:6px 12px;
+    font-size:12px;
+    border-radius:8px;
+  }
+  .lang-btn{
+    padding:4px 7px;
+    font-size:10px;
+  }
+}
+@media(max-width:400px){
+  /* На очень маленьких — скрыть lang кнопку чтобы влезли Войти/Регистрация */
+  .nav .lang-btn{ display:none }
+  .nav-btn-ghost{ padding:5px 9px; font-size:11px; }
+  .nav-btn-cta{   padding:5px 11px; font-size:11px; }
+}
 </style>
 <script>
   window.API_BASE = 'https://slavic-shkaf-api.wdmitry450.workers.dev';
