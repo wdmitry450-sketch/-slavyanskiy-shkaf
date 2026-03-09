@@ -987,49 +987,54 @@ function go(tab){
 
 // ── COMPLAINTS ──
 function renderComplaints(){
-  const key='ss_admin_complaints';
-  const list=JSON.parse(localStorage.getItem(key)||'[]');
-  const el=document.getElementById('complaints-list');if(!el)return;
-  const badge=document.getElementById('complaints-badge-nav');
-  const open=list.filter(c=>c.status==='open');
-  if(badge) badge.textContent='Жалобы'+(open.length?` (${open.length})`:'');
+  var key='ss_admin_complaints';
+  var list=JSON.parse(localStorage.getItem(key)||'[]');
+  var el=document.getElementById('complaints-list');if(!el)return;
+  var badge=document.getElementById('complaints-badge-nav');
+  var openCount=list.filter(function(c){return c.status==='open';}).length;
+  if(badge) badge.textContent='Жалобы'+(openCount?' ('+openCount+')':'');
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--ink3)">🚨 Жалоб нет</div>';return;}
-  const typeLabels={spam:'Спам',fraud:'Мошенничество',quality:'Качество',other:'Другое'};
-  el.innerHTML=list.slice().reverse().map((c,i)=>`
-    <div class="oc" style="padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
-      <div style="flex:1">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
-          <span class="badge" style="background:${c.status==='open'?'rgba(255,80,80,.2)':'rgba(0,214,143,.2)';color:${c.status==='open'?'#ff5050':'var(--g)'}">${c.status==='open'?'🔴 Открыта':'✅ Закрыта'}</span>
-          <span class="badge" style="font-size:10px">${typeLabels[c.type]||c.type}</span>
-        </div>
-        <div style="font-size:13px"><strong>На:</strong> ${c.target||'—'}</div>
-        <div style="font-size:13px;color:var(--ink2);margin-top:4px">${c.text}</div>
-        <div style="font-size:11px;color:var(--ink3);margin-top:6px">${new Date(c.date).toLocaleString('ru')}</div>
-      </div>
-      ${c.status==='open'?`<button class="btn btn-sm" onclick="closeComplaint(${list.length-1-i})" style="background:rgba(0,214,143,.15);color:var(--g)">✅ Закрыть</button>`:''}
-    </div>`).join('');
+  var typeLabels={spam:'Спам',fraud:'Мошенничество',quality:'Качество',other:'Другое'};
+  el.innerHTML=list.slice().reverse().map(function(c,i){
+    var bkg=c.status==='open'?'rgba(255,80,80,.2)':'rgba(0,214,143,.2)';
+    var clr=c.status==='open'?'#ff5050':'var(--g)';
+    var statusTxt=c.status==='open'?'🔴 Открыта':'✅ Закрыта';
+    var typeTxt=typeLabels[c.type]||c.type;
+    var realIdx=list.length-1-i;
+    var closeBtn=c.status==='open'?'<button class="btn btn-sm" onclick="closeComplaint('+realIdx+')" style="background:rgba(0,214,143,.15);color:var(--g)">✅ Закрыть</button>':'';
+    return '<div class="oc" style="padding:14px 16px;display:flex;gap:12px;align-items:flex-start">'+
+      '<div style="flex:1">'+
+        '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'+
+          '<span class="badge" style="background:'+bkg+';color:'+clr+'">'+statusTxt+'</span>'+
+          '<span class="badge" style="font-size:10px">'+typeTxt+'</span>'+
+        '</div>'+
+        '<div style="font-size:13px"><strong>На:</strong> '+(c.target||'—')+'</div>'+
+        '<div style="font-size:13px;color:var(--ink2);margin-top:4px">'+c.text+'</div>'+
+        '<div style="font-size:11px;color:var(--ink3);margin-top:6px">'+new Date(c.date).toLocaleString('ru')+'</div>'+
+      '</div>'+closeBtn+
+    '</div>';
+  }).join('');
 }
 function addComplaint(){
-  const type=document.getElementById('cmp-type').value;
-  const target=document.getElementById('cmp-target').value.trim();
-  const text=document.getElementById('cmp-text').value.trim();
+  var type=document.getElementById('cmp-type').value;
+  var target=document.getElementById('cmp-target').value.trim();
+  var text=document.getElementById('cmp-text').value.trim();
   if(!text){toast('Введите описание','err');return;}
-  const key='ss_admin_complaints';
-  const list=JSON.parse(localStorage.getItem(key)||'[]');
-  list.push({type,target,text,status:'open',date:new Date().toISOString()});
+  var key='ss_admin_complaints';
+  var list=JSON.parse(localStorage.getItem(key)||'[]');
+  list.push({type:type,target:target,text:text,status:'open',date:new Date().toISOString()});
   localStorage.setItem(key,JSON.stringify(list));
   document.getElementById('cmp-text').value='';
   toast('✅ Жалоба добавлена');
   renderComplaints();
 }
 function closeComplaint(i){
-  const key='ss_admin_complaints';
-  const list=JSON.parse(localStorage.getItem(key)||'[]');
+  var key='ss_admin_complaints';
+  var list=JSON.parse(localStorage.getItem(key)||'[]');
   if(list[i]) list[i].status='closed';
   localStorage.setItem(key,JSON.stringify(list));
   renderComplaints();
 }
-
 // ── ANALYTICS ──
 function renderAnalytics(){
   const masters=MASTERS;
