@@ -270,7 +270,7 @@ button{cursor:pointer;font-family:inherit}
   .nav{padding:0 10px;gap:8px}
   .nav-logo img{height:36px}
   .lang-btn{padding:4px 8px;font-size:10px}
-  .dash-main{padding:10px;padding-bottom:calc(var(--tab-h) + 16px + var(--tg-safe-bottom))}
+  .dash-main{padding:0 10px 0;padding-bottom:calc(var(--tab-h) + 16px + var(--tg-safe-bottom))}
   .mob-tab span{display:none} /* иконки без подписей на очень маленьких */
   .mob-tab{min-width:44px;padding:6px 4px}
   .mc-skills{display:none} /* экономим место */
@@ -319,7 +319,8 @@ button{cursor:pointer;font-family:inherit}
 
 @media(max-width:640px){
   .mob-header{display:flex!important}
-  .dash-wrap{padding-top:52px!important}
+  .dash-wrap{padding-top:calc(52px + env(safe-area-inset-top,0px))!important}
+  .dash-main{padding-bottom:20px}
 }
 
 /* ── NOTIFICATION BADGE ── */
@@ -527,6 +528,10 @@ button{cursor:pointer;font-family:inherit}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  window.API_BASE = 'https://slavic-shkaf-api.vadimrudom.workers.dev';
+</script>
+<script src="api.js"></script>
 </head>
 <body>
 
@@ -571,6 +576,7 @@ button{cursor:pointer;font-family:inherit}
     </div>
     <button class="ds-item active" onclick="go('browse')" id="tb-browse"><span class="ds-ico">🏪</span><span>Биржа заявок</span></button>
     <button class="ds-item" onclick="go('orders')" id="tb-orders"><span class="ds-ico">📋</span><span>Мои отклики</span></button>
+    <button class="ds-item" onclick="go('post-order')" id="tb-post-order"><span class="ds-ico">📢</span><span>Разместить заявку</span></button>
     <button class="ds-item" onclick="go('responses')" id="tb-responses"><span class="ds-ico">🔔</span><span data-t="tab.responses">Уведомления</span></button>
     <button class="ds-item" onclick="go('portfolio')" id="tb-portfolio"><span class="ds-ico">📸</span><span>Портфолио</span></button>
     <button class="ds-item" onclick="go('chat')" id="tb-chat"><span class="ds-ico">💬</span><span data-t="tab.chat">Чат</span></button>
@@ -700,6 +706,116 @@ button{cursor:pointer;font-family:inherit}
           <button class="btn btn-p btn-sm" onclick="addEarning()">+ Добавить</button>
         </div>
       </div>
+
+    <!-- ── СМЕТА TAB ── -->
+    <div class="tab-panel" id="tab-estimate">
+      <div class="dash-title" style="margin-top:0">🧾 Калькулятор сметы</div>
+
+      <!-- Шапка сметы -->
+      <div class="form-block" style="margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="font-size:11px;color:var(--ink3);font-weight:700">КЛИЕНТ / ЗАЯВКА</label>
+            <input id="est-client" type="text" placeholder="Имя клиента или №заявки" style="margin-top:4px">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--ink3);font-weight:700">ДАТА</label>
+            <input id="est-date" type="date" style="margin-top:4px">
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label style="font-size:11px;color:var(--ink3);font-weight:700">ОПИСАНИЕ РАБОТ</label>
+          <input id="est-desc" type="text" placeholder="Краткое описание объекта/работ" style="margin-top:4px">
+        </div>
+      </div>
+
+      <!-- Добавить позицию -->
+      <div class="form-block" style="margin-bottom:12px">
+        <div style="font-weight:700;margin-bottom:12px">➕ Добавить позицию</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:3;min-width:150px">
+            <label style="font-size:10px;color:var(--ink3)">НАИМЕНОВАНИЕ</label>
+            <input id="est-item-name" type="text" placeholder="Напр: Краска Dulux 10л" style="margin-top:3px">
+          </div>
+          <div style="flex:1;min-width:80px">
+            <label style="font-size:10px;color:var(--ink3)">КОЛ-ВО</label>
+            <input id="est-item-qty" type="number" value="1" min="1" style="margin-top:3px">
+          </div>
+          <div style="flex:1;min-width:80px">
+            <label style="font-size:10px;color:var(--ink3)">ЦЕНА €</label>
+            <input id="est-item-price" type="number" placeholder="0" style="margin-top:3px">
+          </div>
+          <div style="flex:1;min-width:100px">
+            <label style="font-size:10px;color:var(--ink3)">ТИП</label>
+            <select id="est-item-type" style="margin-top:3px">
+              <option value="material">🧱 Материал</option>
+              <option value="work">🔨 Работа</option>
+              <option value="delivery">🚚 Доставка</option>
+              <option value="other">📦 Прочее</option>
+            </select>
+          </div>
+          <button class="btn btn-p btn-sm" onclick="addEstimateItem()" style="height:38px;white-space:nowrap">+ Добавить</button>
+        </div>
+      </div>
+
+      <!-- ЧЕК / СМЕТА -->
+      <div id="estimate-receipt" style="display:none">
+        <div class="form-block" id="receipt-content">
+          <!-- Рендерится JS -->
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="downloadEstimatePDF()" style="flex:2">📄 Скачать PDF</button>
+          <button class="btn" onclick="copyEstimate()" style="flex:1">📋 Копировать</button>
+          <button class="btn" onclick="clearEstimate()" style="flex:0 0 40px;background:rgba(255,80,80,.12);color:#ff5050">🗑</button>
+        </div>
+      </div>
+
+      <div id="estimate-empty" class="form-block" style="text-align:center;padding:30px;color:var(--ink3)">
+        <div style="font-size:36px;margin-bottom:8px">🧾</div>
+        <div style="font-weight:700">Смета пуста</div>
+        <div style="font-size:12px;margin-top:4px">Добавьте позиции выше</div>
+      </div>
+    </div
+
+    <!-- ── РАЗМЕСТИТЬ ЗАЯВКУ TAB (мастер) ── -->
+    <div class="tab-panel" id="tab-post-order">
+      <div class="dash-title">📢 Разместить заявку</div>
+      <div class="form-block" style="max-width:560px">
+        <p style="font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.6">
+          Здесь вы можете разместить заявку на поиск сотрудника, субподрядчика или помощника для вашего проекта.
+        </p>
+        <div style="margin-bottom:12px">
+          <div class="pf-label">ТЕМА ЗАЯВКИ</div>
+          <input id="po-title" placeholder="Напр: Нужен электрик на субподряд в Париже">
+        </div>
+        <div class="pf-row">
+          <div>
+            <div class="pf-label">КАТЕГОРИЯ</div>
+            <select id="po-cat"></select>
+          </div>
+          <div>
+            <div class="pf-label">БЮДЖЕТ (€)</div>
+            <input id="po-budget" type="number" placeholder="500">
+          </div>
+        </div>
+        <div class="pf-row">
+          <div>
+            <div class="pf-label">СТРАНА</div>
+            <select id="po-country"></select>
+          </div>
+          <div>
+            <div class="pf-label">ГОРОД</div>
+            <input id="po-city" placeholder="Paris">
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="pf-label">ОПИСАНИЕ</div>
+          <textarea id="po-desc" rows="4" placeholder="Опишите задачу, требования, сроки..."></textarea>
+        </div>
+        <button class="btn btn-p btn-fw" onclick="submitMasterOrder()">📢 Разместить заявку</button>
+      </div>
+    </div>
+
     </div>  </div>
 </div>
 <!-- Мобильная шапка + правое меню-дравер -->
@@ -723,6 +839,7 @@ button{cursor:pointer;font-family:inherit}
   <div class="drawer-nav">
     <button class="dr-item active" onclick="goD('browse')"><span class="dr-ico">🏪</span>Биржа заявок</button>
     <button class="dr-item" onclick="goD('orders')"><span class="dr-ico">📋</span>Мои отклики</button>
+    <button class="dr-item" onclick="goD('post-order')"><span class="dr-ico">📢</span>Разместить заявку</button>
     <button class="dr-item" onclick="goD('responses')"><span class="dr-ico">🔔</span>Уведомления</button>
     <button class="dr-item" onclick="goD('portfolio')"><span class="dr-ico">📸</span>Портфолио</button>
     <button class="dr-item" onclick="goD('chat')"><span class="dr-ico">💬</span>Чат</button>
@@ -1657,13 +1774,20 @@ function initSplash(masterName) {
     }, 2000);
   }
 
-  // Конец видео → закрываем
-  video.addEventListener('ended', () => {
-    setTimeout(hideSplash, 300);
-  }, { once: true });
+  // Останавливаем видео когда шкаф открыт (~4.2 сек) и держим 1.5 сек
+  const STOP_AT = 4.2; // секунды — момент когда шкаф открыт
+  let stopped = false;
+  video.addEventListener('timeupdate', () => {
+    if (!stopped && video.currentTime >= STOP_AT) {
+      stopped = true;
+      video.pause();
+      // Держим стоп-кадр 1.5 сек, потом закрываем
+      setTimeout(hideSplash, 1500);
+    }
+  });
 
-  // Фолбэк по таймеру (видео + 0.5s буфер)
-  setTimeout(hideSplash, DURATION + 500);
+  // Фолбэк: если видео не дошло до STOP_AT — закрываем по таймеру
+  setTimeout(() => { if(!_splashDone) hideSplash(); }, DURATION + 800);
 }
 
 function hideSplash() {
@@ -1681,6 +1805,59 @@ function hideSplash() {
   setTimeout(() => {
     splash.style.display = 'none';
   }, 650);
+}
+
+
+// ── МАСТЕР: РАЗМЕСТИТЬ ЗАЯВКУ ──
+function renderPostOrder(){
+  // Заполнить select категорий
+  const catSel = document.getElementById('po-cat');
+  if(catSel && catSel.options.length < 2){
+    SK.forEach(s => catSel.innerHTML += `<option value="${s.id}">${s.i} ${getLang()==='ru'?s.ru:s.en}</option>`);
+  }
+  // Заполнить страны
+  const coSel = document.getElementById('po-country');
+  if(coSel && coSel.options.length < 2){
+    CO.forEach(c => coSel.innerHTML += `<option value="${c.ru}">${c.f} ${getLang()==='ru'?c.ru:c.en}</option>`);
+  }
+}
+
+function submitMasterOrder(){
+  const title  = document.getElementById('po-title')?.value.trim();
+  const cat    = document.getElementById('po-cat')?.value;
+  const budget = parseInt(document.getElementById('po-budget')?.value)||0;
+  const country= document.getElementById('po-country')?.value;
+  const city   = document.getElementById('po-city')?.value.trim();
+  const desc   = document.getElementById('po-desc')?.value.trim();
+
+  if(!title || !cat || !country || !city){
+    toast(getLang()==='ru'?'Заполните обязательные поля':'Fill required fields','err');
+    return;
+  }
+
+  // Сохраняем в localStorage (тот же формат что у клиентских заявок)
+  const orders = JSON.parse(localStorage.getItem('ss_orders')||'[]');
+  const newOrder = {
+    id: 'o_'+Date.now(),
+    clientId: U.id,
+    clientName: U.nm||U.name||'',
+    title, category: cat, budget, country, city,
+    description: desc,
+    status: 'open',
+    isMasterOrder: true,   // флаг — заявка от мастера
+    responses: [],
+    createdAt: new Date().toISOString()
+  };
+  orders.push(newOrder);
+  localStorage.setItem('ss_orders', JSON.stringify(orders));
+
+  toast('✅ Заявка размещена!');
+  // Очистить форму
+  ['po-title','po-budget','po-city','po-desc'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  setTimeout(() => go('browse'), 1200);
 }
 
 
@@ -2072,77 +2249,7 @@ function renderChat(){
   </div>`).join('');
 }
 
+
 </script>
 </body>
-</html
-    <!-- ── СМЕТА TAB ── -->
-    <div class="tab-panel" id="tab-estimate">
-      <div class="dash-title" style="margin-top:0">🧾 Калькулятор сметы</div>
-
-      <!-- Шапка сметы -->
-      <div class="form-block" style="margin-bottom:12px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div>
-            <label style="font-size:11px;color:var(--ink3);font-weight:700">КЛИЕНТ / ЗАЯВКА</label>
-            <input id="est-client" type="text" placeholder="Имя клиента или №заявки" style="margin-top:4px">
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--ink3);font-weight:700">ДАТА</label>
-            <input id="est-date" type="date" style="margin-top:4px">
-          </div>
-        </div>
-        <div style="margin-top:10px">
-          <label style="font-size:11px;color:var(--ink3);font-weight:700">ОПИСАНИЕ РАБОТ</label>
-          <input id="est-desc" type="text" placeholder="Краткое описание объекта/работ" style="margin-top:4px">
-        </div>
-      </div>
-
-      <!-- Добавить позицию -->
-      <div class="form-block" style="margin-bottom:12px">
-        <div style="font-weight:700;margin-bottom:12px">➕ Добавить позицию</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-          <div style="flex:3;min-width:150px">
-            <label style="font-size:10px;color:var(--ink3)">НАИМЕНОВАНИЕ</label>
-            <input id="est-item-name" type="text" placeholder="Напр: Краска Dulux 10л" style="margin-top:3px">
-          </div>
-          <div style="flex:1;min-width:80px">
-            <label style="font-size:10px;color:var(--ink3)">КОЛ-ВО</label>
-            <input id="est-item-qty" type="number" value="1" min="1" style="margin-top:3px">
-          </div>
-          <div style="flex:1;min-width:80px">
-            <label style="font-size:10px;color:var(--ink3)">ЦЕНА €</label>
-            <input id="est-item-price" type="number" placeholder="0" style="margin-top:3px">
-          </div>
-          <div style="flex:1;min-width:100px">
-            <label style="font-size:10px;color:var(--ink3)">ТИП</label>
-            <select id="est-item-type" style="margin-top:3px">
-              <option value="material">🧱 Материал</option>
-              <option value="work">🔨 Работа</option>
-              <option value="delivery">🚚 Доставка</option>
-              <option value="other">📦 Прочее</option>
-            </select>
-          </div>
-          <button class="btn btn-p btn-sm" onclick="addEstimateItem()" style="height:38px;white-space:nowrap">+ Добавить</button>
-        </div>
-      </div>
-
-      <!-- ЧЕК / СМЕТА -->
-      <div id="estimate-receipt" style="display:none">
-        <div class="form-block" id="receipt-content">
-          <!-- Рендерится JS -->
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button class="btn btn-p" onclick="downloadEstimatePDF()" style="flex:2">📄 Скачать PDF</button>
-          <button class="btn" onclick="copyEstimate()" style="flex:1">📋 Копировать</button>
-          <button class="btn" onclick="clearEstimate()" style="flex:0 0 40px;background:rgba(255,80,80,.12);color:#ff5050">🗑</button>
-        </div>
-      </div>
-
-      <div id="estimate-empty" class="form-block" style="text-align:center;padding:30px;color:var(--ink3)">
-        <div style="font-size:36px;margin-bottom:8px">🧾</div>
-        <div style="font-weight:700">Смета пуста</div>
-        <div style="font-size:12px;margin-top:4px">Добавьте позиции выше</div>
-      </div>
-    </div>
-
->
+</html>
