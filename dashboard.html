@@ -283,6 +283,40 @@ button{cursor:pointer;font-family:inherit}
   .mob-tab .mt-ico{font-size:17px}
   .mob-tab span{font-size:8px}
 }
+
+/* ── MOB HEADER ── */
+.mob-header{display:none;position:fixed;top:0;left:0;right:0;height:52px;background:var(--bg2);
+  border-bottom:1px solid var(--bdr);z-index:200;align-items:center;padding:0 12px;gap:10px}
+.mob-back-btn{background:none;border:none;color:var(--ink2);font-size:20px;cursor:pointer;
+  padding:6px;min-width:36px}
+.mob-header-title{flex:1;font-weight:800;font-size:15px;text-align:center}
+.mob-menu-btn{background:none;border:none;color:var(--ink1);font-size:24px;cursor:pointer;
+  padding:6px;min-width:36px;text-align:right}
+
+/* ── DRAWER ── */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:299;
+  backdrop-filter:blur(2px)}
+.drawer-overlay.open{display:block}
+.drawer-panel{position:fixed;top:0;right:0;bottom:0;width:260px;background:var(--bg2);
+  border-left:1px solid var(--bdr);z-index:300;transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;
+  padding:0;overflow-y:auto}
+.drawer-panel.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 16px 12px;border-bottom:1px solid var(--bdr)}
+.drawer-nav{flex:1;padding:8px 0;display:flex;flex-direction:column}
+.dr-item{display:flex;align-items:center;gap:12px;padding:12px 20px;
+  background:none;border:none;color:var(--ink1);font-size:14px;font-weight:600;
+  cursor:pointer;text-align:left;border-left:3px solid transparent;transition:.15s}
+.dr-item:hover,.dr-item.active{background:rgba(0,214,143,.07);
+  border-left-color:var(--g);color:var(--g)}
+.dr-ico{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.dr-sep{height:1px;background:var(--bdr);margin:6px 16px}
+
+@media(max-width:700px){
+  .mob-header{display:flex}
+  .dash-wrap{padding-top:52px}
+}
 </style>
 </head>
 <body>
@@ -397,14 +431,38 @@ button{cursor:pointer;font-family:inherit}
       </div>
     </div>  </div>
 </div>
-<!-- Мобильный таббар -->
-<div class="mob-tabbar">
-  <div class="mob-tabbar-inner">
-    <button class="mob-tab active" onclick="go('orders');setMT(this)"><div class="mt-ico">📋</div><span>Заявки</span></button>
-    <button class="mob-tab" onclick="go('responses');setMT(this)"><div class="mt-ico">🔔</div><span>Отклики</span></button>
-    <button class="mob-tab" onclick="go('portfolio');setMT(this)"><div class="mt-ico">📸</div><span>Портфолио</span></button>
-    <button class="mob-tab" onclick="go('calendar');setMT(this)"><div class="mt-ico">📅</div><span>Расписание</span></button>
-    <button class="mob-tab" onclick="go('profile');setMT(this)"><div class="mt-ico">👤</div><span>Профиль</span></button>
+<!-- Мобильная шапка + правое меню-дравер -->
+<div class="mob-header">
+  <button class="mob-back-btn" onclick="history.back()">←</button>
+  <div class="mob-header-title" id="mob-header-title">ЛК Мастера</div>
+  <button class="mob-menu-btn" onclick="openDrawer()">☰</button>
+</div>
+
+<!-- Затемнение -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- Дравер справа -->
+<div class="drawer-panel" id="drawer-panel">
+  <div class="drawer-header">
+    <div>
+      <div style="font-weight:900;font-size:15px" id="drawer-name">Мастер</div>
+      <div style="font-size:11px;color:var(--ink3)" id="drawer-role">⏳ Верификация</div>
+    </div>
+    <button onclick="closeDrawer()" style="background:none;border:none;color:var(--ink2);font-size:22px;cursor:pointer;padding:4px">✕</button>
+  </div>
+  <div class="drawer-nav">
+    <button class="dr-item active" onclick="goD('orders')"><span class="dr-ico">📋</span>Заявки</button>
+    <button class="dr-item" onclick="goD('responses')"><span class="dr-ico">🔔</span>Отклики</button>
+    <button class="dr-item" onclick="goD('portfolio')"><span class="dr-ico">📸</span>Портфолио</button>
+    <button class="dr-item" onclick="goD('chat')"><span class="dr-ico">💬</span>Чат</button>
+    <button class="dr-item" onclick="goD('calendar')"><span class="dr-ico">📅</span>Расписание</button>
+    <button class="dr-item" onclick="goD('earnings')"><span class="dr-ico">📊</span>Заработок</button>
+    <div class="dr-sep"></div>
+    <button class="dr-item" onclick="goD('profile')"><span class="dr-ico">👤</span>Профиль</button>
+    <button class="dr-item" onclick="goD('verif')"><span class="dr-ico">✅</span>Верификация</button>
+    <button class="dr-item" onclick="goD('sub')"><span class="dr-ico">🎉</span>О платформе</button>
+    <div class="dr-sep"></div>
+    <button class="dr-item" onclick="doLogout()"><span class="dr-ico">🚪</span>Выйти</button>
   </div>
 </div>
 <script>
@@ -906,6 +964,7 @@ function go(tab){
   const btn   = document.getElementById('tb-'+tab);
   if(panel) panel.classList.add('active');
   if(btn)   btn.classList.add('active');
+  setActiveDrawer(tab);
   const actions = {
     orders:renderOrders, responses:renderResponses,
     stats:renderStats, profile:renderProfile, verif:renderVerif,
@@ -914,6 +973,44 @@ function go(tab){
   };
   if(actions[tab]) actions[tab]();
 }
+
+// ── DRAWER NAVIGATION ──
+function openDrawer(){
+  document.getElementById('drawer-panel').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  // Обновим имя в дравере
+  if(U){
+    var dn=document.getElementById('drawer-name');
+    var dr=document.getElementById('drawer-role');
+    if(dn) dn.textContent=U.name||'Мастер';
+    if(dr) dr.textContent=U.verifLevel?'✅ Уровень '+U.verifLevel:'⏳ Верификация';
+  }
+}
+function closeDrawer(){
+  document.getElementById('drawer-panel').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function goD(tab){
+  closeDrawer();
+  setTimeout(function(){go(tab);},80);
+}
+function setActiveDrawer(tab){
+  document.querySelectorAll('.dr-item').forEach(function(b){b.classList.remove('active');});
+  // Найдём кнопку по onclick
+  var btns=document.querySelectorAll('.dr-item');
+  btns.forEach(function(b){
+    if(b.getAttribute('onclick')==="goD('"+tab+"')") b.classList.add('active');
+  });
+  // Заголовок в шапке
+  var titles={
+    orders:'Заявки', responses:'Отклики', portfolio:'Портфолио',
+    chat:'Чат', calendar:'Расписание', earnings:'Заработок',
+    profile:'Профиль', verif:'Верификация', sub:'О платформе', stats:'Статистика'
+  };
+  var ht=document.getElementById('mob-header-title');
+  if(ht&&titles[tab]) ht.textContent=titles[tab];
+}
+
 
 function renderOrders(){
   if(!U) return;
@@ -1025,9 +1122,8 @@ function renderVerif(){
   renderOrders();
 })();
 
-</script>
-</body>
-</html// ── PORTFOLIO ──
+
+// ── PORTFOLIO ──
 function renderPortfolio(){
   if(!U)return;
   const key='ss_portfolio_'+U.id;
@@ -1194,3 +1290,7 @@ function renderChat(){
 }
 
 >
+
+</script>
+</body>
+</html>
