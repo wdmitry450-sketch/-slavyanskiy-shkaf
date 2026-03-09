@@ -12,7 +12,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "slavic-shkaf-db"
-database_id = "REPLACE_WITH_YOUR_D1_ID"
+database_id = ""bc8705b0-26b6-42f2-a08a-8ab1ede4a50f"
 
 [vars]
 ADMIN_EMAIL = "admin@slavic-shkaf.eu"
