@@ -228,10 +228,10 @@ button{cursor:pointer;font-family:inherit}
 }
 
 @media(max-width:640px) {
-  /* Show tab bar, hide sidebar */
+  /* Drawer navigation — sidebar hidden, drawer used instead */
   .dash-side{display:none}
-  .mob-tabbar{display:block}
-  .dash-main{padding:14px;padding-bottom:calc(var(--tab-h) + 20px + var(--tg-safe-bottom))}
+  .mob-tabbar{display:none}
+  .dash-main{padding:14px;padding-bottom:20px}
   
   /* Nav compact */
   .nav{height:54px;padding:0 12px}
@@ -313,9 +313,9 @@ button{cursor:pointer;font-family:inherit}
 .dr-ico{font-size:18px;width:26px;text-align:center;flex-shrink:0}
 .dr-sep{height:1px;background:var(--bdr);margin:6px 16px}
 
-@media(max-width:700px){
-  .mob-header{display:flex}
-  .dash-wrap{padding-top:52px}
+@media(max-width:640px){
+  .mob-header{display:flex!important}
+  .dash-wrap{padding-top:52px!important}
 }
 </style>
 </head>
@@ -432,7 +432,7 @@ button{cursor:pointer;font-family:inherit}
     </div>  </div>
 </div>
 <!-- Мобильная шапка + правое меню-дравер -->
-<div class="mob-header">
+<div class="mob-header" id="mob-header">
   <button class="mob-back-btn" onclick="history.back()">←</button>
   <div class="mob-header-title" id="mob-header-title">ЛК Мастера</div>
   <button class="mob-menu-btn" onclick="openDrawer()">☰</button>
@@ -1011,6 +1011,13 @@ function setActiveDrawer(tab){
   if(ht&&titles[tab]) ht.textContent=titles[tab];
 }
 
+
+function doLogout(){
+  if(confirm('Выйти из аккаунта?')){
+    clearUser();
+    location.href='index.html';
+  }
+}
 
 function renderOrders(){
   if(!U) return;
