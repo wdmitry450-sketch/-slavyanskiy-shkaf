@@ -6,6 +6,12 @@
 <title>Admin Panel — Slavic Shkaf</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  if(window.Telegram&&Telegram.WebApp){
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  }
+</script>
 <style>*{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#06090f;--bg2:#0d1117;--bg3:#111827;
@@ -965,10 +971,7 @@ function langBtn(){
 }
 
 // ── AUTH ──
-if(!window.getUser){window.getUser=()=>{try{return JSON.parse(localStorage.getItem(AUTH_KEY));}catch{return null;}}}
-if(!window.setUser){window.setUser=u=>localStorage.setItem(AUTH_KEY,JSON.stringify(u));}
-if(!window.clearUser){window.clearUser=()=>localStorage.removeItem(AUTH_KEY);}
-getUser=window.getUser;setUser=window.setUser;clearUser=window.clearUser;
+
 const getUsers=()=>{try{return JSON.parse(localStorage.getItem(USERS_KEY))||[];}catch{return[];}};
 const saveUsers=a=>localStorage.setItem(USERS_KEY,JSON.stringify(a));
 const getOrders=()=>{try{const s=JSON.parse(localStorage.getItem(ORDERS_KEY));return s&&s.length?s:DEMO_ORDERS;}catch{return DEMO_ORDERS;}};

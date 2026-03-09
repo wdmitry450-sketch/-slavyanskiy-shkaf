@@ -173,4 +173,4 @@ if (typeof window !== 'undefined' && !window._toastDefined) {
   window._toastDefined = true;
 }
 
-console.log('[API] Slavic Shkaf API client loaded. Base:', API_BASE || '(same origin)');
+console.log('[API] Slavic Shkaf v2.1 loaded. Base:', API_BASE || '(same origin)');

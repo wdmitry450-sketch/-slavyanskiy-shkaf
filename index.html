@@ -6,6 +6,12 @@
 <title>Home — Slavic Shkaf</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  if(window.Telegram&&Telegram.WebApp){
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  }
+</script>
 <style>*{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#06090f;--bg2:#0d1117;--bg3:#111827;
@@ -749,28 +755,28 @@ const SK=[
   {id:'move',i:'📦',ru:'Переезды',en:'Moving',n:12},
 ];
 const CO=[
-  {iso:'fr',ru:'Франция',en:'France'},
-  {iso:'de',ru:'Германия',en:'Germany'},
-  {iso:'es',ru:'Испания',en:'Spain'},
-  {iso:'it',ru:'Италия',en:'Italy'},
-  {iso:'be',ru:'Бельгия',en:'Belgium'},
-  {iso:'nl',ru:'Нидерланды',en:'Netherlands'},
-  {iso:'pl',ru:'Польша',en:'Poland'},
-  {iso:'at',ru:'Австрия',en:'Austria'},
-  {iso:'ch',ru:'Швейцария',en:'Switzerland'},
-  {iso:'pt',ru:'Португалия',en:'Portugal'},
-  {iso:'se',ru:'Швеция',en:'Sweden'},
-  {iso:'no',ru:'Норвегия',en:'Norway'},
-  {iso:'dk',ru:'Дания',en:'Denmark'},
-  {iso:'fi',ru:'Финляндия',en:'Finland'},
-  {iso:'cz',ru:'Чехия',en:'Czechia'},
-  {iso:'sk',ru:'Словакия',en:'Slovakia'},
-  {iso:'hu',ru:'Венгрия',en:'Hungary'},
-  {iso:'ro',ru:'Румыния',en:'Romania'},
-  {iso:'bg',ru:'Болгария',en:'Bulgaria'},
-  {iso:'hr',ru:'Хорватия',en:'Croatia'},
-  {iso:'si',ru:'Словения',en:'Slovenia'},
-  {iso:'gr',ru:'Греция',en:'Greece'},
+  {f:'🇫🇷',iso:'fr',ru:'Франция',en:'France'},
+  {f:'🇩🇪',iso:'de',ru:'Германия',en:'Germany'},
+  {f:'🇪🇸',iso:'es',ru:'Испания',en:'Spain'},
+  {f:'🇮🇹',iso:'it',ru:'Италия',en:'Italy'},
+  {f:'🇧🇪',iso:'be',ru:'Бельгия',en:'Belgium'},
+  {f:'🇳🇱',iso:'nl',ru:'Нидерланды',en:'Netherlands'},
+  {f:'🇵🇱',iso:'pl',ru:'Польша',en:'Poland'},
+  {f:'🇦🇹',iso:'at',ru:'Австрия',en:'Austria'},
+  {f:'🇨🇭',iso:'ch',ru:'Швейцария',en:'Switzerland'},
+  {f:'🇵🇹',iso:'pt',ru:'Португалия',en:'Portugal'},
+  {f:'🇸🇪',iso:'se',ru:'Швеция',en:'Sweden'},
+  {f:'🇳🇴',iso:'no',ru:'Норвегия',en:'Norway'},
+  {f:'🇩🇰',iso:'dk',ru:'Дания',en:'Denmark'},
+  {f:'🇫🇮',iso:'fi',ru:'Финляндия',en:'Finland'},
+  {f:'🇨🇿',iso:'cz',ru:'Чехия',en:'Czechia'},
+  {f:'🇸🇰',iso:'sk',ru:'Словакия',en:'Slovakia'},
+  {f:'🇭🇺',iso:'hu',ru:'Венгрия',en:'Hungary'},
+  {f:'🇷🇴',iso:'ro',ru:'Румыния',en:'Romania'},
+  {f:'🇧🇬',iso:'bg',ru:'Болгария',en:'Bulgaria'},
+  {f:'🇭🇷',iso:'hr',ru:'Хорватия',en:'Croatia'},
+  {f:'🇸🇮',iso:'si',ru:'Словения',en:'Slovenia'},
+  {f:'🇬🇷',iso:'gr',ru:'Греция',en:'Greece'},
 ];
 function flagImg(iso,size){
   size=size||20;
@@ -859,10 +865,7 @@ function langBtn(){
 }
 
 // ── AUTH ──
-if(!window.getUser){window.getUser=()=>{try{return JSON.parse(localStorage.getItem(AUTH_KEY));}catch{return null;}}}
-if(!window.setUser){window.setUser=u=>localStorage.setItem(AUTH_KEY,JSON.stringify(u));}
-if(!window.clearUser){window.clearUser=()=>localStorage.removeItem(AUTH_KEY);}
-getUser=window.getUser;setUser=window.setUser;clearUser=window.clearUser;
+
 const getUsers=()=>{try{return JSON.parse(localStorage.getItem(USERS_KEY))||[];}catch{return[];}};
 const saveUsers=a=>localStorage.setItem(USERS_KEY,JSON.stringify(a));
 const getOrders=()=>{try{const s=JSON.parse(localStorage.getItem(ORDERS_KEY));return s&&s.length?s:DEMO_ORDERS;}catch{return DEMO_ORDERS;}};
@@ -930,7 +933,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const online=MASTERS.filter(m=>m.online).slice(0,4);
   document.getElementById('masters-grid').innerHTML=online.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?' <span class="badge badge-y" style="font-size:9px">🏆</span>':''}</div><div class="mc-loc">${flagImg(m.iso)} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}🔨</div></div><div class="mc-skills">${m.skills.slice(0,3).map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€/h</span><span class="badge badge-g">🟢</span></div></a>`).join('');
   document.getElementById('cats-grid').innerHTML=SK.map(s=>`<a class="cat-card" href="catalog.html?cat=${s.id}"><div class="cat-ico">${s.i}</div><div class="cat-nm">${getLang()==='ru'?s.ru:s.en}</div><div class="cat-n">${s.n}</div></a>`).join('');
-  document.getElementById('flags-grid').innerHTML=CO.map(c=>`<a class="fl-chip" href="catalog.html?country=${encodeURIComponent(c.ru)}">${flagImg(c.iso)} ${getLang()==='ru'?c.ru:c.en}</a>`).join('');
+  document.getElementById('flags-grid').innerHTML=CO.map(c=>`<a class="fl-chip" href="catalog.html?country=${encodeURIComponent(c.ru)}">${c.f} ${getLang()==='ru'?c.ru:c.en}</a>`).join('');
 });</script>
 
 </body></html>
