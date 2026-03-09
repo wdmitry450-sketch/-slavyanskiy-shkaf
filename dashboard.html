@@ -328,8 +328,9 @@ button{cursor:pointer;font-family:inherit}
       <div class="ds-name" id="d-name">Мастер</div>
       <div class="ds-role" id="d-role">⏳</div>
     </div>
-    <button class="ds-item active" onclick="go('orders')" id="tb-orders"><span class="ds-ico">📋</span><span data-t="tab.orders">Заявки</span></button>
-    <button class="ds-item" onclick="go('responses')" id="tb-responses"><span class="ds-ico">🔔</span><span data-t="tab.responses">Отклики</span></button>
+    <button class="ds-item active" onclick="go('browse')" id="tb-browse"><span class="ds-ico">🏪</span><span>Биржа заявок</span></button>
+    <button class="ds-item" onclick="go('orders')" id="tb-orders"><span class="ds-ico">📋</span><span>Мои отклики</span></button>
+    <button class="ds-item" onclick="go('responses')" id="tb-responses"><span class="ds-ico">🔔</span><span data-t="tab.responses">Уведомления</span></button>
     <button class="ds-item" onclick="go('portfolio')" id="tb-portfolio"><span class="ds-ico">📸</span><span>Портфолио</span></button>
     <button class="ds-item" onclick="go('chat')" id="tb-chat"><span class="ds-ico">💬</span><span data-t="tab.chat">Чат</span></button>
     <button class="ds-item" onclick="go('calendar')" id="tb-calendar"><span class="ds-ico">📅</span><span>Календарь</span></button>
@@ -376,6 +377,34 @@ button{cursor:pointer;font-family:inherit}
           ✅ Верификация без доплаты
         </div>
       </div>
+    </div>
+
+    <!-- ── BROWSE TAB — БИРЖА ЗАЯВОК ── -->
+    <div class="tab-panel active" id="tab-browse">
+      <div class="dash-title">🏪 Биржа заявок</div>
+
+      <!-- Счётчики -->
+      <div id="browse-counts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px"></div>
+
+      <!-- Фильтры -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <input id="br-q" type="text" placeholder="🔍 Поиск по заявкам..." oninput="renderBrowse()" style="flex:2;min-width:160px">
+        <select id="br-cat" onchange="renderBrowse()" style="flex:1;min-width:130px">
+          <option value="">Все категории</option>
+        </select>
+        <select id="br-country" onchange="renderBrowse()" style="flex:1;min-width:130px">
+          <option value="">Все страны</option>
+        </select>
+        <select id="br-sort" onchange="renderBrowse()" style="min-width:130px">
+          <option value="new">Сначала новые</option>
+          <option value="budget_desc">Бюджет ↑</option>
+          <option value="budget_asc">Бюджет ↓</option>
+          <option value="responses">Меньше откликов</option>
+        </select>
+      </div>
+
+      <!-- Список заявок -->
+      <div id="browse-list"></div>
     </div>
 
     <!-- ── PORTFOLIO TAB ── -->
@@ -451,8 +480,9 @@ button{cursor:pointer;font-family:inherit}
     <button onclick="closeDrawer()" style="background:none;border:none;color:var(--ink2);font-size:22px;cursor:pointer;padding:4px">✕</button>
   </div>
   <div class="drawer-nav">
-    <button class="dr-item active" onclick="goD('orders')"><span class="dr-ico">📋</span>Заявки</button>
-    <button class="dr-item" onclick="goD('responses')"><span class="dr-ico">🔔</span>Отклики</button>
+    <button class="dr-item active" onclick="goD('browse')"><span class="dr-ico">🏪</span>Биржа заявок</button>
+    <button class="dr-item" onclick="goD('orders')"><span class="dr-ico">📋</span>Мои отклики</button>
+    <button class="dr-item" onclick="goD('responses')"><span class="dr-ico">🔔</span>Уведомления</button>
     <button class="dr-item" onclick="goD('portfolio')"><span class="dr-ico">📸</span>Портфолио</button>
     <button class="dr-item" onclick="goD('chat')"><span class="dr-ico">💬</span>Чат</button>
     <button class="dr-item" onclick="goD('calendar')"><span class="dr-ico">📅</span>Расписание</button>
@@ -966,7 +996,7 @@ function go(tab){
   if(btn)   btn.classList.add('active');
   setActiveDrawer(tab);
   const actions = {
-    orders:renderOrders, responses:renderResponses,
+    browse:renderBrowse, orders:renderOrders, responses:renderResponses,
     stats:renderStats, profile:renderProfile, verif:renderVerif,
     portfolio:renderPortfolio, calendar:renderCalendar,
     earnings:renderEarnings, chat:renderChat
@@ -1003,8 +1033,8 @@ function setActiveDrawer(tab){
   });
   // Заголовок в шапке
   var titles={
-    orders:'Заявки', responses:'Отклики', portfolio:'Портфолио',
-    chat:'Чат', calendar:'Расписание', earnings:'Заработок',
+    browse:'Биржа заявок', orders:'Мои отклики', responses:'Уведомления',
+    portfolio:'Портфолио', chat:'Чат', calendar:'Расписание', earnings:'Заработок',
     profile:'Профиль', verif:'Верификация', sub:'О платформе', stats:'Статистика'
   };
   var ht=document.getElementById('mob-header-title');
@@ -1018,6 +1048,107 @@ function doLogout(){
     location.href='index.html';
   }
 }
+
+function renderBrowse(){
+  if(!U) return;
+
+  // Инициализируем фильтры при первом вызове
+  const catSel = document.getElementById('br-cat');
+  if(catSel && catSel.options.length < 2){
+    SK.forEach(s => catSel.innerHTML += `<option value="${s.id}">${s.i} ${s.ru}</option>`);
+  }
+  const ctrSel = document.getElementById('br-country');
+  if(ctrSel && ctrSel.options.length < 2){
+    const countries = [...new Set(getOrders().filter(o=>o.country).map(o=>o.country))].sort();
+    countries.forEach(c => ctrSel.innerHTML += `<option value="${c}">${c}</option>`);
+  }
+
+  const q       = (document.getElementById('br-q')?.value || '').toLowerCase();
+  const cat     = document.getElementById('br-cat')?.value || '';
+  const country = document.getElementById('br-country')?.value || '';
+  const sort    = document.getElementById('br-sort')?.value || 'new';
+
+  // Все заявки — только открытые
+  let orders = getOrders().filter(o => o.status === 'open');
+
+  // Фильтры
+  if(q) orders = orders.filter(o =>
+    (o.title||'').toLowerCase().includes(q) ||
+    (o.desc||'').toLowerCase().includes(q) ||
+    (o.city||'').toLowerCase().includes(q)
+  );
+  if(cat)     orders = orders.filter(o => o.cat === cat);
+  if(country) orders = orders.filter(o => o.country === country);
+
+  // Сортировка
+  if(sort === 'budget_desc') orders.sort((a,b) => b.budget - a.budget);
+  else if(sort === 'budget_asc') orders.sort((a,b) => a.budget - b.budget);
+  else if(sort === 'responses') orders.sort((a,b) => (a.responses||[]).length - (b.responses||[]).length);
+  else orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  // Счётчики
+  const all = getOrders().filter(o => o.status === 'open');
+  const myApplied = all.filter(o => (o.responses||[]).includes(U.id));
+  const countsEl = document.getElementById('browse-counts');
+  if(countsEl) countsEl.innerHTML =
+    `<div class="stat-card"><div class="stat-v" style="color:var(--g)">${all.length}</div><div class="stat-l">Открытых заявок</div></div>` +
+    `<div class="stat-card"><div class="stat-v" style="color:var(--acc)">${orders.length}</div><div class="stat-l">По фильтру</div></div>` +
+    `<div class="stat-card"><div class="stat-v" style="color:var(--yellow)">${myApplied.length}</div><div class="stat-l">Мои отклики</div></div>` +
+    `<div class="stat-card"><div class="stat-v">${all.reduce((s,o)=>s+(o.budget||0),0)}€</div><div class="stat-l">Общий бюджет</div></div>`;
+
+  // Рендер списка
+  const el = document.getElementById('browse-list');
+  if(!el) return;
+
+  if(!orders.length){
+    el.innerHTML = '<div class="form-block" style="text-align:center;padding:40px">' +
+      '<div style="font-size:40px;margin-bottom:10px">🔍</div>' +
+      '<div style="font-weight:700">Заявок не найдено</div>' +
+      '<div style="color:var(--ink3);margin-top:6px;font-size:13px">Попробуйте изменить фильтры</div></div>';
+    return;
+  }
+
+  el.innerHTML = orders.map(o => {
+    const applied = (o.responses||[]).includes(U.id);
+    const ago = o.createdAt ? timeAgo(new Date(o.createdAt)) : '';
+    return `<div class="oc" style="border-left:3px solid ${applied ? 'var(--g)' : 'transparent'}">
+      <div class="oc-top">
+        <div style="flex:1">
+          ${applied ? '<span class="badge badge-g" style="margin-right:6px">✅ Откликнулся</span>' : ''}
+          <div class="oc-title">${o.title}</div>
+        </div>
+        <div class="oc-budget" style="font-size:20px;color:var(--g)">${o.budget}€</div>
+      </div>
+      <div class="oc-meta">
+        <span>📍 ${o.city}${o.zip ? ' ' + o.zip : ''}, ${o.country}</span>
+        <span>${catIco(o.cat)} ${catName(o.cat)}</span>
+        <span>👥 ${(o.responses||[]).length} откликов</span>
+        ${ago ? `<span>🕐 ${ago}</span>` : ''}
+      </div>
+      ${o.desc ? `<div class="oc-desc" style="margin:8px 0;color:var(--ink2);font-size:13px">${o.desc}</div>` : ''}
+      <div class="oc-foot" style="display:flex;gap:8px;align-items:center;margin-top:10px">
+        ${applied
+          ? `<span style="font-size:12px;color:var(--g)">Вы уже откликнулись на эту заявку</span>`
+          : `<button class="btn btn-p btn-sm" onclick="applyOrder(${o.id})">📤 Откликнуться</button>`
+        }
+        <span style="margin-left:auto;font-size:11px;color:var(--ink3)">ID #${o.id}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function timeAgo(date){
+  const diff = Date.now() - date.getTime();
+  const m = Math.floor(diff/60000);
+  const h = Math.floor(diff/3600000);
+  const d = Math.floor(diff/86400000);
+  if(m < 1) return 'только что';
+  if(m < 60) return m + ' мин назад';
+  if(h < 24) return h + ' ч назад';
+  if(d < 7) return d + ' дн назад';
+  return date.toLocaleDateString('ru');
+}
+
 
 function renderOrders(){
   if(!U) return;
@@ -1126,7 +1257,7 @@ function renderVerif(){
   document.getElementById('d-name').textContent = U.name||'Master';
   document.getElementById('d-role').textContent = U.verifLevel?'✅ Level '+U.verifLevel:'⏳ Pending verification';
   renderNav();
-  renderOrders();
+  go('browse');
 })();
 
 
