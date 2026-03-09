@@ -283,6 +283,60 @@ button{cursor:pointer;font-family:inherit}
   .mob-tab .mt-ico{font-size:17px}
   .mob-tab span{font-size:8px}
 }
+
+/* ── MOB HEADER ── */
+.mob-header{display:none;position:fixed;top:0;left:0;right:0;height:52px;background:var(--bg2);
+  border-bottom:1px solid var(--bdr);z-index:200;align-items:center;padding:0 16px;gap:10px}
+.mob-header-title{flex:1;font-weight:800;font-size:15px;text-align:center}
+.mob-menu-btn{background:none;border:none;color:var(--ink1);font-size:24px;cursor:pointer;
+  padding:6px;min-width:36px;text-align:right}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:299;
+  backdrop-filter:blur(2px)}
+.drawer-overlay.open{display:block}
+.drawer-panel{position:fixed;top:0;right:0;bottom:0;width:260px;background:var(--bg2);
+  border-left:1px solid var(--bdr);z-index:300;transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
+.drawer-panel.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 16px 12px;border-bottom:1px solid var(--bdr)}
+.drawer-nav{flex:1;padding:8px 0;display:flex;flex-direction:column}
+.dr-item{display:flex;align-items:center;gap:12px;padding:12px 20px;
+  background:none;border:none;color:var(--ink1);font-size:14px;font-weight:600;
+  cursor:pointer;text-align:left;border-left:3px solid transparent;transition:.15s}
+.dr-item:hover,.dr-item.active{background:rgba(0,214,143,.07);border-left-color:var(--g);color:var(--g)}
+.dr-ico{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.dr-sep{height:1px;background:var(--bdr);margin:6px 16px}
+@media(max-width:640px){
+  .mob-header{display:flex!important}
+  .dash-wrap{padding-top:52px!important}
+  .dash-side{display:none}
+  .mob-tabbar{display:none!important}
+  .dash-main{padding:14px;padding-bottom:20px}
+}
+
+/* ── ADMIN MOBILE CARDS ── */
+@media(max-width:640px){
+  /* Скрываем таблицы, показываем карточки */
+  .adm-tbl-wrap{display:none}
+  .adm-cards{display:flex!important;flex-direction:column;gap:10px}
+  
+  /* Карточка мастера/клиента/заявки */
+  .adm-card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:14px 16px}
+  .adm-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .adm-card-ava{width:38px;height:38px;border-radius:10px;background:var(--bg3);
+    display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .adm-card-name{font-weight:800;font-size:14px}
+  .adm-card-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+  .adm-card-row{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;
+    color:var(--ink2);margin-bottom:8px}
+  .adm-card-row span{display:flex;align-items:center;gap:4px}
+  .adm-card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;
+    padding-top:10px;border-top:1px solid var(--bdr)}
+  .adm-card-actions .btn{flex:1;min-width:80px;font-size:12px}
+}
+@media(min-width:641px){
+  .adm-cards{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -326,6 +380,7 @@ button{cursor:pointer;font-family:inherit}
         <thead><tr><th>Master</th><th>Contacts</th><th>City</th><th>Country</th><th>Verif</th><th>Plan</th><th>TOP</th><th>🔨</th><th>Actions</th></tr></thead>
         <tbody id="m-tbody"></tbody>
       </table></div>
+      <div class="adm-cards" id="m-cards"></div>
     </div>
 
     <!-- ЗАКАЗЧИКИ -->
@@ -339,6 +394,7 @@ button{cursor:pointer;font-family:inherit}
         <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Country</th><th>City</th><th>Orders</th><th>Actions</th></tr></thead>
         <tbody id="cl-tbody"></tbody>
       </table></div>
+      <div class="adm-cards" id="cl-cards"></div>
     </div>
 
     <!-- ЗАЯВКИ -->
@@ -354,6 +410,7 @@ button{cursor:pointer;font-family:inherit}
         <thead><tr><th>Title</th><th>Client</th><th>Category</th><th>City</th><th>Country</th><th>Budget</th><th>Status</th><th>Bids</th></tr></thead>
         <tbody id="or-tbody"></tbody>
       </table></div>
+      <div class="adm-cards" id="or-cards"></div>
     </div>
 
     <!-- ТОП УПРАВЛЕНИЕ -->
@@ -1214,6 +1271,8 @@ function renderMasters(){
       <button class="btn btn-sm btn-r" style="font-size:11px" onclick="blockUser('${m.id}')">🚫</button>
     </div></td>
   </tr>`).join('')||'<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--ink3)">No data</td></tr>';
+  renderMasterCards(list);
+  renderMasterCards(list);
 }
 
 function openMasterModal(id){
@@ -1378,6 +1437,85 @@ function renderClients(){
   </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--ink3)">No clients yet</td></tr>';
 }
 
+function renderMasterCards(list){
+  const el = document.getElementById('m-cards');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML = '<div class="form-block" style="text-align:center;padding:24px;color:var(--ink3)">Мастеров нет</div>';
+    return;
+  }
+  el.innerHTML = list.map(m => {
+    const verif = m.lvl||m.verifLevel;
+    const isPro = m.sub||hasSub(m);
+    const cats  = (m.cats||[]).slice(0,3).map(c=>catIco(c)).join(' ');
+    return `<div class="adm-card">
+      <div class="adm-card-top">
+        <div class="adm-card-ava">${m.a||'👷'}</div>
+        <div style="flex:1">
+          <div class="adm-card-name">${m.nm||m.name||'—'}
+            ${m.topCity?'<span class="badge badge-y" style="font-size:9px;margin-left:4px">🏆</span>':''}
+            ${m.topCountry?'<span class="badge badge-o" style="font-size:9px;margin-left:4px">🌍</span>':''}
+          </div>
+          <div class="adm-card-sub">${m.city||''}${m.city&&m.country?', ':''}${m.country||''}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          ${verif?`<span class="badge badge-g" style="font-size:10px">✅ L${verif}</span>`:'<span class="badge" style="font-size:10px">—</span>'}
+          <div style="margin-top:4px">${isPro?'<span class="badge badge-y" style="font-size:10px">Pro</span>':'<span class="badge" style="font-size:10px">Free</span>'}</div>
+        </div>
+      </div>
+      <div class="adm-card-row">
+        ${m.phone?`<span>📞 ${m.phone}</span>`:''}
+        ${m.telegram?`<span>✈️ ${m.telegram}</span>`:''}
+        ${cats?`<span>${cats}</span>`:''}
+        <span>⭐ ${m.rate||'—'}</span>
+      </div>
+      <div class="adm-card-actions">
+        <button class="btn btn-sm" style="background:rgba(124,111,255,.15);color:var(--acc);flex:2" onclick="openMasterModal('${m.id}')">👁 Подробнее</button>
+        <button class="btn btn-sm" style="background:rgba(0,214,143,.12);color:var(--g)" onclick="toggleTop('${m.id}','city',!${!!m.topCity})">${m.topCity?'✅':'⬆️'}</button>
+        <button class="btn btn-sm btn-r" onclick="blockUser('${m.id}')">${m.blocked?'✅':'🚫'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderClientCards(list){
+  const el = document.getElementById('cl-cards');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML = '<div class="form-block" style="text-align:center;padding:24px;color:var(--ink3)">Клиентов нет</div>';
+    return;
+  }
+  const orders = getOrders();
+  el.innerHTML = list.map(u => {
+    const uOrders = orders.filter(o=>o.clientId===u.id);
+    return `<div class="adm-card">
+      <div class="adm-card-top">
+        <div class="adm-card-ava">🏠</div>
+        <div style="flex:1">
+          <div class="adm-card-name">${u.name||'—'}</div>
+          <div class="adm-card-sub">${u.email||''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:900;color:var(--g)">${uOrders.length}</div>
+          <div style="font-size:10px;color:var(--ink3)">заявок</div>
+        </div>
+      </div>
+      <div class="adm-card-row">
+        ${u.phone ? `<span>📞 ${u.phone}</span>` : ''}
+        ${u.country ? `<span>🌍 ${u.country}${u.city?', '+u.city:''}</span>` : ''}
+        ${u.blocked ? '<span style="color:#ff5050">🚫 Заблокирован</span>' : ''}
+      </div>
+      <div class="adm-card-actions">
+        <button class="btn btn-sm" style="background:rgba(124,111,255,.15);color:var(--acc)" onclick="openClientModal('${u.id}')">👁 Подробнее</button>
+        <button class="btn btn-sm btn-r" onclick="blockUser('${u.id}')">${u.blocked?'✅ Разблокировать':'🚫 Блок'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+  renderClientCards(list);
+
+
+
 function renderOrders(){
   let list=getOrders();
   const q=(document.getElementById('fo-q').value||'').toLowerCase();
@@ -1399,6 +1537,41 @@ function renderOrders(){
     <td>${statusBadge(o.status)}</td>
     <td style="text-align:center;font-size:12px">${(o.responses||[]).length}</td>
   </tr>`).join('');
+  renderOrderCards(list);
+}
+
+function renderOrderCards(list){
+  const el = document.getElementById('or-cards');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML = '<div class="form-block" style="text-align:center;padding:24px;color:var(--ink3)">Заявок нет</div>';
+    return;
+  }
+  el.innerHTML = list.map(o => `<div class="adm-card">
+    <div class="adm-card-top">
+      <div class="adm-card-ava">${catIco(o.cat)}</div>
+      <div style="flex:1">
+        <div class="adm-card-name">${o.title||'—'}</div>
+        <div class="adm-card-sub">${catName(o.cat)}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:20px;font-weight:900;color:var(--g)">${o.budget}€</div>
+        <div style="margin-top:4px">${statusBadge(o.status)}</div>
+      </div>
+    </div>
+    <div class="adm-card-row">
+      <span>📍 ${o.city||'—'}, ${o.country||'—'}</span>
+      <span>👥 ${(o.responses||[]).length} откликов</span>
+    </div>
+    <div class="adm-card-actions">
+      <button class="btn btn-sm" style="background:rgba(124,111,255,.15);color:var(--acc);flex:2"
+        onclick="openOrderModal('${o.id}')">👁 Подробнее</button>
+      <button class="btn btn-sm" style="background:rgba(0,214,143,.12);color:var(--g)"
+        onclick="updateOrder('${o.id}',{status:'completed'})">✅</button>
+      <button class="btn btn-sm btn-r"
+        onclick="updateOrder('${o.id}',{status:'cancelled'})">❌</button>
+    </div>
+  </div>`).join('');
 }
 
 function renderTop(){
@@ -1446,6 +1619,55 @@ function renderStats(){
 }
 
 if(U){renderNav();initFilters();renderMasters();}
+
+function openDrawer(){
+  document.getElementById('drawer-panel').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  if(U){
+    var dn=document.getElementById('drawer-name');
+    if(dn) dn.textContent=U.name||'Аккаунт';
+    var dr=document.getElementById('drawer-role');
+    if(dr) dr.textContent=U.role==='admin'?'⚙️ Администратор':U.role==='master'?'🔨 Мастер':'🏠 Клиент';
+  }
+}
+function closeDrawer(){
+  document.getElementById('drawer-panel').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function goD(tab){
+  closeDrawer();
+  setTimeout(function(){go(tab);},80);
+}
 </script>
+
+<!-- Mob header -->
+<div class="mob-header" id="mob-header">
+  <div class="mob-header-title" id="mob-header-title">Админ-панель</div>
+  <button class="mob-menu-btn" onclick="openDrawer()">☰</button>
+</div>
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer-panel" id="drawer-panel">
+  <div class="drawer-header">
+    <div>
+      <div style="font-weight:900;font-size:15px" id="drawer-name">Аккаунт</div>
+      <div style="font-size:11px;color:var(--ink3)" id="drawer-role"></div>
+    </div>
+    <button onclick="closeDrawer()" style="background:none;border:none;color:var(--ink2);font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <div class="drawer-nav">
+    <button class="dr-item" onclick="goD('masters')"><span class="dr-ico">👷</span>Мастера</button>
+    <button class="dr-item" onclick="goD('clients')"><span class="dr-ico">🏠</span>Клиенты</button>
+    <button class="dr-item" onclick="goD('orders')"><span class="dr-ico">📋</span>Заявки</button>
+    <button class="dr-item" onclick="goD('top')"><span class="dr-ico">🏆</span>ТОП</button>
+    <button class="dr-item" onclick="goD('verif')"><span class="dr-ico">✅</span>Верификация</button>
+    <button class="dr-item" onclick="goD('complaints')"><span class="dr-ico">🚨</span>Жалобы</button>
+    <button class="dr-item" onclick="goD('analytics')"><span class="dr-ico">📈</span>Аналитика</button>
+    <button class="dr-item" onclick="goD('broadcast')"><span class="dr-ico">📨</span>Рассылка</button>
+    <div class="dr-sep"></div>
+    <button class="dr-item" onclick="goD('stats')"><span class="dr-ico">📊</span>Статистика</button>
+    <div class="dr-sep"></div>
+    <button class="dr-item" onclick="clearUser();location.href='index.html'"><span class="dr-ico">🚪</span>Выйти</button>
+  </div>
+</div>
 </body>
 </html>
