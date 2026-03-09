@@ -837,4 +837,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('cats-grid').innerHTML=SK.map(s=>`<a class="cat-card" href="catalog.html?cat=${s.id}"><div class="cat-ico">${s.i}</div><div class="cat-nm">${getLang()==='ru'?s.ru:s.en}</div><div class="cat-n">${s.n}</div></a>`).join('');
   document.getElementById('flags-grid').innerHTML=CO.map(c=>`<a class="fl-chip" href="catalog.html?country=${encodeURIComponent(c.ru)}">${c.f} ${getLang()==='ru'?c.ru:c.en}</a>`).join('');
 });</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js"></script>
+<script>
+// Заменить флаг-эмодзи везде на картинки Twemoji
+document.addEventListener('DOMContentLoaded',()=>{
+  twemoji.parse(document.body,{folder:'svg',ext:'.svg',base:'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/'});
+});
+</script>
 </body></html>

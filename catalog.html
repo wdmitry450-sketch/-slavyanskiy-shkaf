@@ -804,4 +804,11 @@ function render(){
 }
 ['q','f-cat','f-country','f-city','f-online','f-sort'].forEach(id=>{const el=document.getElementById(id);el?.addEventListener('input',render);el?.addEventListener('change',render);});
 renderNav();render();</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js"></script>
+<script>
+// Заменить флаг-эмодзи везде на картинки Twemoji
+document.addEventListener('DOMContentLoaded',()=>{
+  twemoji.parse(document.body,{folder:'svg',ext:'.svg',base:'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/'});
+});
+</script>
 </body></html>

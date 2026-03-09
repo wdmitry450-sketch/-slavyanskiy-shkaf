@@ -317,6 +317,7 @@ button{cursor:pointer;font-family:inherit}
           <div><div class="pf-label" data-t="lbl.country">Страна</div><select id="n-country"><option value="">—</option></select></div>
           <div><div class="pf-label" data-t="lbl.city">Город</div><input id="n-city" placeholder="Paris"></div>
         </div>
+        <div style="margin-bottom:12px"><div class="pf-label">📮 Postal Code <span style="font-size:10px;color:var(--ink3);font-weight:600">(optional)</span></div><input id="n-zip" placeholder="75001, SW1A, 10115..."></div>
         <div style="margin-bottom:18px"><div class="pf-label" data-t="lbl.desc">Описание</div><textarea id="n-desc" rows="3" placeholder="Подробнее..."></textarea></div>
         <button class="btn btn-p" onclick="createOrder()" data-t="btn.create">Создать заявку</button>
       </div>
@@ -862,10 +863,10 @@ if(U){
   }
   function createOrder(){
     const v=id=>document.getElementById(id).value;
-    const title=v('n-title').trim(),cat=v('n-cat'),budget=v('n-budget'),country=v('n-country'),city=v('n-city').trim(),desc=v('n-desc').trim();
+    const title=v('n-title').trim(),cat=v('n-cat'),budget=v('n-budget'),country=v('n-country'),city=v('n-city').trim(),zip=(document.getElementById('n-zip').value||'').trim(),desc=v('n-desc').trim();
     if(!title||!cat||!budget||!country||!city||!desc){toast(getLang()==='ru'?'Заполните все поля':'Fill all fields','err');return;}
     const os=getOrders();
-    saveOrders([...os,{id:Date.now(),clientId:U.id,clientName:U.name,title,cat,budget:+budget,country,city,desc,status:'open',responses:[],createdAt:new Date().toISOString()}]);
+    saveOrders([...os,{id:Date.now(),clientId:U.id,clientName:U.name,title,cat,budget:+budget,country,city,zip:zip||undefined,desc,status:'open',responses:[],createdAt:new Date().toISOString()}]);
     toast('✅ '+(getLang()==='ru'?'Заявка создана':'Order created'));go('orders');
   }
   function renderFind(){
