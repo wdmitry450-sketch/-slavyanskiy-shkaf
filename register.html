@@ -320,7 +320,25 @@ button{cursor:pointer;font-family:inherit}
         <div class="pf-label" data-t="auth.specialties">Специальности</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:7px" id="cats-sel"></div>
       </div>
-      <div style="margin-bottom:16px"><div class="pf-label" data-t="lbl.password">Пароль</div><input type="password" id="r-pw" data-t="auth.min_pass" placeholder="Минимум 6 символов"></div>
+      <div style="margin-bottom:16px">
+        <div class="pf-label" data-t="lbl.password">Пароль</div>
+        <div style="position:relative">
+          <input type="password" id="r-pw"
+            autocomplete="new-password"
+            data-t="auth.min_pass"
+            placeholder="Минимум 6 символов"
+            style="padding-right:44px"
+            onfocus="this.removeAttribute('readonly')"
+            readonly>
+          <button type="button" id="pw-toggle"
+            onclick="togglePwVisibility()"
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                   background:none;border:none;cursor:pointer;font-size:18px;
+                   color:var(--ink3);padding:4px;line-height:1">
+            👁
+          </button>
+        </div>
+      </div>
       <button class="btn btn-p btn-fw" onclick="doRegister()" data-t="auth.register_btn">Зарегистрироваться →</button>
     </div>
   </div>
@@ -815,6 +833,20 @@ SK.forEach(s=>{
   b.onclick=()=>{const i=selCats.indexOf(s.id);if(i>=0){selCats.splice(i,1);b.style.background='';b.style.borderColor='var(--bdr)';b.style.color='';}else{selCats.push(s.id);b.style.background='rgba(0,214,143,.12)';b.style.borderColor='var(--g)';b.style.color='var(--g)';}};
   document.getElementById('cats-sel').appendChild(b);
 });
+function togglePwVisibility(){
+  const inp = document.getElementById('r-pw');
+  const btn = document.getElementById('pw-toggle');
+  if(!inp) return;
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    if(btn) btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    if(btn) btn.textContent = '👁';
+  }
+  inp.focus();
+}
+
 function setRole(r){
   regRole=r;
   const M=document.getElementById('rm'),C=document.getElementById('rc');
