@@ -173,4 +173,10 @@ if (typeof window !== 'undefined' && !window._toastDefined) {
   window._toastDefined = true;
 }
 
-console.log('[API] Slavic Shkaf v2.1 loaded. Base:', API_BASE || '(same origin)');
+// ── AUTH HELPERS — используются во всех HTML страницах ──
+// Используем var чтобы не конфликтовать с возможными объявлениями
+var getUser   = function(){ try{ return JSON.parse(localStorage.getItem('ss_auth')); }catch(e){ return null; } };
+var setUser   = function(u){ localStorage.setItem('ss_auth', JSON.stringify(u)); };
+var clearUser = function(){ localStorage.removeItem('ss_auth'); localStorage.removeItem('ss_token'); };
+
+console.log('[API] Slavic Shkaf v2.2 loaded. Base:', API_BASE || '(same origin)');
