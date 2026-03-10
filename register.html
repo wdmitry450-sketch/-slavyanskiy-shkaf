@@ -996,7 +996,7 @@ function saveFormData(){
     opt.style.cssText = 'padding:10px 14px;font-size:14px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s';
     opt.dataset.val = c.ru;
     opt.dataset.en  = c.en || '';
-    opt.innerHTML = `<span style="font-size:22px;line-height:1">${c.f}</span><span>${getLang()==='ru'?c.ru:c.en}</span>`;
+    opt.innerHTML = `<span style="font-size:20px;line-height:1">${c.f}</span><span>${getLang()==='ru'?c.ru:c.en}</span>`;
     opt.onmouseenter = function(){this.style.background='rgba(0,214,143,.1)'};
     opt.onmouseleave = function(){if(this.dataset.val!==document.getElementById('r-co').value)this.style.background=''};
     opt.onclick = function(e){
