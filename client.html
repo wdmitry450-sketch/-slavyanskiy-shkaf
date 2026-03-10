@@ -86,7 +86,7 @@ button{cursor:pointer;font-family:inherit}
 /* ── DASHBOARD LAYOUT ── */
 .dash-wrap{display:flex;min-height:calc(100vh - 60px)}
 .dash-side{width:210px;background:var(--bg2);border-right:1px solid var(--bdr);
-  padding:14px 0;flex-shrink:0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+  padding:14px 0;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
 .ds-user{padding:0 12px 12px;border-bottom:1px solid var(--bdr);margin-bottom:8px;text-align:center}
 .ds-logo{width:64px;height:64px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center}
 .ds-logo img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 2px 12px rgba(0,0,0,.5))}
@@ -279,8 +279,12 @@ button{cursor:pointer;font-family:inherit}
   .mob-tab span{display:none} /* иконки без подписей на очень маленьких */
   .mob-tab{min-width:44px;padding:6px 4px}
   .mc-skills{display:none} /* экономим место */
-  .dash-title{font-size:17px}
+  .dash-title{font-size:16px;margin-bottom:14px;word-wrap:break-word;overflow-wrap:break-word}
   .form-block{padding:14px}
+  .form-block-title{font-size:12px;word-wrap:break-word}
+  .mc-name{word-wrap:break-word;overflow-wrap:break-word}
+  .mc-loc{word-wrap:break-word;overflow-wrap:break-word}
+  .sec-h{font-size:18px;word-wrap:break-word}
 }
 
 /* ── Landscape TG ── */
@@ -328,9 +332,12 @@ button{cursor:pointer;font-family:inherit}
 /* ── CLIENT CHAT ── */
 #client-chat-content{background:var(--bg);border-radius:12px;padding:10px;min-height:120px}
 </style>
-<script>
-  window.API_BASE = 'https://slavic-shkaf-api.wdmitry450.workers.dev';
-</script>
+<script src="config.js"></script>
+<script src="logger.js"></script>
+<script src="storage.js"></script>
+<script src="validation.js"></script>
+<script src="utils.js"></script>
+<script src="components.js"></script>
 <script src="api.js"></script>
 </head>
 <body>
