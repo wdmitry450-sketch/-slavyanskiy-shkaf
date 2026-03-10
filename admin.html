@@ -282,21 +282,19 @@ button{cursor:pointer;font-family:inherit}
 }
 
 @media(max-width:420px) {
-  /* TG WebApp width ~390px */
-  .nav{padding:0 10px;gap:8px}
-  .nav-logo img{height:36px}
-  .lang-btn{padding:4px 8px;font-size:10px}
-  .dash-main{padding:0 0;padding-bottom:calc(var(--tab-h) + 16px + var(--tg-safe-bottom))}
-  .mob-tab span{display:none} /* иконки без подписей на очень маленьких */
-  .mob-tab{min-width:44px;padding:6px 4px}
-  .mc-skills{display:none} /* экономим место */
-  .dash-title{font-size:17px}
-  .form-block{padding:14px}
-  
-  /* TMA input optimization */
-  input,select,textarea{padding:9px 11px;font-size:16px}
-  .btn{padding:10px 16px;font-size:13px}
-  .pf-label{font-size:12px;margin-bottom:6px}
+  /* TG WebApp width ~390px COMPACT */
+  *{margin:0;padding:0}
+  .nav{padding:0 6px;gap:4px;height:48px}
+  .nav-logo img{height:28px}
+  .lang-btn{padding:2px 4px;font-size:8px}
+  .dash-main{padding:2px;padding-bottom:calc(var(--tab-h) + 4px + var(--tg-safe-bottom))}
+  .dash-title{font-size:12px;margin-bottom:6px}
+  .form-block{padding:6px}
+  .pf-label{font-size:9px;margin-bottom:2px}
+  input,select,textarea{padding:6px 8px;font-size:12px;min-height:36px}
+  .btn{padding:6px 10px;font-size:10px;min-height:34px}
+  .btn-group{gap:2px;flex-wrap:wrap}
+  .mcard{padding:6px}
 }
 
 /* ── Landscape TG ── */
@@ -324,6 +322,10 @@ button{cursor:pointer;font-family:inherit}
 }
 @media(max-width:420px){
   .drawer-panel{width:75vw;max-width:270px}
+  /* Verification buttons MUST be clickable */
+  .oc{padding:8px;margin-bottom:6px}
+  .oc .btn-sm{padding:8px 12px!important;font-size:12px!important;min-width:44px!important;min-height:40px!important}
+  .oc button{flex:1 1 calc(25% - 2px)!important}
 }
 .drawer-header{display:flex;align-items:center;justify-content:space-between;
   padding:16px 16px 12px;border-bottom:1px solid var(--bdr)}

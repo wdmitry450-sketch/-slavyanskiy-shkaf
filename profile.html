@@ -283,21 +283,29 @@ button{cursor:pointer;font-family:inherit}
 }
 
 @media(max-width:420px) {
-  /* TG WebApp width ~390px */
-  .nav{padding:0 10px;gap:8px}
-  .nav-logo img{height:36px}
-  .lang-btn{padding:4px 8px;font-size:10px}
-  .dash-main{padding:0 0;padding-bottom:calc(var(--tab-h) + 16px + var(--tg-safe-bottom))}
-  .mob-tab span{display:none} /* иконки без подписей на очень маленьких */
-  .mob-tab{min-width:44px;padding:6px 4px}
-  .mc-skills{display:none} /* экономим место */
-  .dash-title{font-size:16px;margin-bottom:14px;word-wrap:break-word;overflow-wrap:break-word}
-  .form-block{padding:14px}
-  .form-block-title{font-size:12px;word-wrap:break-word}
-  input,select,textarea{padding:9px 11px;font-size:16px}
-  .profile-layout h2{word-wrap:break-word;overflow-wrap:break-word}
-  .btn{padding:10px 16px;font-size:13px}
-  .pf-label{font-size:12px;margin-bottom:6px}
+  /* TG WebApp width ~390px COMPACT */
+  *{margin:0;padding:0}
+  .nav{padding:0 6px;gap:4px;height:48px}
+  .nav-logo img{height:28px}
+  .nav-links{gap:6px;font-size:9px}
+  .lang-btn{padding:2px 4px;font-size:8px}
+  .dash-main{padding:2px;padding-bottom:calc(var(--tab-h) + 4px + var(--tg-safe-bottom))}
+  .dash-side{width:160px;padding:4px 0}
+  .ds-user{padding:4px 6px;margin-bottom:4px}
+  .ds-logo{width:48px;height:48px}
+  .ds-name{font-size:10px}
+  .ds-item{font-size:10px;padding:4px 6px;margin:1px}
+  .mob-tab{min-width:36px;padding:2px;font-size:10px}
+  .mob-tab .mt-ico{font-size:12px}
+  .dash-title{font-size:12px;margin-bottom:6px;font-weight:800}
+  .form-block{padding:6px}
+  .form-block-title{font-size:10px}
+  .pf-label{font-size:9px;margin-bottom:2px}
+  input,select,textarea{padding:6px 8px;font-size:12px;min-height:36px}
+  .btn{padding:6px 10px;font-size:10px;min-height:34px}
+  .mcard{padding:6px}
+  .mc-ava{width:32px;height:32px;font-size:14px}
+  .oc{padding:6px}
 }
 
 /* ── Landscape TG ── */
