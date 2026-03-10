@@ -320,12 +320,18 @@ button{cursor:pointer;font-family:inherit}
     padding:4px 7px;
     font-size:10px;
   }
+  .nav-links{display:none}
 }
-@media(max-width:400px){
-  /* На очень маленьких — скрыть lang кнопку чтобы влезли Войти/Регистрация */
-  .nav .lang-btn{ display:none }
-  .nav-btn-ghost{ padding:5px 9px; font-size:11px; }
-  .nav-btn-cta{   padding:5px 11px; font-size:11px; }
+@media(max-width:420px){
+  /* На 420px - язык ВИДИМ, скрыть текстовые кнопки */
+  .nav-r{gap:4px}
+  .nav-btn-ghost{display:none}
+  .nav-btn-cta{display:none}
+  .lang-btn{
+    padding:3px 6px;
+    font-size:9px;
+    border:1px solid var(--bdr);
+  }
 }
 </style>
 <script src="api.js"></script>
@@ -902,15 +908,59 @@ const renderNav=(isAuth=false)=>{
   const u=getUser();const nr=document.getElementById('nav-r');
   if(!nr)return;
   const lb=langBtn();
+  const isMobile = window.innerWidth <= 420;
   if(u){
     const dash=u.role==='master'?'dashboard.html':u.role==='admin'?'admin.html':'client.html';
-    nr.innerHTML=`${lb}<a href="${dash}" class="nav-btn-ghost">👤 ${u.name||'Account'}</a>
-      <button class="nav-btn-cta" onclick="clearUser();location.href='index.html'">${t('nav.logout')}</button>`;
+    if(isMobile){
+      nr.innerHTML=`${lb}<button class="nav-btn-cta" style="min-width:40px;padding:4px 8px" onclick="showMobileMenu(true)">☰</button>`;
+      if(!document.getElementById('mobile-menu')){
+        const menu=document.createElement('div');
+        menu.id='mobile-menu';
+        menu.style.cssText='position:fixed;top:60px;right:0;bottom:0;left:0;background:rgba(0,0,0,.8);z-index:299;display:none';
+        menu.innerHTML=`<div style="position:absolute;top:60px;right:0;bottom:0;width:280px;background:var(--bg2);border-left:1px solid var(--bdr);display:flex;flex-direction:column;padding:16px;gap:12px">
+          <a href="${dash}" class="btn btn-p" style="width:100%">👤 Account</a>
+          <button class="btn btn-o" style="width:100%" onclick="clearUser();location.href='index.html'">${t('nav.logout')}</button>
+          <div style="flex:1"></div>
+          <div style="font-size:10px;color:var(--ink3);text-align:center">Version v11.3</div>
+        </div>`;
+        document.body.appendChild(menu);
+      }
+    }else{
+      nr.innerHTML=`${lb}<a href="${dash}" class="nav-btn-ghost">👤 ${u.name||'Account'}</a>
+        <button class="nav-btn-cta" onclick="clearUser();location.href='index.html'">${t('nav.logout')}</button>`;
+    }
   }else{
-    nr.innerHTML=`${lb}<a href="login.html" class="nav-btn-ghost">${t('nav.login')}</a>
-      <a href="register.html" class="nav-btn-cta">${t('nav.register')}</a>`;
+    if(isMobile){
+      nr.innerHTML=`${lb}<button class="nav-btn-cta" style="min-width:40px;padding:4px 8px" onclick="showMobileMenu(true)">☰</button>`;
+      if(!document.getElementById('mobile-menu')){
+        const menu=document.createElement('div');
+        menu.id='mobile-menu';
+        menu.style.cssText='position:fixed;top:60px;right:0;bottom:0;left:0;background:rgba(0,0,0,.8);z-index:299;display:none';
+        menu.innerHTML=`<div style="position:absolute;top:60px;right:0;bottom:0;width:280px;background:var(--bg2);border-left:1px solid var(--bdr);display:flex;flex-direction:column;padding:16px;gap:12px">
+          <a href="login.html" class="btn btn-p" style="width:100%">${t('nav.login')}</a>
+          <a href="register.html" class="btn btn-o" style="width:100%">${t('nav.register')}</a>
+          <div style="flex:1"></div>
+          <div style="font-size:10px;color:var(--ink3);text-align:center">Version v11.3</div>
+        </div>`;
+        document.body.appendChild(menu);
+      }
+    }else{
+      nr.innerHTML=`${lb}<a href="login.html" class="nav-btn-ghost">${t('nav.login')}</a>
+        <a href="register.html" class="nav-btn-cta">${t('nav.register')}</a>`;
+    }
   }
 };
+function showMobileMenu(show){
+  const menu=document.getElementById('mobile-menu');
+  if(!menu)return;
+  if(show){
+    menu.style.display='block';
+    menu.onclick=()=>showMobileMenu(false);
+    menu.querySelector('div').onclick=(e)=>e.stopPropagation();
+  }else{
+    menu.style.display='none';
+  }
+}
 
 // Load data from API
 async function loadData() {
