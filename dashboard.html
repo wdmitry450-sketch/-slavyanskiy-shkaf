@@ -10,7 +10,14 @@
   if(window.Telegram&&Telegram.WebApp){
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
+    Telegram.WebApp.setBackgroundColor('#06090f');
   }
+  // TMA virtual keyboard support
+  window.addEventListener('resize', ()=>{
+    if(document.activeElement && document.activeElement.tagName === 'INPUT'){
+      setTimeout(()=>document.activeElement.scrollIntoView({behavior:'smooth',block:'center'}),100);
+    }
+  });
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -25,8 +32,10 @@
   --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
   --tab-h: 64px;
 }
-body{background:var(--bg);color:var(--ink1);font-family:'Manrope',sans-serif;font-size:14px;min-height:100vh}
+body{background:var(--bg);color:var(--ink1);font-family:'Manrope',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;-webkit-touch-callout:none;-webkit-user-select:none}
+button,.btn,input[type="button"],input[type="submit"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 a{color:inherit;text-decoration:none}
+input,select,textarea{font-size:16px!important}
 input,select,textarea{
   background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:10px;
   color:#fff;padding:11px 14px;font-family:inherit;font-size:14px;width:100%;outline:none;transition:.2s
@@ -235,6 +244,8 @@ button{cursor:pointer;font-family:inherit}
 }
 
 @media(max-width:640px) {
+  .btn{min-height:44px;padding:11px 16px}
+  input,select,textarea{min-height:44px}
   /* Drawer navigation — sidebar hidden, drawer used instead */
   .dash-side{display:none}
   .mob-tabbar{display:none}
@@ -282,6 +293,13 @@ button{cursor:pointer;font-family:inherit}
   .mc-skills{display:none} /* экономим место */
   .dash-title{font-size:17px}
   .form-block{padding:14px}
+  
+  /* TMA input optimization */
+  input,select,textarea{padding:9px 11px;font-size:16px}
+  .btn{padding:10px 16px;font-size:13px}
+  .pf-label{font-size:12px;margin-bottom:6px}
+  .pf-group{gap:8px}
+  .pf-row{gap:8px}
 }
 
 /* ── Landscape TG ── */

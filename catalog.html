@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06090f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Catalog — Slavic Shkaf</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -10,7 +13,14 @@
   if(window.Telegram&&Telegram.WebApp){
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
+    Telegram.WebApp.setBackgroundColor('#06090f');
   }
+  // TMA virtual keyboard support
+  window.addEventListener('resize', ()=>{
+    if(document.activeElement && document.activeElement.tagName === 'INPUT'){
+      setTimeout(()=>document.activeElement.scrollIntoView({behavior:'smooth',block:'center'}),100);
+    }
+  });
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -24,8 +34,10 @@
   --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
   --tab-h: 64px;
 }
-body{background:var(--bg);color:var(--ink1);font-family:'Manrope',sans-serif;font-size:14px;min-height:100vh}
+body{background:var(--bg);color:var(--ink1);font-family:'Manrope',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;-webkit-touch-callout:none;-webkit-user-select:none}
+button,.btn,input[type="button"],input[type="submit"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 a{color:inherit;text-decoration:none}
+input,select,textarea{font-size:16px!important}
 input,select,textarea{
   background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:10px;
   color:#fff;padding:11px 14px;font-family:inherit;font-size:14px;width:100%;outline:none;transition:.2s
@@ -234,6 +246,8 @@ button{cursor:pointer;font-family:inherit}
 }
 
 @media(max-width:640px) {
+  .btn{min-height:44px;padding:11px 16px}
+  input,select,textarea{min-height:44px}
   /* Show tab bar, hide sidebar */
   .dash-side{display:none}
   .mob-tabbar{display:block}
@@ -284,6 +298,11 @@ button{cursor:pointer;font-family:inherit}
   .form-block-title{font-size:12px;word-wrap:break-word}
   .mc-name{word-wrap:break-word;overflow-wrap:break-word}
   .mc-loc{word-wrap:break-word;overflow-wrap:break-word}
+  
+  /* TMA input optimization */
+  input,select,textarea{padding:9px 11px;font-size:16px}
+  .btn{padding:10px 16px;font-size:13px}
+  .pf-label{font-size:12px;margin-bottom:6px}
 }
 
 /* ── Landscape TG ── */

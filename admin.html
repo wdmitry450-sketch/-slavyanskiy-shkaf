@@ -10,7 +10,14 @@
   if(window.Telegram&&Telegram.WebApp){
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
+    Telegram.WebApp.setBackgroundColor('#06090f');
   }
+  // TMA virtual keyboard support
+  window.addEventListener('resize', ()=>{
+    if(document.activeElement && document.activeElement.tagName === 'INPUT'){
+      setTimeout(()=>document.activeElement.scrollIntoView({behavior:'smooth',block:'center'}),100);
+    }
+  });
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -24,8 +31,10 @@
   --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
   --tab-h: 64px;
 }
-body{background:var(--bg);color:var(--ink1);font-family:'Manrope',sans-serif;font-size:14px;min-height:100vh}
+body{background:var(--bg);color:var(--ink1);font-family:'Manrope',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;-webkit-touch-callout:none;-webkit-user-select:none}
+button,.btn,input[type="button"],input[type="submit"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 a{color:inherit;text-decoration:none}
+input,select,textarea{font-size:16px!important}
 input,select,textarea{
   background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:10px;
   color:#fff;padding:11px 14px;font-family:inherit;font-size:14px;width:100%;outline:none;transition:.2s
@@ -234,6 +243,8 @@ button{cursor:pointer;font-family:inherit}
 }
 
 @media(max-width:640px) {
+  .btn{min-height:44px;padding:11px 16px}
+  input,select,textarea{min-height:44px}
   /* Show tab bar, hide sidebar */
   .dash-side{display:none}
   .mob-tabbar{display:block}
@@ -281,6 +292,11 @@ button{cursor:pointer;font-family:inherit}
   .mc-skills{display:none} /* экономим место */
   .dash-title{font-size:17px}
   .form-block{padding:14px}
+  
+  /* TMA input optimization */
+  input,select,textarea{padding:9px 11px;font-size:16px}
+  .btn{padding:10px 16px;font-size:13px}
+  .pf-label{font-size:12px;margin-bottom:6px}
 }
 
 /* ── Landscape TG ── */
@@ -303,8 +319,11 @@ button{cursor:pointer;font-family:inherit}
   border-left:1px solid var(--bdr);z-index:300;transform:translateX(100%);
   transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
 .drawer-panel.open{transform:translateX(0)}
-@media(max-width:420px){
+@media(max-width:640px){
   .drawer-panel{width:70vw;max-width:280px}
+}
+@media(max-width:420px){
+  .drawer-panel{width:75vw;max-width:270px}
 }
 .drawer-header{display:flex;align-items:center;justify-content:space-between;
   padding:16px 16px 12px;border-bottom:1px solid var(--bdr)}
@@ -339,9 +358,9 @@ button{cursor:pointer;font-family:inherit}
   .adm-card-row{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;
     color:var(--ink2);margin-bottom:8px}
   .adm-card-row span{display:flex;align-items:center;gap:4px}
-  .adm-card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;
+  .adm-card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;
     padding-top:10px;border-top:1px solid var(--bdr)}
-  .adm-card-actions .btn{flex:1;min-width:80px;font-size:12px}
+  .adm-card-actions .btn{flex:1 1 calc(50% - 3px);min-width:70px;font-size:11px;padding:8px 12px}
 }
 @media(min-width:641px){
   .adm-cards{display:none!important}
