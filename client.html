@@ -473,7 +473,12 @@ button{cursor:pointer;font-family:inherit}
   </div>
 </div>
 
-<script>// ═══ i18n TRANSLATIONS ═══
+<script>
+// ── Авторизация (автономно от api.js) ──
+if(typeof getUser==='undefined')  var getUser  = function(){ try{return JSON.parse(localStorage.getItem('ss_auth'));}catch(e){return null;} };
+if(typeof setUser==='undefined')  var setUser  = function(u){ localStorage.setItem('ss_auth',JSON.stringify(u)); };
+if(typeof clearUser==='undefined')var clearUser = function(){ localStorage.removeItem('ss_auth');localStorage.removeItem('ss_token'); };
+// ═══ i18n TRANSLATIONS ═══
 const TRANSLATIONS = {
   ru: {
     // Nav

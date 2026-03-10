@@ -338,7 +338,7 @@ button{cursor:pointer;font-family:inherit}
         <div style="font-weight:800;font-size:13px;margin-bottom:2px" data-t="index.cta_master">Я мастер →</div>
         <div style="font-size:11px;color:var(--ink3)" data-t="index.cta_master_sub">Получайте заказы</div>
       </a>
-      <a href="catalog.html" style="display:flex;flex-direction:column;align-items:flex-start;padding:14px 18px;border-radius:14px;border:1.5px solid var(--bdr);background:rgba(255,255,255,.03);min-width:160px;transition:.2s" onmouseover="this.style.borderColor='var(--acc)'" onmouseout="this.style.borderColor='var(--bdr)'">
+      <a href="register.html?role=client" style="display:flex;flex-direction:column;align-items:flex-start;padding:14px 18px;border-radius:14px;border:1.5px solid var(--bdr);background:rgba(255,255,255,.03);min-width:160px;transition:.2s" onmouseover="this.style.borderColor='var(--acc)'" onmouseout="this.style.borderColor='var(--bdr)'">
         <div style="font-size:18px;margin-bottom:5px">🏠</div>
         <div style="font-weight:800;font-size:13px;margin-bottom:2px" data-t="index.cta_client">Ищу мастера →</div>
         <div style="font-size:11px;color:var(--ink3)" data-t="index.cta_client_sub">Проверенные профили</div>
@@ -436,7 +436,12 @@ button{cursor:pointer;font-family:inherit}
     </div>
   </div>
 </footer>
-<script>console.log('[SlavicShkaf] index.html v11.3 loaded');
+<script>
+// ── Авторизация (автономно от api.js) ──
+if(typeof getUser==='undefined')  var getUser  = function(){ try{return JSON.parse(localStorage.getItem('ss_auth'));}catch(e){return null;} };
+if(typeof setUser==='undefined')  var setUser  = function(u){ localStorage.setItem('ss_auth',JSON.stringify(u)); };
+if(typeof clearUser==='undefined')var clearUser = function(){ localStorage.removeItem('ss_auth');localStorage.removeItem('ss_token'); };
+console.log('[SlavicShkaf] index.html v11.3 loaded');
 // ═══ i18n TRANSLATIONS ═══
 const TRANSLATIONS = {
   ru: {

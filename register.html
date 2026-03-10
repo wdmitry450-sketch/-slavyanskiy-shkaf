@@ -422,7 +422,12 @@ select{
   </div>
   <div id="wl-step" style="margin-top:12px;font-size:13px;color:var(--ink3);font-weight:600"></div>
 </div>
-<script>console.log('[SlavicShkaf] register.html v11.3 loaded');
+<script>
+// ── Авторизация (автономно от api.js) ──
+if(typeof getUser==='undefined')  var getUser  = function(){ try{return JSON.parse(localStorage.getItem('ss_auth'));}catch(e){return null;} };
+if(typeof setUser==='undefined')  var setUser  = function(u){ localStorage.setItem('ss_auth',JSON.stringify(u)); };
+if(typeof clearUser==='undefined')var clearUser = function(){ localStorage.removeItem('ss_auth');localStorage.removeItem('ss_token'); };
+console.log('[SlavicShkaf] register.html v11.3 loaded');
 // ═══ i18n TRANSLATIONS ═══
 const TRANSLATIONS = {
   ru: {
@@ -984,14 +989,14 @@ function setRole(r){
 function toggleCoDropdown(){
   const box  = document.getElementById('co-box');
   const list = document.getElementById('co-list');
-  const isOpen = list.classList.contains('open');
+  const isOpen = list.style.display === 'block';
   // Закрываем все открытые
-  document.querySelectorAll('.cust-sel-list.open').forEach(l=>l.classList.remove('open'));
-  document.querySelectorAll('.cust-sel-box.open').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.cust-sel-list').forEach(l=>{l.style.display='none';l.classList.remove('open');});
+  document.querySelectorAll('.cust-sel-box').forEach(b=>b.classList.remove('open'));
   if(!isOpen){
+    list.style.display='block';
     list.classList.add('open');
     box.classList.add('open');
-    // Фокус на поиске
     setTimeout(()=>{const s=document.getElementById('co-search');if(s)s.focus();},50);
   }
 }
@@ -1047,6 +1052,17 @@ function showLoader(u){
   const steps=getLang()==='ru'?['✅ Профиль создан','🔔 Уведомления активированы','🚀 Готово!']:['✅ Profile created','🔔 Notifications ready','🚀 Done!'];
   let i=0;const iv=setInterval(()=>{if(i<steps.length)document.getElementById('wl-step').textContent=steps[i++];else{clearInterval(iv);location.href=u.role==='master'?'dashboard.html':'client.html';}},700);
 }
+
+// Закрытие dropdown при клике вне
+document.addEventListener('click', function(e){
+  const wrap = document.getElementById('co-wrap');
+  if(wrap && !wrap.contains(e.target)){
+    const list = document.getElementById('co-list');
+    const box  = document.getElementById('co-box');
+    if(list) list.style.display='none';
+    if(box)  box.classList.remove('open');
+  }
+});
 renderNav();
 // Читаем role из URL (?role=client или ?role=master)
 (function(){const p=new URLSearchParams(location.search);const r=p.get('role');if(r==='client'||r==='master')setRole(r);})();</script>
