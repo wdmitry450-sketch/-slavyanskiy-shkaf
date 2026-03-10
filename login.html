@@ -330,6 +330,8 @@ const TRANSLATIONS = {
     'nav.login': 'Войти',
     'nav.register': 'Регистрация',
     'nav.logout': 'Выйти',
+    'nav.lang_ru': 'РУ',
+    'nav.lang_en': 'EN',
     // Dashboard tabs - master
     'tab.orders': 'Заявки',
     'tab.responses': 'Отклики',
@@ -473,6 +475,8 @@ const TRANSLATIONS = {
     'nav.login': 'Login',
     'nav.register': 'Sign Up',
     'nav.logout': 'Logout',
+    'nav.lang_ru': 'RU',
+    'nav.lang_en': 'EN',
     'tab.orders': 'Jobs',
     'tab.responses': 'My Bids',
     'tab.chat': 'Chat',
@@ -721,7 +725,8 @@ function t(key){
 }
 function langBtn(){
   const l=getLang();
-  return `<button class="lang-btn" onclick="setLang('${l==='ru'?'en':'ru'}')">${l==='ru'?'EN':'RU'}</button>`;
+  const targetLang = l==='ru'?'en':'ru';
+  return `<button class="lang-btn" onclick="setLang('${targetLang}')">${l==='ru'?t('nav.lang_en'):t('nav.lang_ru')}</button>`;
 }
 
 // ── AUTH ──

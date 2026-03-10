@@ -183,10 +183,10 @@ button{cursor:pointer;font-family:inherit}
 .cat-n{font-size:10px;color:var(--ink3);font-weight:600}
 
 /* ── FLAGS ── */
-.flags-wrap{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.fl-chip{background:var(--bg2);border:1px solid var(--bdr);border-radius:99px;
-  padding:5px 12px;font-size:12px;font-weight:600;transition:.2s;white-space:nowrap}
-.fl-chip:hover{border-color:var(--g);color:var(--g)}
+.flags-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.fl-chip{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:99px;
+  padding:8px 14px;font-size:13px;font-weight:600;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.fl-chip:hover{border-color:var(--g);color:var(--g);background:rgba(0,214,143,.05)}
 
 /* ══════════════════════════════════════
    MOBILE TAB BAR — главный элемент TG адаптации
@@ -462,6 +462,8 @@ const TRANSLATIONS = {
     'nav.login': 'Войти',
     'nav.register': 'Регистрация',
     'nav.logout': 'Выйти',
+    'nav.lang_ru': 'РУ',
+    'nav.lang_en': 'EN',
     // Dashboard tabs - master
     'tab.orders': 'Заявки',
     'tab.responses': 'Отклики',
@@ -611,6 +613,8 @@ const TRANSLATIONS = {
     'nav.login': 'Login',
     'nav.register': 'Sign Up',
     'nav.logout': 'Logout',
+    'nav.lang_ru': 'RU',
+    'nav.lang_en': 'EN',
     'tab.orders': 'Jobs',
     'tab.responses': 'My Bids',
     'tab.chat': 'Chat',
@@ -813,7 +817,9 @@ function t(key){
 }
 function langBtn(){
   const l=getLang();
-  return `<button class="lang-btn" onclick="setLang('${l==='ru'?'en':'ru'}')">${l==='ru'?'EN':'RU'}</button>`;
+  const targetLang = l==='ru'?'en':'ru';
+  const btnText = l==='ru'?t('nav.lang_en'):t('nav.lang_ru');
+  return `<button class="lang-btn" onclick="setLang('${targetLang}')">${btnText}</button>`;
 }
 
 // ── AUTH ──
@@ -909,7 +915,7 @@ function renderPage() {
   const online = mastersData.filter(m => m.online).slice(0, 4);
   document.getElementById('masters-grid').innerHTML = online.map(m => `<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.avatar || '👤'}</div><div class="mc-info"><div class="mc-name">${m.name}${m.top_city ? ' <span class="badge badge-y" style="font-size:9px">🏆</span>' : ''}</div><div class="mc-loc">${flagImg(m.country_iso || 'eu')} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}🔨</div></div><div class="mc-skills">${(m.skills || []).slice(0, 3).map(s => `<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€/h</span><span class="badge badge-g">🟢</span></div></a>`).join('');
   document.getElementById('cats-grid').innerHTML = SK.map(s => `<a class="cat-card" href="catalog.html?cat=${s.id}"><div class="cat-ico">${s.i}</div><div class="cat-nm">${getLang() === 'ru' ? s.ru : s.en}</div><div class="cat-n">${s.n}</div></a>`).join('');
-  document.getElementById('flags-grid').innerHTML = CO.map(c => `<a class="fl-chip" href="catalog.html?country=${encodeURIComponent(c.ru)}">${c.f} ${getLang() === 'ru' ? c.ru : c.en}</a>`).join('');
+  document.getElementById('flags-grid').innerHTML = CO.map(c => `<a class="fl-chip" href="catalog.html?country=${encodeURIComponent(c.ru)}" style="font-size:20px;gap:8px"><span>${c.f}</span><span style="font-size:13px">${getLang() === 'ru' ? c.ru : c.en}</span></a>`).join('');
   
   // Примеры работ
   document.getElementById('examples-grid').innerHTML = PORTFOLIO_EXAMPLES.map(p => `
