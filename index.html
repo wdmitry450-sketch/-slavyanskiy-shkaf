@@ -303,7 +303,6 @@ button{cursor:pointer;font-family:inherit}
   .mob-tab span{font-size:8px}
 }
 
-/* ── INDEX MOBILE NAV ── */
 @media(max-width:640px){
   .nav-r{ gap:6px }
   .nav-btn-ghost{
@@ -322,16 +321,31 @@ button{cursor:pointer;font-family:inherit}
   }
   .nav-links{display:none}
 }
-@media(max-width:420px){
-  /* На 420px - язык ВИДИМ, скрыть текстовые кнопки */
-  .nav-r{gap:4px}
-  .nav-btn-ghost{display:none}
-  .nav-btn-cta{display:none}
+@media(max-width:480px){
+  /* На 480px - язык видим всегда, остальное в dropdown */
+  .nav{gap:2px;padding:0 4px}
+  .nav-logo{flex-shrink:0}
+  .nav-logo img{height:32px}
+  .nav-r{
+    display:flex;
+    align-items:center;
+    gap:2px;
+    margin-left:auto;
+    flex-wrap:nowrap
+  }
   .lang-btn{
     padding:3px 6px;
     font-size:9px;
-    border:1px solid var(--bdr);
+    flex-shrink:0
   }
+  .nav-btn-ghost{display:none}
+  .nav-btn-cta{display:none}
+}
+@media(max-width:420px){
+  .nav{padding:0 4px;gap:2px;height:48px}
+  .nav-logo img{height:28px}
+  .nav-r{gap:2px}
+  .lang-btn{padding:2px 5px;font-size:8px}
 }
 </style>
 <script src="api.js"></script>
@@ -908,59 +922,15 @@ const renderNav=(isAuth=false)=>{
   const u=getUser();const nr=document.getElementById('nav-r');
   if(!nr)return;
   const lb=langBtn();
-  const isMobile = window.innerWidth <= 420;
   if(u){
     const dash=u.role==='master'?'dashboard.html':u.role==='admin'?'admin.html':'client.html';
-    if(isMobile){
-      nr.innerHTML=`${lb}<button class="nav-btn-cta" style="min-width:40px;padding:4px 8px" onclick="showMobileMenu(true)">☰</button>`;
-      if(!document.getElementById('mobile-menu')){
-        const menu=document.createElement('div');
-        menu.id='mobile-menu';
-        menu.style.cssText='position:fixed;top:60px;right:0;bottom:0;left:0;background:rgba(0,0,0,.8);z-index:299;display:none';
-        menu.innerHTML=`<div style="position:absolute;top:60px;right:0;bottom:0;width:280px;background:var(--bg2);border-left:1px solid var(--bdr);display:flex;flex-direction:column;padding:16px;gap:12px">
-          <a href="${dash}" class="btn btn-p" style="width:100%">👤 Account</a>
-          <button class="btn btn-o" style="width:100%" onclick="clearUser();location.href='index.html'">${t('nav.logout')}</button>
-          <div style="flex:1"></div>
-          <div style="font-size:10px;color:var(--ink3);text-align:center">Version v11.3</div>
-        </div>`;
-        document.body.appendChild(menu);
-      }
-    }else{
-      nr.innerHTML=`${lb}<a href="${dash}" class="nav-btn-ghost">👤 ${u.name||'Account'}</a>
-        <button class="nav-btn-cta" onclick="clearUser();location.href='index.html'">${t('nav.logout')}</button>`;
-    }
+    nr.innerHTML=`${lb}<a href="${dash}" class="nav-btn-ghost">👤</a>
+      <button class="nav-btn-cta" style="padding:6px 8px" onclick="clearUser();location.href='index.html'">Выход</button>`;
   }else{
-    if(isMobile){
-      nr.innerHTML=`${lb}<button class="nav-btn-cta" style="min-width:40px;padding:4px 8px" onclick="showMobileMenu(true)">☰</button>`;
-      if(!document.getElementById('mobile-menu')){
-        const menu=document.createElement('div');
-        menu.id='mobile-menu';
-        menu.style.cssText='position:fixed;top:60px;right:0;bottom:0;left:0;background:rgba(0,0,0,.8);z-index:299;display:none';
-        menu.innerHTML=`<div style="position:absolute;top:60px;right:0;bottom:0;width:280px;background:var(--bg2);border-left:1px solid var(--bdr);display:flex;flex-direction:column;padding:16px;gap:12px">
-          <a href="login.html" class="btn btn-p" style="width:100%">${t('nav.login')}</a>
-          <a href="register.html" class="btn btn-o" style="width:100%">${t('nav.register')}</a>
-          <div style="flex:1"></div>
-          <div style="font-size:10px;color:var(--ink3);text-align:center">Version v11.3</div>
-        </div>`;
-        document.body.appendChild(menu);
-      }
-    }else{
-      nr.innerHTML=`${lb}<a href="login.html" class="nav-btn-ghost">${t('nav.login')}</a>
-        <a href="register.html" class="nav-btn-cta">${t('nav.register')}</a>`;
-    }
+    nr.innerHTML=`${lb}<a href="login.html" class="nav-btn-ghost">🔓</a>
+      <a href="register.html" class="nav-btn-cta">Акк</a>`;
   }
 };
-function showMobileMenu(show){
-  const menu=document.getElementById('mobile-menu');
-  if(!menu)return;
-  if(show){
-    menu.style.display='block';
-    menu.onclick=()=>showMobileMenu(false);
-    menu.querySelector('div').onclick=(e)=>e.stopPropagation();
-  }else{
-    menu.style.display='none';
-  }
-}
 
 // Load data from API
 async function loadData() {

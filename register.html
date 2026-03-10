@@ -293,10 +293,17 @@ button{cursor:pointer;font-family:inherit}
 @media(max-width:420px) {
   /* TG WebApp width ~390px COMPACT */
   *{margin:0;padding:0}
+  html,body{width:100%;overflow-x:hidden}
   .nav{padding:0 6px;gap:4px;height:48px}
   .nav-logo img{height:28px}
-  .lang-btn{padding:2px 4px;font-size:8px}
-  .dash-main{padding:2px;padding-bottom:calc(var(--tab-h) + 4px + var(--tg-safe-bottom))}
+  .nav-links{display:none}
+  .nav-r{gap:2px}
+  .nav-btn-ghost{display:none}
+  .nav-btn-cta{display:none}
+  .lang-btn{padding:3px 6px;font-size:9px;border:1px solid var(--bdr)}
+  .dash-wrap{display:flex;width:100%}
+  .dash-side{display:none!important}
+  .dash-main{flex:1;width:100%;padding:4px;padding-bottom:calc(var(--tab-h) + 4px + var(--tg-safe-bottom))}
   .dash-title{font-size:12px;margin-bottom:6px}
   .form-block{padding:6px}
   .pf-label{font-size:9px;margin-bottom:2px}

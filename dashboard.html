@@ -285,20 +285,19 @@ button{cursor:pointer;font-family:inherit}
 @media(max-width:420px) {
   /* TG WebApp width ~390px COMPACT */
   *{margin:0;padding:0}
+  html,body{width:100%;overflow-x:hidden}
   .nav{padding:0 6px;gap:4px;height:48px}
   .nav-logo img{height:28px}
   .nav-links{gap:6px;font-size:9px}
   .lang-btn{padding:2px 4px;font-size:8px}
-  .dash-main{padding:2px;padding-bottom:calc(var(--tab-h) + 4px + var(--tg-safe-bottom))}
-  .dash-side{width:160px;padding:4px 0}
-  .ds-user{padding:4px 6px;margin-bottom:4px}
-  .ds-logo{width:48px;height:48px}
-  .ds-name{font-size:10px}
-  .ds-item{font-size:10px;padding:4px 6px;margin:1px}
+  .dash-wrap{display:flex;width:100%}
+  .dash-side{display:none!important}
+  .dash-main{flex:1;width:100%;padding:4px;padding-bottom:calc(var(--tab-h) + 4px + var(--tg-safe-bottom))}
   .mob-tab{min-width:36px;padding:2px;font-size:10px}
   .mob-tab .mt-ico{font-size:12px}
+  .mob-tab span{display:none}
   .dash-title{font-size:12px;margin-bottom:6px;font-weight:800}
-  .form-block{padding:6px}
+  .form-block{padding:6px;max-width:100%!important}
   .form-block-title{font-size:10px}
   .pf-label{font-size:9px;margin-bottom:2px}
   input,select,textarea{padding:6px 8px;font-size:12px;min-height:36px}
