@@ -467,6 +467,24 @@ const TRANSLATIONS = {
     'general.responses': 'откликов',
     'general.apply_done': 'Уже откликнулись',
     'general.no_sub': '🔒 Оформите Pro-подписку для доступа к контактам',
+    'err.email_used': 'Email уже используется',
+    'err.invalid_creds': 'Неверный email или пароль',
+    'err.blocked': 'Аккаунт заблокирован',
+    'err.fill_required': 'Заполните обязательные поля',
+    'err.select_country': 'Выберите страну',
+    'err.enter_city': 'Укажите город',
+    'err.pwd_min': 'Пароль минимум 6 символов',
+    'err.fill_all': 'Заполните все поля',
+    'msg.hello': 'Привет',
+    'msg.master_created': 'Аккаунт мастера создан',
+    'msg.client_created': 'Аккаунт заказчика создан',
+    'msg.not_found': 'Мастер не найден',
+    'msg.back_cat': 'Назад к каталогу',
+    'msg.back_link': '← Каталог',
+    'order.open': 'Открыта',
+    'order.in_progress': 'В работе',
+    'order.completed': 'Завершена',
+    'order.cancelled': 'Отменена',
   },
   en: {
     'nav.catalog': 'Catalog',
@@ -601,6 +619,24 @@ const TRANSLATIONS = {
     'general.responses': 'bids',
     'general.apply_done': 'Already applied',
     'general.no_sub': '🔒 Get Pro subscription to see contacts',
+    'err.email_used': 'Email already in use',
+    'err.invalid_creds': 'Invalid email or password',
+    'err.blocked': 'Account blocked',
+    'err.fill_required': 'Fill required fields',
+    'err.select_country': 'Select country',
+    'err.enter_city': 'Enter city',
+    'err.pwd_min': 'Minimum 6 characters',
+    'err.fill_all': 'Fill all fields',
+    'msg.hello': 'Hello',
+    'msg.master_created': 'Master account created',
+    'msg.client_created': 'Client account created',
+    'msg.not_found': 'Master not found',
+    'msg.back_cat': 'Back to catalog',
+    'msg.back_link': '← Catalog',
+    'order.open': 'Open',
+    'order.in_progress': 'In Progress',
+    'order.completed': 'Completed',
+    'order.cancelled': 'Cancelled',
   }
 };
 
@@ -743,7 +779,7 @@ const updateUser=(id,data)=>{
 };
 const registerUser=data=>{
   const us=getUsers();
-  if(us.find(u=>u.email===data.email))return{ok:false,err:getLang()==='ru'?'Email уже используется':'Email already in use'};
+  if(us.find(u=>u.email===data.email))return{ok:false,err:t('err.email_used')};
   const u={...data,id:'u_'+Date.now(),createdAt:new Date().toISOString()};
   saveUsers([...us,u]);return{ok:true,user:u};
 };
@@ -751,8 +787,8 @@ const loginUser=(email,pw)=>{
   if(email==='admin@slavic-shkaf.eu'&&pw==='admin2025')
     return{ok:true,user:{id:'admin',name:'Admin',role:'admin',email}};
   const u=getUsers().find(u=>u.email===email&&u.password===pw);
-  if(!u)return{ok:false,err:getLang()==='ru'?'Неверный email или пароль':'Invalid email or password'};
-  if(u.blocked)return{ok:false,err:getLang()==='ru'?'Аккаунт заблокирован':'Account blocked'};
+  if(!u)return{ok:false,err:t('err.invalid_creds')};
+  if(u.blocked)return{ok:false,err:t('err.blocked')};
   return{ok:true,user:u};
 };
 const hasSub=u=>!!(u&&(u.sub||(u.subExpiry&&new Date(u.subExpiry)>new Date())));
@@ -761,10 +797,10 @@ const hasSub=u=>!!(u&&(u.sub||(u.subExpiry&&new Date(u.subExpiry)>new Date())));
 const catName=id=>{const s=SK.find(s=>s.id===id);return s?(getLang()==='ru'?s.ru:s.en):id;};
 const catIco=id=>SK.find(s=>s.id===id)?.i||'🔨';
 const statusBadge=s=>({
-  open:`<span class="badge badge-g">🟢 ${getLang()==='ru'?'Открыта':'Open'}</span>`,
-  in_progress:`<span class="badge badge-y">🔄 ${getLang()==='ru'?'В работе':'In Progress'}</span>`,
-  completed:`<span class="badge badge-b">✅ ${getLang()==='ru'?'Завершена':'Done'}</span>`,
-  cancelled:`<span class="badge badge-r">❌ ${getLang()==='ru'?'Отменена':'Cancelled'}</span>`,
+  open:`<span class="badge badge-g">🜴 ${t('order.open')}</span>`,
+  in_progress:`<span class="badge badge-y">🔄 ${t('order.in_progress')}</span>`,
+  completed:`<span class="badge badge-b">✅ ${t('order.completed')}</span>`,
+  cancelled:`<span class="badge badge-r">❌ ${t('order.cancelled')}</span>`,
 }[s]||`<span class="badge">${s}</span>`);
 
 const toast=(msg,type='ok')=>{
@@ -796,7 +832,7 @@ function applyTranslations(){document.querySelectorAll("[data-t]").forEach(el=>{
 const u=getUser();if(u)location.href=u.role==='master'?'dashboard.html':u.role==='admin'?'admin.html':'client.html';
 function doLogin(){
   const em=document.getElementById('l-em').value.trim(),pw=document.getElementById('l-pw').value;
-  if(!em||!pw){toast(getLang()==='ru'?'Заполните все поля':'Fill all fields','err');return;}
+  if(!em||!pw){toast(t('err.fill_all'),'err');return;}
   const res=loginUser(em,pw);
   if(!res.ok){toast(res.err,'err');return;}
   setUser(res.user);toast('👋 Welcome, '+res.user.name+'!');

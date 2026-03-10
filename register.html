@@ -379,14 +379,10 @@ select{
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div>
           <div class="pf-label" data-t="lbl.country">Страна</div>
-          <div id="co-wrap" style="position:relative">
-            <div id="co-box" onclick="toggleCoDropdown()" style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:10px;color:#fff;padding:11px 14px;font-size:14px;width:100%;cursor:pointer;min-height:46px;transition:.2s">
-              <span id="co-display" style="color:rgba(255,255,255,.4)">— Страна —</span>
-              <span id="co-arr" style="color:rgba(255,255,255,.3);font-size:11px">▾</span>
-            </div>
-            <div id="co-list" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#1a1f2e;border:1px solid rgba(255,255,255,.12);border-radius:10px;max-height:240px;overflow-y:auto;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.7)"></div>
-          </div>
-          <input type="hidden" id="r-co">       </div>
+          <select id="r-co" style="appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%2300d68f%22 stroke-width=%222%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center;padding-right:36px">
+            <option value="">— Выберите страну —</option>
+          </select>
+        </div>
         <div><div class="pf-label" data-t="lbl.city">Город</div><input id="r-ci" placeholder="Paris"></div>
       </div>
       <div id="master-extra" style="margin-bottom:12px">
@@ -395,18 +391,17 @@ select{
       </div>
       <div style="margin-bottom:16px">
         <div class="pf-label" data-t="lbl.password">Пароль</div>
-        <div style="position:relative">
+        <div style="display:flex;gap:4px;align-items:stretch">
           <input type="password" id="r-pw"
             autocomplete="off"
             name="new-password-field"
             data-t="auth.min_pass"
             placeholder="Минимум 6 символов"
-            style="padding-right:44px">
+            style="flex:1;min-width:0">
           <button type="button" id="pw-toggle"
             onclick="togglePwVisibility()"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
-                   background:none;border:none;cursor:pointer;font-size:18px;
-                   color:var(--ink3);padding:4px;line-height:1">
+            style="background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:10px;cursor:pointer;font-size:16px;color:var(--ink3);padding:8px 12px;line-height:1;flex-shrink:0;transition:.2s;display:flex;align-items:center;justify-content:center;width:auto;min-width:44px"
+            title="Toggle password visibility">
             👁
           </button>
         </div>
@@ -578,6 +573,24 @@ const TRANSLATIONS = {
     'general.responses': 'откликов',
     'general.apply_done': 'Уже откликнулись',
     'general.no_sub': '🔒 Оформите Pro-подписку для доступа к контактам',
+    'err.email_used': 'Email уже используется',
+    'err.invalid_creds': 'Неверный email или пароль',
+    'err.blocked': 'Аккаунт заблокирован',
+    'err.fill_required': 'Заполните обязательные поля',
+    'err.select_country': 'Выберите страну',
+    'err.enter_city': 'Укажите город',
+    'err.pwd_min': 'Пароль минимум 6 символов',
+    'err.fill_all': 'Заполните все поля',
+    'msg.hello': 'Привет',
+    'msg.master_created': 'Аккаунт мастера создан',
+    'msg.client_created': 'Аккаунт заказчика создан',
+    'msg.not_found': 'Мастер не найден',
+    'msg.back_cat': 'Назад к каталогу',
+    'msg.back_link': '← Каталог',
+    'order.open': 'Открыта',
+    'order.in_progress': 'В работе',
+    'order.completed': 'Завершена',
+    'order.cancelled': 'Отменена',
   },
   en: {
     'nav.catalog': 'Catalog',
@@ -712,6 +725,24 @@ const TRANSLATIONS = {
     'general.responses': 'bids',
     'general.apply_done': 'Already applied',
     'general.no_sub': '🔒 Get Pro subscription to see contacts',
+    'err.email_used': 'Email already in use',
+    'err.invalid_creds': 'Invalid email or password',
+    'err.blocked': 'Account blocked',
+    'err.fill_required': 'Fill required fields',
+    'err.select_country': 'Select country',
+    'err.enter_city': 'Enter city',
+    'err.pwd_min': 'Minimum 6 characters',
+    'err.fill_all': 'Fill all fields',
+    'msg.hello': 'Hello',
+    'msg.master_created': 'Master account created',
+    'msg.client_created': 'Client account created',
+    'msg.not_found': 'Master not found',
+    'msg.back_cat': 'Back to catalog',
+    'msg.back_link': '← Catalog',
+    'order.open': 'Open',
+    'order.in_progress': 'In Progress',
+    'order.completed': 'Completed',
+    'order.cancelled': 'Cancelled',
   }
 };
 
@@ -889,7 +920,7 @@ const updateUser=(id,data)=>{
 };
 const registerUser=data=>{
   const us=getUsers();
-  if(us.find(u=>u.email===data.email))return{ok:false,err:getLang()==='ru'?'Email уже используется':'Email already in use'};
+  if(us.find(u=>u.email===data.email))return{ok:false,err:t('err.email_used')};
   const u={...data,id:'u_'+Date.now(),createdAt:new Date().toISOString()};
   saveUsers([...us,u]);return{ok:true,user:u};
 };
@@ -897,8 +928,8 @@ const loginUser=(email,pw)=>{
   if(email==='admin@slavic-shkaf.eu'&&pw==='admin2025')
     return{ok:true,user:{id:'admin',name:'Admin',role:'admin',email}};
   const u=getUsers().find(u=>u.email===email&&u.password===pw);
-  if(!u)return{ok:false,err:getLang()==='ru'?'Неверный email или пароль':'Invalid email or password'};
-  if(u.blocked)return{ok:false,err:getLang()==='ru'?'Аккаунт заблокирован':'Account blocked'};
+  if(!u)return{ok:false,err:t('err.invalid_creds')};
+  if(u.blocked)return{ok:false,err:t('err.blocked')};
   return{ok:true,user:u};
 };
 const hasSub=u=>!!(u&&(u.sub||(u.subExpiry&&new Date(u.subExpiry)>new Date())));
@@ -989,28 +1020,17 @@ function saveFormData(){
 // Заполняем кастомный dropdown стран
 // Заполняем select стран
 (function fillCountryDropdown(){
-  const list = document.getElementById('co-list');
-  if(!list) return;
-  // Строка поиска
-  const searchDiv = document.createElement('div');
-  searchDiv.style.cssText = 'padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;background:#1a1f2e;z-index:1';
-  searchDiv.innerHTML = '<input id="co-search" placeholder="🔍 Поиск страны..." style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:#fff;padding:7px 10px;font-size:13px;width:100%" oninput="filterCountries(this.value)" onclick="event.stopPropagation()">';
-  list.appendChild(searchDiv);
-  // Опции
+  const select = document.getElementById('r-co');
+  if(!select) return;
   CO.forEach(c=>{
-    const opt = document.createElement('div');
-    opt.style.cssText = 'padding:10px 14px;font-size:14px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s';
-    opt.dataset.val = c.ru;
-    opt.dataset.en  = c.en || '';
-    opt.innerHTML = `<span style="font-size:20px;line-height:1">${c.f}</span><span>${getLang()==='ru'?c.ru:c.en}</span>`;
-    opt.onmouseenter = function(){this.style.background='rgba(0,214,143,.1)'};
-    opt.onmouseleave = function(){if(this.dataset.val!==document.getElementById('r-co').value)this.style.background=''};
-    opt.onclick = function(e){
-      e.stopPropagation();
-      selectCountry(c.ru, c.f + ' ' + (getLang()==='ru'?c.ru:c.en));
-    };
-    list.appendChild(opt);
+    const opt = document.createElement('option');
+    opt.value = c.ru;
+    opt.textContent = c.f + ' ' + (getLang()==='ru'?c.ru:c.en);
+    select.appendChild(opt);
   });
+  select.onchange = function(){
+    saveFormData();
+  };
 })();
 SK.forEach(s=>{
   const b=document.createElement('div');
@@ -1040,86 +1060,44 @@ function setRole(r){
   if(r==='master'){M.style.borderColor='var(--g)';M.style.background='rgba(0,214,143,.06)';C.style.borderColor='var(--bdr)';C.style.background='';document.getElementById('master-extra').style.display='';}
   else{C.style.borderColor='var(--acc)';C.style.background='rgba(124,111,255,.06)';M.style.borderColor='var(--bdr)';M.style.background='';document.getElementById('master-extra').style.display='none';}
 }
-// ── КАСТОМНЫЙ DROPDOWN СТРАН ──
-function toggleCoDropdown(){
-  const box  = document.getElementById('co-box');
-  const list = document.getElementById('co-list');
-  const isOpen = list.style.display === 'block';
-  // Закрываем все открытые
-  document.querySelectorAll('.cust-sel-list').forEach(l=>{l.style.display='none';l.classList.remove('open');});
-  document.querySelectorAll('.cust-sel-box').forEach(b=>b.classList.remove('open'));
-  if(!isOpen){
-    list.style.display='block';
-    list.classList.add('open');
-    box.classList.add('open');
-    setTimeout(()=>{const s=document.getElementById('co-search');if(s)s.focus();},50);
-  }
-}
-function selectCountry(val, label){
-  document.getElementById('r-co').value = val;
-  document.getElementById('co-display').textContent = label;
-  const list = document.getElementById('co-list');
-  const box  = document.getElementById('co-box');
-  list.classList.remove('open');
-  box.classList.remove('open');
-  // Подсвечиваем выбранный
-  list.querySelectorAll('.cust-sel-opt').forEach(o=>{
-    o.classList.toggle('selected', o.dataset.val===val);
-  });
-  saveFormData();
-}
-function filterCountries(q){
-  const query = q.toLowerCase();
-  document.querySelectorAll('#co-list .cust-sel-opt').forEach(opt=>{
-    const name = (opt.dataset.val+opt.dataset.en).toLowerCase();
-    opt.style.display = name.includes(query) ? '' : 'none';
-  });
-}
-// Закрыть dropdown при клике вне
-document.addEventListener('click', function(e){
-  if(!e.target.closest('#co-wrap')){
-    document.querySelectorAll('.cust-sel-list.open').forEach(l=>l.classList.remove('open'));
-    document.querySelectorAll('.cust-sel-box.open').forEach(b=>b.classList.remove('open'));
-  }
-});
 
 function doRegister(){
   const fn=document.getElementById('r-fn').value.trim(),ln=document.getElementById('r-ln').value.trim();
   const em=document.getElementById('r-em').value.trim(),ph=document.getElementById('r-ph').value.trim();
   const co=document.getElementById('r-co').value,ci=document.getElementById('r-ci').value.trim();
   const pw=document.getElementById('r-pw').value;
-  if(!fn||!em||!pw){toast(getLang()==='ru'?'Заполните обязательные поля':'Fill required fields','err');return;}
+  if(!fn||!em||!pw){toast(t('err.fill_required'),'err');return;}
   if(!co){
-    const box=document.getElementById('co-box');
-    if(box){box.style.borderColor='var(--red)';setTimeout(()=>box.style.borderColor='',2000);}
-    toast(getLang()==='ru'?'Выберите страну':'Select country','err');return;
+    toast(t('err.select_country'),'err');return;
   }
-  if(!ci){toast(getLang()==='ru'?'Укажите город':'Enter city','err');return;}
-  if(pw.length<6){toast(getLang()==='ru'?'Пароль минимум 6 символов':'Minimum 6 characters','err');return;}
+  if(!ci){toast(t('err.enter_city'),'err');return;}
+  if(pw.length<6){toast(t('err.pwd_min'),'err');return;}
   const res=registerUser({name:fn+(ln?' '+ln:''),email:em,phone:ph,country:co,city:ci,password:pw,role:regRole,cats:selCats,verifStatus:'pending',verifLevel:0});
   if(!res.ok){toast(res.err,'err');return;}
   setUser(res.user);showLoader(res.user);
 }
 function showLoader(u){
   const L=document.getElementById('wl');L.style.display='flex';
-  document.getElementById('wl-name').textContent='👋 '+(getLang()==='ru'?'Привет':'Hello')+', '+u.name+'!';
-  document.getElementById('wl-role').textContent=u.role==='master'?'🔧 '+(getLang()==='ru'?'Аккаунт мастера создан':'Master account created'):'🏠 '+(getLang()==='ru'?'Аккаунт заказчика создан':'Client account created');
+  document.getElementById('wl-name').textContent='👋 '+t('msg.hello')+', '+u.name+'!';
+  document.getElementById('wl-role').textContent=u.role==='master'?'🔧 '+t('msg.master_created'):'🏠 '+t('msg.client_created');
   setTimeout(()=>document.getElementById('wl-bar').style.width='100%',80);
   const steps=getLang()==='ru'?['✅ Профиль создан','🔔 Уведомления активированы','🚀 Готово!']:['✅ Profile created','🔔 Notifications ready','🚀 Done!'];
   let i=0;const iv=setInterval(()=>{if(i<steps.length)document.getElementById('wl-step').textContent=steps[i++];else{clearInterval(iv);location.href=u.role==='master'?'dashboard.html':'client.html';}},700);
 }
 
-// Закрытие dropdown при клике вне
-document.addEventListener('click', function(e){
-  const wrap = document.getElementById('co-wrap');
-  if(wrap && !wrap.contains(e.target)){
-    const list = document.getElementById('co-list');
-    const box  = document.getElementById('co-box');
-    if(list) list.style.display='none';
-    if(box)  box.classList.remove('open');
-  }
-});
 renderNav();
+
+// ── TMA INPUT FOCUS OPTIMIZATION ──
+// При фокусе на input - автоматическая прокрутка до него
+document.querySelectorAll('input,select,textarea').forEach(el=>{
+  el.addEventListener('focus', function(e){
+    if(window.Telegram && Telegram.WebApp){
+      // TMA: прокручиваем поле в видимую область
+      setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}), 100);
+    }
+  });
+});
+
 // Читаем role из URL (?role=client или ?role=master)
 (function(){const p=new URLSearchParams(location.search);const r=p.get('role');if(r==='client'||r==='master')setRole(r);loadSavedFormData();})();</script>
 </body></html>
