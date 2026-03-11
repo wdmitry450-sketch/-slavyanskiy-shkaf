@@ -1,0 +1,437 @@
+/* ========================================
+   SLAVIC SHKAF — УЛУЧШЕННЫЙ CSS
+   Включает:
+   - Улучшенный навбар с логотипом, языками и входом
+   - Стили кнопок и форм
+   - Адаптивный дизайн
+   ======================================== */
+
+:root {
+  --bg: #06090f;
+  --bg2: #0d1117;
+  --bg3: #111827;
+  --bdr: rgba(255, 255, 255, .08);
+  --bdr2: rgba(255, 255, 255, .12);
+  --g: #00d68f;
+  --gl: rgba(0, 214, 143, .08);
+  --red: #ef4444;
+  --yellow: #fbbf24;
+  --acc: #7c6fff;
+  --accl: rgba(124, 111, 255, .08);
+  --ink1: #fff;
+  --ink2: rgba(255, 255, 255, .7);
+  --ink3: rgba(255, 255, 255, .5);
+  --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── TRANSITIONS ── */
+* {
+  transition: color 0.2s, background 0.2s, border 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 214, 143, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(0, 214, 143, 0); }
+}
+
+/* ╔════════════════════════════════════════╗
+   ║      NAVBAR — ЛОГОТИП, ЯЗЫКИ, ВХОД     ║
+   ╚════════════════════════════════════════╝ */
+
+.nav {
+  height: 64px;
+  background: rgba(6, 9, 15, .97);
+  border-bottom: 1px solid var(--bdr);
+  backdrop-filter: blur(16px);
+}
+
+.nav-logo img {
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .4));
+  display: block;
+}
+
+.nav-links a {
+  color: var(--ink2);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 4px 0;
+  position: relative;
+  display: inline-block;
+}
+
+.nav-links a:hover {
+  color: #fff;
+  border-bottom: 2px solid var(--g);
+}
+
+/* ── ЯЗЫК И АВТОРИЗАЦИЯ ── */
+.lang-group {
+  display: flex;
+  gap: 6px;
+  border-left: 1px solid var(--bdr);
+  padding-left: 12px;
+}
+
+.lang-btn {
+  padding: 6px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--bdr);
+  background: transparent;
+  color: var(--ink2);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.lang-btn:hover {
+  border-color: var(--g);
+  color: #fff;
+  background: rgba(0, 214, 143, .05);
+}
+
+.lang-btn.active {
+  border-color: var(--g);
+  color: var(--g);
+  background: var(--gl);
+}
+
+.user-name {
+  color: var(--ink2);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 8px;
+}
+
+/* ── КНОПКИ ВХОДА/ВЫХОДА ── */
+.nav-btn-ghost {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--bdr2);
+  color: var(--ink2);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  text-decoration: none;
+  transition: .2s;
+}
+
+.nav-btn-ghost:hover {
+  border-color: var(--g);
+  color: #fff;
+  background: rgba(0, 214, 143, .05);
+}
+
+.nav-btn-cta {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--g);
+  color: #000;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 214, 143, .2);
+  transition: .2s;
+}
+
+.nav-btn-cta:hover {
+  background: #00c07e;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 214, 143, .3);
+}
+
+.logout-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--g);
+  color: #000;
+  font-size: 11px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 214, 143, .2);
+  transition: .2s;
+}
+
+.logout-btn:hover {
+  background: #00c07e;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 214, 143, .3);
+}
+
+/* ╔════════════════════════════════════════╗
+   ║           BUTTONS УЛУЧШЕНИЕ            ║
+   ╚════════════════════════════════════════╝ */
+
+.btn,
+button[class*="btn"] {
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.btn-primary {
+  background: var(--g);
+  color: #000;
+  box-shadow: 0 4px 15px rgba(0, 214, 143, 0.2);
+  font-weight: 800;
+}
+
+.btn-primary:hover {
+  background: #00c07e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 214, 143, 0.4);
+}
+
+.btn-secondary {
+  border: 1.5px solid var(--bdr2);
+  color: var(--ink2);
+  background: transparent;
+}
+
+.btn-secondary:hover {
+  border-color: var(--g);
+  color: var(--g);
+  background: rgba(0, 214, 143, 0.05);
+  box-shadow: 0 0 15px rgba(0, 214, 143, 0.1);
+}
+
+/* ╔════════════════════════════════════════╗
+   ║          FORMS УЛУЧШЕНИЕ              ║
+   ╚════════════════════════════════════════╝ */
+
+input,
+select,
+textarea {
+  transition: all 0.2s;
+  border: 1px solid var(--bdr);
+  background: var(--bg3);
+  color: var(--ink1);
+  border-radius: 8px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--g);
+  background: var(--bg2);
+  box-shadow: 0 0 15px rgba(0, 214, 143, 0.15);
+}
+
+input:valid:not(:placeholder-shown) {
+  border-color: var(--g);
+}
+
+input:invalid {
+  border-color: var(--red);
+}
+
+/* ╔════════════════════════════════════════╗
+   ║        CARDS & SHADOWS                 ║
+   ╚════════════════════════════════════════╝ */
+
+.card,
+.mcard,
+.oc {
+  transition: all 0.3s;
+}
+
+.card:hover,
+.mcard:hover,
+.oc:hover {
+  border-color: var(--g);
+  box-shadow: 0 8px 30px rgba(0, 214, 143, 0.1);
+  transform: translateY(-2px);
+}
+
+.shadow-sm { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+.shadow-md { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
+.shadow-lg { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
+
+/* ╔════════════════════════════════════════╗
+   ║          SPACING УЛУЧШЕНИЕ            ║
+   ╚════════════════════════════════════════╝ */
+
+section {
+  margin: 60px 0;
+  padding: 40px 20px;
+}
+
+h1 {
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 900;
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 800;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: clamp(18px, 4vw, 24px);
+  font-weight: 700;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink2);
+  margin-bottom: 16px;
+}
+
+small {
+  font-size: 12px;
+  color: var(--ink3);
+}
+
+/* ╔════════════════════════════════════════╗
+   ║           RESPONSIVE                   ║
+   ╚════════════════════════════════════════╝ */
+
+@media (max-width: 768px) {
+  section {
+    margin: 40px 0;
+    padding: 30px 15px;
+  }
+
+  h1 { font-size: 28px; }
+  h2 { font-size: 24px; }
+
+  .lang-group {
+    border-left: none;
+    padding-left: 0;
+    gap: 4px;
+  }
+
+  .lang-btn {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  section {
+    margin: 30px 0;
+    padding: 25px 12px;
+  }
+
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 16px; }
+  p { font-size: 14px; }
+
+  .btn,
+  button {
+    width: 100%;
+    padding: 14px 20px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav {
+    height: 56px;
+  }
+
+  .nav-logo img {
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 13px; }
+
+  h1 { font-size: 22px; }
+  h2 { font-size: 18px; }
+
+  section {
+    margin: 20px 0;
+    padding: 20px 10px;
+  }
+
+  .nav {
+    height: 52px;
+  }
+
+  .nav-logo img {
+    height: 36px;
+  }
+
+  .nav-btn-ghost,
+  .nav-btn-cta {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+/* ╔════════════════════════════════════════╗
+   ║         UTILITY CLASSES                ║
+   ╚════════════════════════════════════════╝ */
+
+.text-center { text-align: center; }
+.text-muted { color: var(--ink3); }
+.text-accent { color: var(--g); }
+
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+
+.p-20 { padding: 20px; }
+.p-30 { padding: 30px; }
+
+.gap-sm { gap: 10px; }
+.gap-md { gap: 20px; }
+.gap-lg { gap: 30px; }
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(0, 214, 143, 0.3);
+}
+
+.fade-in { animation: fadeIn 0.5s ease-out; }
+.slide-in-right { animation: slideInRight 0.5s ease-out; }
+.pulse { animation: pulse 2s infinite; }
