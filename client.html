@@ -88,6 +88,9 @@ button{cursor:pointer;font-family:inherit}
 .lang-btn{padding:5px 10px;border-radius:7px;border:1px solid var(--bdr);background:transparent;
   color:var(--ink2);font-size:11px;font-weight:800;cursor:pointer;transition:.2s;white-space:nowrap}
 .lang-btn:hover{border-color:var(--g);color:#fff}
+.user-name{color:var(--ink2);font-size:12px;font-weight:700}
+.logout-btn{background:var(--g);color:#000;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;border:none;cursor:pointer;transition:.2s}
+.logout-btn:hover{background:#00c07e}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:calc(var(--tab-h) + 16px + var(--tg-safe-bottom));right:16px;
@@ -1030,16 +1033,11 @@ const renderNav=(isAuth=false)=>{
   const u=getUser();const nr=document.getElementById('nav-r');
   if(!nr)return;
   const lb=langBtn();
-  let authHTML='';
   if(u){
-    const dash=u.role==='master'?'dashboard.html':u.role==='admin'?'admin.html':'client.html';
-    authHTML=`<a href="${dash}" class="nav-btn-ghost">👤 ${u.name||'Account'}</a>
-      <button class="nav-btn-cta" onclick="clearUser();location.href='index.html'">${t('nav.logout')}</button>`;
+    nr.innerHTML=`<div class="nav-left">${lb}</div><div class="nav-right"><span class="user-name">${u.name}</span><button class="logout-btn" onclick="clearUser();location.href='index.html'">Выход</button></div>`;
   }else{
-    authHTML=`<a href="login.html" class="nav-btn-ghost">${t('nav.login')}</a>
-      <a href="register.html" class="nav-btn-cta">${t('nav.register')}</a>`;
+    nr.innerHTML=`<div class="nav-left">${lb}</div><div class="nav-right"><a href="login.html" class="nav-btn-ghost">Вход</a><a href="register.html" class="nav-btn-cta">Рег.</a></div>`;
   }
-  nr.innerHTML=`<div class="nav-left">${lb}</div><div class="nav-right"><button class="nav-menu-toggle" onclick="toggleNavMenu(this)">☰</button><div class="nav-dropdown">${authHTML}</div></div>`;
 };
 
 function toggleNavMenu(btn){
