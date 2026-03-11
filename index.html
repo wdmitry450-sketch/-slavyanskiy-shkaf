@@ -353,7 +353,24 @@ const renderNav=()=>{
 
 function setLangAndRefresh(lang){
   localStorage.setItem('ss_lang', lang);
-  location.reload();
+  showLangToast(lang);
+  setTimeout(() => location.reload(), 500);
+}
+
+function showLangToast(lang) {
+  const oldToast = document.querySelector('.lang-toast');
+  if (oldToast) oldToast.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = 'lang-toast';
+  
+  const langText = lang === 'ru' ? 'Русский (РУ)' : 'English (ENG)';
+  const langEmoji = lang === 'ru' ? '🇷🇺' : '🇬🇧';
+  
+  toast.innerHTML = `${langEmoji} Язык: ${langText}`;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.remove(), 1500);
 }
 
 function toggleNavMenu(btn){
