@@ -1,27 +1,11 @@
-name = "slavic-shkaf-api"
-main = "src/index.js"
+name = "slavic-shkaf"
 compatibility_date = "2024-01-01"
-compatibility_flags = ["nodejs_compat"]
-
-# Если деплоишь отдельным воркером (не в Pages):
-# workers_dev = true
-
-# Для Cloudflare Pages Functions — вместо этого файла
-# положи src/index.js в папку functions/api/[[route]].js
 
 [[d1_databases]]
 binding = "DB"
 database_name = "slavic-shkaf-db"
-database_id = "f420758d-c5a2-4b6a-98c6-4a4226e14bda"
+database_id = "YOUR_D1_DATABASE_ID"
 
 [vars]
-ADMIN_EMAIL = "admin@slavic-shkaf.eu"
-ADMIN_PASSWORD_HASH = "admin2025"
-JWT_SECRET = "slavic-shkaf-secret-2025-change-in-prod"
-
-# CORS для твоего домена Pages
-[env.production.vars]
-ALLOWED_ORIGIN = "https://slavyanskiy-shkaf.pages.dev"
-
-[env.development.vars]
-ALLOWED_ORIGIN = "*"
+TELEGRAM_BOT_TOKEN = "8727088510:AAENV-aXP7HTGmmR1pn4UCltWOsy7SSeCYk"
+JWT_SECRET = "slavic-shkaf-super-secret-key-change-me"
