@@ -1013,6 +1013,7 @@ else{el.innerHTML=`
         <button class="profile-tab-btn active" onclick="switchProfileTab('about',this)">${isRu?'О мастере':'About'}</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('skills',this)">${isRu?'Специальности':'Skills'}</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('reviews',this)">${isRu?'Отзывы':'Reviews'} (${m.revs.length})</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('order',this)">${isRu?'Разместить заявку':'New Job'}</button>
       </div>
       <div class="profile-section active" id="psec-about">
         <div class="form-block" style="margin-bottom:12px"><div class="form-block-title">${isRu?'О мастере':'About'}</div><div style="font-size:13px;color:var(--ink2);line-height:1.7">${m.about||'—'}</div></div>
@@ -1023,6 +1024,36 @@ else{el.innerHTML=`
       <div class="profile-section" id="psec-reviews">
         <div class="form-block"><div class="form-block-title">${isRu?'Отзывы':'Reviews'} (${m.revs.length})</div>${m.revs.map(r=>`<div style="padding:10px 0;border-bottom:1px solid var(--bdr)"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><div style="font-weight:700">${r.a}</div><div style="color:var(--yellow)">${'🔨'.repeat(r.s)}</div></div><div style="font-size:13px;color:var(--ink2)">${r.t}</div><div style="font-size:11px;color:var(--ink3);margin-top:2px">${r.d}</div></div>`).join('')}</div>
       </div>
+      <div class="profile-section" id="psec-order">
+        <div class="form-block">
+          <div class="form-block-title">${isRu?'Разместить заявку':'Post a Job'}</div>
+          <div style="margin-bottom:12px">
+            <div class="pf-label">${isRu?'Категория услуги':'Service Category'}</div>
+            <select id="job-category" style="width:100%">
+              <option value="">-- ${isRu?'Выберите':'Select'} --</option>
+              <option value="plumbing">🚰 ${isRu?'Сантехника':'Plumbing'}</option>
+              <option value="electric">⚡ ${isRu?'Электрика':'Electrical'}</option>
+              <option value="paint">🎨 ${isRu?'Покраска':'Painting'}</option>
+              <option value="carpentry">🪵 ${isRu?'Столярка':'Carpentry'}</option>
+              <option value="masonry">🧱 ${isRu?'Кладка':'Masonry'}</option>
+              <option value="clean">🧹 ${isRu?'Клининг':'Cleaning'}</option>
+              <option value="ac">❄️ ${isRu?'Кондиционер':'AC'}</option>
+              <option value="bathroom">🛁 ${isRu?'Ванная':'Bathroom'}</option>
+              <option value="floor">🪵 ${isRu?'Полы':'Flooring'}</option>
+              <option value="roof">🏠 ${isRu?'Кровля':'Roofing'}</option>
+            </select>
+          </div>
+          <div style="margin-bottom:12px">
+            <div class="pf-label">${isRu?'Описание работы':'Job Description'}</div>
+            <textarea id="job-desc" style="width:100%;min-height:80px;resize:vertical" placeholder="${isRu?'Укажите детали работы...':'Describe the job details...'}"></textarea>
+          </div>
+          <div style="margin-bottom:12px">
+            <div class="pf-label">${isRu?'Цена за час (€)':'Price per hour (€)'}</div>
+            <input type="number" id="job-price" min="0" step="5" placeholder="50" style="width:100%;">
+          </div>
+          <button class="btn btn-p btn-fw" onclick="postJob()">${isRu?'Разместить':'Post Job'}</button>
+        </div>
+      </div>
     </div>
   </div>`;}
 function switchProfileTab(tab, btn) {
@@ -1031,6 +1062,46 @@ function switchProfileTab(tab, btn) {
   const sec = document.getElementById('psec-' + tab);
   if (sec) sec.classList.add('active');
   if (btn) btn.classList.add('active');
+}
+
+// Post a new job order
+function postJob() {
+  const cat = document.getElementById('job-category').value;
+  const desc = document.getElementById('job-desc').value.trim();
+  const price = parseFloat(document.getElementById('job-price').value);
+  
+  if (!cat) {
+    showToast(t('err.select_country'), 'err'); // Re-use error msg
+    return;
+  }
+  if (!desc || desc.length < 10) {
+    showToast(isRu?'Описание минимум 10 символов':'Min 10 chars for description', 'err');
+    return;
+  }
+  if (!price || price <= 0) {
+    showToast(isRu?'Укажите цену':'Enter valid price', 'err');
+    return;
+  }
+  
+  // In real app: send to API
+  const jobData = {
+    masterId: getCurrentMasterId(),
+    category: cat,
+    description: desc,
+    price: price,
+    createdAt: new Date().toISOString()
+  };
+  
+  console.log('Job posted:', jobData);
+  showToast(isRu?'✅ Заявка размещена!':'✅ Job posted!', 'ok');
+  
+  // Clear form
+  document.getElementById('job-category').value = '';
+  document.getElementById('job-desc').value = '';
+  document.getElementById('job-price').value = '';
+  
+  // Switch back to about tab
+  setTimeout(() => switchProfileTab('about', document.querySelector('.profile-tab-btn')), 1000);
 }
 </script>
 </body></html>
