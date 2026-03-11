@@ -75,7 +75,11 @@ button{cursor:pointer;font-family:inherit}
 .nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
 .nav-r button, .nav-r a{display:inline-flex;align-items:center;cursor:pointer;text-decoration:none}
 .nav-menu-toggle{display:none;background:transparent;border:none;color:var(--ink2);font-size:20px;padding:4px;cursor:pointer;z-index:10}
-.nav-auth-buttons{display:flex;gap:8px}
+.nav-left{display:flex;align-items:center}
+.nav-right{display:flex;align-items:center;gap:4px;position:relative}
+.nav-right.mobile-menu-open .nav-menu-toggle{color:var(--g)}
+.nav-right.mobile-menu-open .nav-dropdown{display:flex!important}
+.nav-dropdown{display:flex;gap:8px}
 .nav-btn-ghost{padding:7px 14px;border-radius:9px;border:1.5px solid var(--bdr2);
   color:var(--ink2);font-weight:700;font-size:12px;transition:.2s;display:inline-flex;white-space:nowrap}
 .nav-btn-ghost:hover{border-color:var(--g);color:#fff}
@@ -258,7 +262,7 @@ button{cursor:pointer;font-family:inherit}
   .nav{height:54px;padding:0 12px}
   .nav-logo img{height:40px}
   .nav-menu-toggle{display:none}
-  .nav-auth-buttons{display:flex!important;position:static;flex-direction:row;background:transparent;border:none;padding:0;gap:6px;min-width:auto;z-index:auto}
+  .nav-dropdown{display:flex!important;position:static;flex-direction:row;background:transparent;border:none;padding:0;gap:6px;min-width:auto;z-index:auto}
   
   /* Forms */
   .pf-row{grid-template-columns:1fr}
@@ -296,7 +300,7 @@ button{cursor:pointer;font-family:inherit}
   .nav-links{gap:6px;font-size:9px}
   .nav-r{gap:8px;position:relative;flex-wrap:nowrap}
   .nav-menu-toggle{display:inline-flex}
-  .nav-auth-buttons{display:none;position:absolute;top:100%;right:0;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px;flex-direction:column;gap:6px;min-width:140px;z-index:9}
+  .nav-dropdown{display:none;position:absolute;top:100%;right:0;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px;flex-direction:column;gap:6px;min-width:140px;z-index:9}
   .nav-btn-ghost{display:inline-flex;padding:3px 5px;font-size:8px}
   .nav-btn-cta{display:inline-flex;padding:3px 6px;font-size:8px}
   .lang-btn{padding:2px 4px;font-size:8px}
@@ -955,7 +959,7 @@ const renderNav=(isAuth=false)=>{
     authHTML=`${lb}<a href="login.html" class="nav-btn-ghost">${t('nav.login')}</a>
       <a href="register.html" class="nav-btn-cta">${t('nav.register')}</a>`;
   }
-  nr.innerHTML=`${lb}<div class="nav-auth-buttons">${authHTML}</div><button class="nav-menu-toggle" onclick="toggleNavMenu(this)">☰</button>`;
+  nr.innerHTML=`<div class="nav-left">${lb}</div><div class="nav-right"><button class="nav-menu-toggle" onclick="toggleNavMenu(this)">☰</button><div class="nav-dropdown">${authHTML}</div></div>`;
 };
 
 function toggleNavMenu(btn){
@@ -969,7 +973,7 @@ const setMT=(el)=>{document.querySelectorAll('.mob-tab').forEach(b=>b.classList.
 function applyTranslations(){document.querySelectorAll("[data-t]").forEach(el=>{const v=t(el.getAttribute("data-t"));if(el.tagName==="INPUT"||el.tagName==="TEXTAREA"){el.placeholder=v;}else{el.textContent=v;}});}applyTranslations();renderNav();
 // Close nav menu when clicking outside
 document.addEventListener('click', (e)=>{
-  const nr=document.getElementById('nav-r');
+  const nr=document.querySelector('#nav-r .nav-right');
   if(nr&&!nr.contains(e.target)&&nr.classList.contains('mobile-menu-open')){
     nr.classList.remove('mobile-menu-open');
   }
