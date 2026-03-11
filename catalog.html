@@ -75,11 +75,14 @@ button{cursor:pointer;font-family:inherit}
 .nav-links a{color:var(--ink2);font-weight:600;font-size:13px;transition:.2s;padding:4px 0}
 .nav-links a:hover{color:#fff}
 .nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-r button, .nav-r a{display:inline-flex;align-items:center;cursor:pointer;text-decoration:none}
+.nav-menu-toggle{display:none;background:transparent;border:none;color:var(--ink2);font-size:20px;padding:4px;cursor:pointer;z-index:10}
+.nav-auth-buttons{display:flex;gap:8px}
 .nav-btn-ghost{padding:7px 14px;border-radius:9px;border:1.5px solid var(--bdr2);
-  color:var(--ink2);font-weight:700;font-size:12px;transition:.2s;display:inline-block;white-space:nowrap}
+  color:var(--ink2);font-weight:700;font-size:12px;transition:.2s;display:inline-flex;white-space:nowrap}
 .nav-btn-ghost:hover{border-color:var(--g);color:#fff}
 .nav-btn-cta{padding:7px 16px;border-radius:9px;background:var(--g);
-  color:#000;font-weight:800;font-size:12px;border:none;transition:.2s;display:inline-block;white-space:nowrap}
+  color:#000;font-weight:800;font-size:12px;border:none;transition:.2s;display:inline-flex;align-items:center;white-space:nowrap}
 .nav-btn-cta:hover{background:#00c07e}
 .lang-btn{padding:5px 10px;border-radius:7px;border:1px solid var(--bdr);background:transparent;
   color:var(--ink2);font-size:11px;font-weight:800;cursor:pointer;transition:.2s;white-space:nowrap}
@@ -256,6 +259,8 @@ button{cursor:pointer;font-family:inherit}
   /* Nav compact */
   .nav{height:54px;padding:0 12px}
   .nav-logo img{height:40px}
+  .nav-menu-toggle{display:none}
+  .nav-auth-buttons{display:flex!important;position:static;flex-direction:row;background:transparent;border:none;padding:0;gap:6px;min-width:auto;z-index:auto}
   
   /* Forms */
   .pf-row{grid-template-columns:1fr}
@@ -288,9 +293,14 @@ button{cursor:pointer;font-family:inherit}
   /* TG WebApp width ~390px COMPACT */
   *{margin:0;padding:0}
   html,body{width:100%;overflow-x:hidden}
-  .nav{padding:0 6px;gap:4px;height:48px}
+  .nav{padding:0 4px;gap:2px;height:48px;position:relative}
   .nav-logo img{height:28px}
   .nav-links{gap:6px;font-size:9px}
+  .nav-r{gap:8px;position:relative;flex-wrap:nowrap}
+  .nav-menu-toggle{display:inline-flex}
+  .nav-auth-buttons{display:none;position:absolute;top:100%;right:0;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:8px;flex-direction:column;gap:6px;min-width:140px;z-index:9}
+  .nav-btn-ghost{display:inline-flex;padding:3px 5px;font-size:8px}
+  .nav-btn-cta{display:inline-flex;padding:3px 6px;font-size:8px}
   .lang-btn{padding:2px 4px;font-size:8px}
   .dash-wrap{display:flex;width:100%}
   .dash-side{display:none!important}
@@ -862,15 +872,22 @@ const renderNav=(isAuth=false)=>{
   const u=getUser();const nr=document.getElementById('nav-r');
   if(!nr)return;
   const lb=langBtn();
+  let authHTML='';
   if(u){
     const dash=u.role==='master'?'dashboard.html':u.role==='admin'?'admin.html':'client.html';
-    nr.innerHTML=`${lb}<a href="${dash}" class="nav-btn-ghost">👤 ${u.name||'Account'}</a>
+    authHTML=`${lb}<a href="${dash}" class="nav-btn-ghost">👤 ${u.name||'Account'}</a>
       <button class="nav-btn-cta" onclick="clearUser();location.href='index.html'">${t('nav.logout')}</button>`;
   }else{
-    nr.innerHTML=`${lb}<a href="login.html" class="nav-btn-ghost">${t('nav.login')}</a>
+    authHTML=`${lb}<a href="login.html" class="nav-btn-ghost">${t('nav.login')}</a>
       <a href="register.html" class="nav-btn-cta">${t('nav.register')}</a>`;
   }
+  nr.innerHTML=`${lb}<div class="nav-auth-buttons">${authHTML}</div><button class="nav-menu-toggle" onclick="toggleNavMenu(this)">☰</button>`;
 };
+
+function toggleNavMenu(btn){
+  const nr=btn.parentElement;
+  nr.classList.toggle('mobile-menu-open');
+}
 
 // Mobile tab helper
 const setMT=(el)=>{document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');};
@@ -902,6 +919,13 @@ function render(){
   document.getElementById('cat-grid').innerHTML=list.length?list.map(m=>`<a class="mcard" href="profile.html?id=${m.id}"><div class="mc-top"><div class="mc-ava">${m.a}</div><div class="mc-info"><div class="mc-name">${m.nm}${m.topCity?' <span class="badge badge-y" style="font-size:9px">🏆</span>':''}${m.topCountry?' <span class="badge badge-o" style="font-size:9px">🌍</span>':''}</div><div class="mc-loc">${flagImg(m.iso)} ${m.city}, ${m.country}</div></div><div class="mc-rate">${m.rate}🔨</div></div><div class="mc-skills">${m.skills.map(s=>`<span class="msk">${s}</span>`).join('')}</div><div class="mc-foot"><span class="mc-price">${m.price}€${t('general.per_hour')}</span>${m.online?`<span class="badge badge-g">🟢 ${t('lbl.online')}</span>`:`<span class="badge">⚫</span>`}</div><div style="font-size:11px;color:var(--ink3);margin-top:7px">🔨 ${m.reviews} ${t('lbl.reviews')} · ${m.exp} ${t('general.years')}</div></a>`).join(''):`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink3)"><div style="font-size:36px;margin-bottom:10px">🔍</div><div style="font-weight:700">${t('catalog.not_found')}</div></div>`;
 }
 ['q','f-cat','f-country','f-city','f-online','f-sort'].forEach(id=>{const el=document.getElementById(id);el?.addEventListener('input',render);el?.addEventListener('change',render);});
-renderNav();render();</script>
+renderNav();render();
+// Close nav menu when clicking outside
+document.addEventListener('click', (e)=>{
+  const nr=document.getElementById('nav-r');
+  if(nr&&!nr.contains(e.target)&&nr.classList.contains('mobile-menu-open')){
+    nr.classList.remove('mobile-menu-open');
+  }
+});</script>
 
 </body></html>
