@@ -89,6 +89,13 @@ async function notifyUser(env, userId, type, title, message, linkType, linkId) {
   await sendTelegramNotification(env, userId, `🔔 <b>${title}</b>\n${message}`);
 }
 
+function getMasterLevel(completedOrders) {
+  if (completedOrders >= 25) return { level: 'expert', ru: 'Эксперт', en: 'Expert', color: '#facc15', icon: '👑' };
+  if (completedOrders >= 10) return { level: 'master', ru: 'Мастер', en: 'Master', color: '#a855f7', icon: '🟣' };
+  if (completedOrders >= 3) return { level: 'experienced', ru: 'Опытный', en: 'Experienced', color: '#3b82f6', icon: '🔵' };
+  return { level: 'newbie', ru: 'Новичок', en: 'Newbie', color: '#10b981', icon: '🟢' };
+}
+
 // ===== ROUTE HANDLERS =====
 
 // POST /api/auth/register
@@ -387,7 +394,8 @@ async function handleGetProfile(request, env, id) {
     const cc = await env.DB.prepare("SELECT COUNT(*) as c FROM orders WHERE client_id = ? AND status = 'completed'").bind(id).first();
     completedCount = cc?.c || 0;
   }
-  return json({ ...user, categories: cats.results.map(c => c.category_id), reviews: reviews.results, completed_orders: completedCount, additional_languages: user.additional_languages ? JSON.parse(user.additional_languages) : [] });
+  const level = user.role === 'master' ? getMasterLevel(completedCount) : null;
+  return json({ ...user, categories: cats.results.map(c => c.category_id), reviews: reviews.results, completed_orders: completedCount, level, additional_languages: user.additional_languages ? JSON.parse(user.additional_languages) : [] });
 }
 
 // PUT /api/profile
@@ -757,8 +765,8 @@ async function handleCompleteOrder(request, env, orderId) {
   if (accepted && body.rating) {
     // Save review
     try {
-      await env.DB.prepare('INSERT INTO reviews (order_id, reviewer_id, target_id, rating, comment) VALUES (?, ?, ?, ?, ?)')
-        .bind(orderId, user.id, accepted.master_id, body.rating, body.comment || null).run();
+      await env.DB.prepare('INSERT INTO reviews (order_id, reviewer_id, target_id, rating, comment, photos) VALUES (?, ?, ?, ?, ?, ?)')
+        .bind(orderId, user.id, accepted.master_id, body.rating, body.comment || null, body.photos ? JSON.stringify(body.photos) : null).run();
       const avg = await env.DB.prepare('SELECT AVG(rating) as avg, COUNT(*) as cnt FROM reviews WHERE target_id = ?').bind(accepted.master_id).first();
       await env.DB.prepare('UPDATE users SET rating = ?, reviews_count = ? WHERE id = ?').bind(Math.round(avg.avg * 10) / 10, avg.cnt, accepted.master_id).run();
     } catch(e) { /* already reviewed */ }
