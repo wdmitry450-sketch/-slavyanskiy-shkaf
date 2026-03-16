@@ -770,7 +770,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     return /* @__PURE__ */ React.createElement("div", { className: "toast" }, message);
   }
   function Header() {
-    const { lang, setLang, page, setPage, user, setUser, setMenuOpen } = useContext(AppContext);
+    const { lang, setLang, page, setPage, user, setUser, setMenuOpen, showToast, notifCount, setNotifCount } = useContext(AppContext);
     const t = translations[lang].nav;
     return /* @__PURE__ */ React.createElement("header", { className: "header" }, /* @__PURE__ */ React.createElement("div", { className: "header-logo", onClick: () => setPage("home") }, /* @__PURE__ */ React.createElement("img", { src: user?.role === "master" ? LOGO_OPEN_SM : LOGO_CLOSED_SM, alt: "SlavicShkaf", style: { height: 32, borderRadius: 4 } })), /* @__PURE__ */ React.createElement("div", { className: "header-right" }, /* @__PURE__ */ React.createElement("div", { className: "lang-toggle" }, /* @__PURE__ */ React.createElement("button", { className: `lang-btn ${lang === "ru" ? "active" : ""}`, onClick: () => setLang("ru") }, "RU"), /* @__PURE__ */ React.createElement("button", { className: `lang-btn ${lang === "en" ? "active" : ""}`, onClick: () => setLang("en") }, "EN")), user ? React.createElement(React.Fragment, null,
           React.createElement("button", { className: "menu-btn", style: { position: "relative" }, onClick: () => {
