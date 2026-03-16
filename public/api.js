@@ -62,6 +62,14 @@ const api = {
   // Reviews
   createReview: (body) => api.request('reviews', { method: 'POST', body: JSON.stringify(body) }),
 
+  // Notifications
+  getNotifications: (unread) => api.request(`notifications${unread ? '?unread=1' : ''}`),
+  markNotificationsRead: (id) => api.request('notifications/read', { method: 'PUT', body: JSON.stringify(id ? { id } : {}) }),
+
+  // Accept response / Complete order
+  acceptResponse: (id) => api.request(`responses/${id}/accept`, { method: 'PUT' }),
+  completeOrder: (id, body) => api.request(`orders/${id}/complete`, { method: 'POST', body: JSON.stringify(body || {}) }),
+
   // Telegram
   linkTelegram: (chatId) => api.request('telegram/link', { method: 'POST', body: JSON.stringify({ chat_id: chatId }) }),
 
