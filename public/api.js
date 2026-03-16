@@ -78,15 +78,18 @@ const api = {
 
   // Media upload
   uploadMedia: async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
     try {
-      const headers = {};
-      if (api.token) headers['Authorization'] = `Bearer ${api.token}`;
-      const res = await fetch(`${API_BASE}/media/upload`, { method: 'POST', headers, body: formData });
-      const text = await res.text();
-      if (!text) return { error: 'Empty response' };
-      return JSON.parse(text);
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64 = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      return await api.request('media/upload', {
+        method: 'POST',
+        body: JSON.stringify({ data: base64, name: file.name, type: file.type, size: file.size })
+      });
     } catch(e) { return { error: e.message }; }
   },
 
