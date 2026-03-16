@@ -744,43 +744,10 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 .text-red { color: var(--red); }
 .text-muted { color: var(--text3); }
 .text-center { text-align: center; }
-.app.wide { max-width:1200px; }
-.app.wide .hero { padding:60px 40px; }
-.app.wide .hero h1 { font-size:2.2rem; }
-.app.wide .stats-row { max-width:800px; margin:0 auto 40px; gap:16px; }
-.app.wide .section { padding:40px 40px; max-width:1000px; margin:0 auto; }
-.app.wide .why-section { max-width:900px; margin:0 auto; }
-.app.wide .why-grid { grid-template-columns:repeat(4,1fr); }
-.app.wide .cta-section { max-width:800px; margin:30px auto 40px; }
-.app.wide .page { max-width:500px; margin:0 auto; }
-.app.wide .dash { flex-direction:row; }
-.app.wide .dash-content { flex:1; padding:24px 40px; max-width:960px; }
-.app.wide .dash-nav { position:static; flex-direction:column; width:200px; border-top:none; border-right:1px solid var(--border); padding:20px 0; min-height:calc(100vh - 52px); order:-1; }
 
-.app.wide .dash-nav-item { flex-direction:row; justify-content:flex-start; padding:12px 24px; font-size:0.8rem; gap:10px; border-radius:0; }
-.app.wide .dash-nav-item.active { background:var(--green-glow); border-right:3px solid var(--green); }
-.app.wide .admin-grid { grid-template-columns:repeat(4,1fr); }
 
-.app.wide .header { padding:12px 40px; max-width:1200px; margin:0 auto; }
-.app.wide .order-card { transition:transform 0.15s; }
-.app.wide .order-card:hover { transform:translateY(-2px); }
-.app.wide .hero h1 { font-size:2.4rem; letter-spacing:-0.02em; }
-.app.wide .hero p { font-size:1rem; max-width:600px; margin:0 auto 24px; }
-.app.wide .stats-row { padding:0 40px; }
-.app.wide .stat-card { padding:24px 16px; }
-.app.wide .stat-value { font-size:1.6rem; }
-.app.wide .stat-label { font-size:0.7rem; }
-.app.wide .cat-grid { gap:10px; }
-.app.wide .cat-chip { padding:10px 18px; font-size:0.8rem; }
-.app.wide .test-card { min-width:320px; }
-.app.wide .why-card h4 { font-size:0.9rem; }
-.app.wide .why-card p { font-size:0.75rem; }
-.app.wide .footer { max-width:1200px; margin:0 auto; }
-.app.wide .search-bar { max-width:600px; }
-.app.wide .tabs { max-width:800px; }
-.app.wide .master-card { max-width:600px; }
-.app.wide .form-input { padding:12px 16px; font-size:0.9rem; }
-.app.wide .btn { padding:12px 28px; font-size:0.9rem; }
+
+
 
 .loading-spinner { display:flex; justify-content:center; padding:30px; }
 .loading-spinner::after { content:''; width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.6s linear infinite; }
@@ -1007,6 +974,12 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [newMsg, setNewMsg] = useState("");
     useEffect(function() { loadConvos(); }, []);
     function loadConvos() { setLoading(true); if (typeof api !== "undefined") api.getMessages().then(function(r) { setConvos(r && !r.error ? r : []); setLoading(false); }); else setLoading(false); }
+    useEffect(function() {
+      try {
+        var saved = localStorage.getItem("ss_chat_with");
+        if (saved) { var c = JSON.parse(saved); localStorage.removeItem("ss_chat_with"); if (c && c.id) openChat(c.id, c.name || "User"); }
+      } catch(e) {}
+    }, []);
     function openChat(otherId, otherName) {
       setChatWith({ id: otherId, name: otherName });
       if (typeof api !== "undefined") api.getMessages(otherId).then(function(r) { setChatMessages(r && !r.error ? r : []); });
@@ -1147,11 +1120,15 @@ textarea.form-input { resize: vertical; min-height: 80px; }
               React.createElement("div", { style: { fontWeight: 700, fontSize: "0.9rem" } }, r.master_name || "Master #" + r.master_id),
               React.createElement("div", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, Icons.star, " ", r.master_rating || "—", " · ", r.master_city || "", ", ", r.master_country || "")
             ),
-            r.status === "accepted" ? React.createElement("span", { className: "status-badge status-active" }, "✅ " + (lang === "ru" ? "Выбран" : "Chosen")) :
+            r.status === "accepted" ? React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" } },
+              React.createElement("span", { className: "status-badge status-active" }, "\u2705 " + (lang === "ru" ? "\u0412\u044B\u0431\u0440\u0430\u043D" : "Chosen")),
+              React.createElement("button", { className: "btn btn-sm btn-primary", style: { padding: "5px 14px", fontSize: "0.7rem" }, onClick: function(ev) { ev.stopPropagation(); if (typeof localStorage !== "undefined") localStorage.setItem("ss_chat_with", JSON.stringify({ id: r.master_id, name: r.master_name || "Master" })); showToast(lang === "ru" ? "\u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F" : "Open Messages"); } }, "\u{1F4AC} " + (lang === "ru" ? "\u0427\u0430\u0442" : "Chat"))
+            ) :
             r.status === "pending" && selectedOrder.status === "open" ? React.createElement("button", { className: "btn btn-sm btn-primary", onClick: function() { acceptMaster(r.id); } }, lang === "ru" ? "Выбрать" : "Accept") : null
           ),
           r.message && React.createElement("p", { style: { fontSize: "0.8rem", color: "var(--text2)", marginTop: 8, lineHeight: 1.4 } }, r.message),
-          r.proposed_budget && React.createElement("div", { className: "order-budget", style: { marginTop: 6 } }, r.proposed_budget, "€")
+          r.proposed_budget && React.createElement("div", { className: "order-budget", style: { marginTop: 6 } }, r.proposed_budget, "€"),
+          r.status === "accepted" && React.createElement("button", { className: "btn btn-primary btn-full", style: { marginTop: 12 }, onClick: function(ev) { ev.stopPropagation(); if (typeof localStorage !== "undefined") localStorage.setItem("ss_chat_with", JSON.stringify({ id: r.master_id, name: r.master_name || "Master" })); showToast(lang === "ru" ? "\u041F\u0435\u0440\u0435\u0439\u0434\u0438\u0442\u0435 \u0432 \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F" : "Go to Messages tab"); } }, "\u{1F4AC} " + (lang === "ru" ? "\u041D\u0430\u0447\u0430\u0442\u044C \u0447\u0430\u0442" : "Start Chat"))
         );
       })
     );
@@ -1291,7 +1268,15 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [toast, setToast] = useState(null);
     const [wide, setWide] = useState(_isWide());
     useEffect(function() { if (_isTMA) return; var h = function() { setWide(_isWide()); }; window.addEventListener("resize", h); return function() { window.removeEventListener("resize", h); }; }, []);
-    useEffect(function() { if (typeof api !== "undefined" && api.token) { api.me().then(function(me) { if (me && me.id && !me.error) { setUser(me); setPage(me.role === "master" ? "master" : me.role === "admin" ? "admin" : "client"); } else { api.setToken(null); } }); } }, []);
+    useEffect(function() { if (typeof api !== "undefined" && api.token) { api.me().then(function(me) { if (me && me.id && !me.error) {
+          setUser(me);
+          setPage(me.role === "master" ? "master" : me.role === "admin" ? "admin" : "client");
+          // Auto-link Telegram chat_id from Mini App
+          if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+            var tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+            if (tgUser.id) api.linkTelegram(String(tgUser.id));
+          }
+        } else { api.setToken(null); } }); } }, []);
     const showToast = useCallback((msg) => {
       setToast(msg);
     }, []);
