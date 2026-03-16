@@ -41,7 +41,7 @@ const api = {
   getOrders: (params) => api.request(`orders?${new URLSearchParams(params)}`),
   getOrder: (id) => api.request(`orders/${id}`),
   createOrder: (body) => api.request('orders', { method: 'POST', body: JSON.stringify(body) }),
-  updateOrder: (id, body) => api.request(`orders/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  updateOrder: (id, body) => api.request(`orders/${id}`, { method: 'POST', body: JSON.stringify(body) }),
   deleteOrder: (id) => api.request(`orders/${id}`, { method: 'DELETE' }),
   respondToOrder: (id, body) => api.request(`orders/${id}/respond`, { method: 'POST', body: JSON.stringify(body) }),
   getResponses: (id) => api.request(`orders/${id}/responses`),
@@ -52,7 +52,7 @@ const api = {
 
   // Profile
   getProfile: (id) => api.request(`profile/${id}`),
-  updateProfile: (body) => api.request('profile', { method: 'PUT', body: JSON.stringify(body) }),
+  updateProfile: (body) => api.request('profile', { method: 'POST', body: JSON.stringify(body) }),
 
   // Messages
   getMessages: (withUser) => api.request(`messages${withUser ? `?with=${withUser}` : ''}`),
@@ -67,10 +67,10 @@ const api = {
 
   // Notifications
   getNotifications: (unread) => api.request(`notifications${unread ? '?unread=1' : ''}`),
-  markNotificationsRead: (id) => api.request('notifications/read', { method: 'PUT', body: JSON.stringify(id ? { id } : {}) }),
+  markNotificationsRead: (id) => api.request('notifications/read', { method: 'POST', body: JSON.stringify(id ? { id } : {}) }),
 
   // Accept response / Complete order
-  acceptResponse: (id) => api.request(`responses/${id}/accept`, { method: 'PUT' }),
+  acceptResponse: (id) => api.request(`responses/${id}/accept`, { method: 'POST' }),
   completeOrder: (id, body) => api.request(`orders/${id}/complete`, { method: 'POST', body: JSON.stringify(body || {}) }),
 
   // Telegram
@@ -93,8 +93,8 @@ const api = {
   // Admin
   adminStats: () => api.request('admin/stats'),
   adminUsers: (params) => api.request(`admin/users?${new URLSearchParams(params)}`),
-  adminUpdateUser: (id, body) => api.request(`admin/users/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-  adminToggleTop: (id, body) => api.request(`admin/orders/${id}/top`, { method: 'PUT', body: JSON.stringify(body) }),
+  adminUpdateUser: (id, body) => api.request(`admin/users/${id}`, { method: 'POST', body: JSON.stringify(body) }),
+  adminToggleTop: (id, body) => api.request(`admin/orders/${id}/top`, { method: 'POST', body: JSON.stringify(body) }),
   adminBroadcast: (body) => api.request('admin/broadcast', { method: 'POST', body: JSON.stringify(body) }),
   adminBroadcasts: () => api.request('admin/broadcasts'),
 };
