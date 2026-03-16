@@ -94,7 +94,7 @@ async function notifyUser(env, userId, type, title, message, linkType, linkId) {
 // POST /api/auth/register
 async function handleRegister(request, env) {
   const body = await request.json();
-  const { role, name, email, phone, password, country, city, postal_code, categories } = body;
+  const { role, name, email, phone, password, country, city, postal_code, categories, native_language, additional_languages } = body;
 
   if (!name || !email || !password || !role) return err('Missing required fields');
   if (!['master', 'client'].includes(role)) return err('Invalid role');
@@ -104,8 +104,8 @@ async function handleRegister(request, env) {
 
   const hash = await hashPassword(password);
   const result = await env.DB.prepare(
-    'INSERT INTO users (role, name, email, phone, password_hash, country, city, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-  ).bind(role, name, email, phone || null, hash, country || null, city || null, postal_code || null).run();
+    'INSERT INTO users (role, name, email, phone, password_hash, country, city, postal_code, native_language, additional_languages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(role, name, email, phone || null, hash, country || null, city || null, postal_code || null, native_language || null, additional_languages ? JSON.stringify(additional_languages) : null).run();
 
   const userId = result.meta.last_row_id;
 
@@ -143,7 +143,7 @@ async function handleLogin(request, env) {
       phone: user.phone, country: user.country, city: user.city,
       status: user.status, is_premium: user.is_premium,
       rating: user.rating, reviews_count: user.reviews_count,
-      bio: user.bio, experience: user.experience,
+      bio: user.bio, experience: user.experience, native_language: user.native_language, additional_languages: user.additional_languages ? JSON.parse(user.additional_languages) : [], avatar_url: user.avatar_url,
       categories: cats.results.map(c => c.category_id),
       created_at: user.created_at,
     }
@@ -160,7 +160,7 @@ async function handleMe(request, env) {
     phone: user.phone, country: user.country, city: user.city,
     status: user.status, is_premium: user.is_premium,
     rating: user.rating, reviews_count: user.reviews_count,
-    bio: user.bio, experience: user.experience,
+    bio: user.bio, experience: user.experience, native_language: user.native_language, additional_languages: user.additional_languages ? JSON.parse(user.additional_languages) : [], avatar_url: user.avatar_url,
     categories: cats.results.map(c => c.category_id),
     created_at: user.created_at,
   });
@@ -203,8 +203,8 @@ async function handleCreateOrder(request, env) {
   if (!title || !category_id) return err('Title and category required');
 
   const result = await env.DB.prepare(
-    'INSERT INTO orders (client_id, category_id, title, description, budget, currency, deadline, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-  ).bind(user.id, category_id, title, description || null, budget || null, currency || '€', deadline || null, location || null).run();
+    'INSERT INTO orders (client_id, category_id, title, description, budget, currency, deadline, location, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(user.id, category_id, title, description || null, budget || null, currency || '€', deadline || null, location || null, body.attachments ? JSON.stringify(body.attachments) : null).run();
 
   const order = await env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(result.meta.last_row_id).first();
   return json(order, 201);
@@ -386,7 +386,7 @@ async function handleUpdateProfile(request, env) {
   if (!user) return err('Unauthorized', 401);
 
   const body = await request.json();
-  const fields = ['name', 'phone', 'city', 'country', 'postal_code', 'bio', 'experience'];
+  const fields = ['name', 'phone', 'city', 'country', 'postal_code', 'bio', 'experience', 'email', 'native_language', 'avatar_url'];
   const updates = [];
   const values = [];
 
@@ -394,6 +394,10 @@ async function handleUpdateProfile(request, env) {
     if (body[f] !== undefined) { updates.push(`${f} = ?`); values.push(body[f]); }
   }
 
+  if (body.additional_languages !== undefined) {
+    updates.push('additional_languages = ?');
+    values.push(JSON.stringify(body.additional_languages));
+  }
   if (body.categories && user.role === 'master') {
     await env.DB.prepare('DELETE FROM user_categories WHERE user_id = ?').bind(user.id).run();
     const stmt = env.DB.prepare('INSERT INTO user_categories (user_id, category_id) VALUES (?, ?)');
@@ -805,16 +809,16 @@ async function handleMediaUpload(request, env) {
     if (!file) return err('No file provided');
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
-    if (!allowedTypes.includes(file.type)) return err('Unsupported file type. Allowed: JPEG, PNG, GIF, WebP, MP4, MOV, WebM');
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) return err('Unsupported file type. Allowed: JPEG, PNG, GIF, WebP, MP4, MOV, WebM, PDF');
 
     // Validate size (10MB max for images, 50MB for video)
-    const isVideo = file.type.startsWith('video/');
+    const isVideo = file.type.startsWith('video/'); const isPDF = file.type === 'application/pdf';
     const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
     if (file.size > maxSize) return err(`File too large. Max: ${isVideo ? '50' : '10'}MB`);
 
     // Generate unique filename
-    const ext = file.name?.split('.').pop() || (isVideo ? 'mp4' : 'jpg');
+    const ext = file.name?.split('.').pop() || (isVideo ? 'mp4' : isPDF ? 'pdf' : 'jpg');
     const filename = `${user.id}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const key = `chat/${filename}`;
 
@@ -827,7 +831,7 @@ async function handleMediaUpload(request, env) {
 
     return json({
       url: `/api/media/${filename}`,
-      type: isVideo ? 'video' : 'image',
+      type: isVideo ? 'video' : isPDF ? 'pdf' : 'image',
       name: file.name || filename,
       size: file.size,
     }, 201);
