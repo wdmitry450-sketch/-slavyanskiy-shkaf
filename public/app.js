@@ -349,6 +349,12 @@ var LANGUAGES = [
   { code: "no", ru: "Норвежский", en: "Norwegian" }, { code: "uk", ru: "Украинский", en: "Ukrainian" },
 ];
 
+  function getMasterLevel(n) {
+    if (n >= 25) return { level: "expert", ru: "\u042D\u043A\u0441\u043F\u0435\u0440\u0442", en: "Expert", color: "#facc15", icon: "\u{1F451}" };
+    if (n >= 10) return { level: "master", ru: "\u041C\u0430\u0441\u0442\u0435\u0440", en: "Master", color: "#a855f7", icon: "\u{1F7E3}" };
+    if (n >= 3) return { level: "experienced", ru: "\u041E\u043F\u044B\u0442\u043D\u044B\u0439", en: "Experienced", color: "#3b82f6", icon: "\u{1F535}" };
+    return { level: "newbie", ru: "\u041D\u043E\u0432\u0438\u0447\u043E\u043A", en: "Newbie", color: "#10b981", icon: "\u{1F7E2}" };
+  }
   var AppContext = createContext();
   var Icons = {
     menu: /* @__PURE__ */ React.createElement("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2" }, /* @__PURE__ */ React.createElement("path", { d: "M3 12h18M3 6h18M3 18h18" })),
@@ -1371,12 +1377,23 @@ textarea.form-input { resize: vertical; min-height: 80px; }
         else showToast((r && r.error) || "Error");
       });
     }
-    function completeOrder(orderId) {
-      var rating = prompt(lang === "ru" ? "Оценка мастера (1-5):" : "Rate master (1-5):");
-      if (!rating) return;
-      if (typeof api !== "undefined") api.completeOrder(orderId, { rating: parseInt(rating) }).then(function(r) {
-        if (r && r.success) { showToast(lang === "ru" ? "Заказ завершён!" : "Order completed!"); loadOrders(); }
+    var [reviewModal, setReviewModal] = useState(null);
+    var [reviewForm, setReviewForm] = useState({ rating: 5, comment: "", photos: [] });
+    var reviewFileRef = useRef(null);
+    function completeOrder(orderId) { setReviewModal(orderId); }
+    function submitReview() {
+      if (!reviewModal) return;
+      if (typeof api !== "undefined") api.completeOrder(reviewModal, { rating: reviewForm.rating, comment: reviewForm.comment, photos: reviewForm.photos }).then(function(r) {
+        if (r && r.success) { showToast(lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437 \u0437\u0430\u0432\u0435\u0440\u0448\u0451\u043D!" : "Order completed!"); setReviewModal(null); setReviewForm({ rating: 5, comment: "", photos: [] }); loadOrders(); }
       });
+    }
+    async function addReviewPhoto(e) {
+      var files = Array.from(e.target.files || []);
+      for (var i = 0; i < files.length && reviewForm.photos.length < 5; i++) {
+        var r2 = typeof api !== "undefined" ? await api.uploadMedia(files[i]) : null;
+        if (r2 && r2.url) setReviewForm(function(p) { return Object.assign({}, p, { photos: p.photos.concat([{ url: r2.url, type: r2.type }]) }); });
+      }
+      e.target.value = "";
     }
     if (loading) return React.createElement("div", { className: "loading-spinner" });
     if (!orders.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4CB}"), React.createElement("p", null, lang === "ru" ? "У вас пока нет заказов" : "No orders yet"));
@@ -1386,6 +1403,20 @@ textarea.form-input { resize: vertical; min-height: 80px; }
         React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700 } }, selectedOrder.title)
       ),
       React.createElement("div", { className: "order-meta", style: { marginBottom: 16 } }, React.createElement("span", null, Icons.location, " ", selectedOrder.location || ""), React.createElement("span", { className: "status-badge status-" + (selectedOrder.status === "open" ? "open" : "active") }, selectedOrder.status)),
+      reviewModal && React.createElement("div", { style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 16, marginBottom: 16 } },
+        React.createElement("h3", { style: { fontSize: "0.9rem", fontWeight: 700, marginBottom: 12 } }, lang === "ru" ? "\u041E\u0446\u0435\u043D\u0438\u0442\u0435 \u043C\u0430\u0441\u0442\u0435\u0440\u0430" : "Rate the master"),
+        React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12 } }, [1,2,3,4,5].map(function(n) { return React.createElement("button", { key: n, style: { width: 40, height: 40, borderRadius: 8, border: reviewForm.rating >= n ? "2px solid var(--green)" : "1px solid var(--border)", background: reviewForm.rating >= n ? "var(--green-glow)" : "var(--bg3)", cursor: "pointer", fontSize: "1rem" }, onClick: function() { setReviewForm(function(p) { return Object.assign({}, p, { rating: n }); }); } }, "\u{1F528}"); })),
+        React.createElement("textarea", { className: "form-input", rows: 3, placeholder: lang === "ru" ? "\u041E\u043F\u0438\u0448\u0438\u0442\u0435 \u0440\u0430\u0431\u043E\u0442\u0443 \u043C\u0430\u0441\u0442\u0435\u0440\u0430..." : "Describe the work...", value: reviewForm.comment, onChange: function(e) { setReviewForm(function(p) { return Object.assign({}, p, { comment: e.target.value }); }); }, style: { marginBottom: 8 } }),
+        React.createElement("input", { ref: reviewFileRef, type: "file", accept: "image/*", multiple: true, style: { display: "none" }, onChange: addReviewPhoto }),
+        React.createElement("div", { style: { display: "flex", gap: 6, alignItems: "center", marginBottom: 12 } },
+          React.createElement("button", { className: "btn btn-sm btn-outline", onClick: function() { if (reviewFileRef.current) reviewFileRef.current.click(); } }, "\u{1F4F7} " + (lang === "ru" ? "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0444\u043E\u0442\u043E" : "Add photo")),
+          reviewForm.photos.length > 0 && reviewForm.photos.map(function(ph, pi) { return React.createElement("img", { key: pi, src: ph.url, style: { width: 36, height: 36, objectFit: "cover", borderRadius: 6 } }); })
+        ),
+        React.createElement("div", { style: { display: "flex", gap: 8 } },
+          React.createElement("button", { className: "btn btn-primary", style: { flex: 1 }, onClick: submitReview }, lang === "ru" ? "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C" : "Submit"),
+          React.createElement("button", { className: "btn btn-outline", onClick: function() { setReviewModal(null); } }, lang === "ru" ? "\u041E\u0442\u043C\u0435\u043D\u0430" : "Cancel")
+        )
+      ),
       selectedOrder.status === "in_progress" && React.createElement("button", { className: "btn btn-primary btn-full mb-2", onClick: function() { completeOrder(selectedOrder.id); } }, lang === "ru" ? "✅ Работа выполнена" : "✅ Mark Complete"),
       React.createElement("h3", { style: { fontSize: "0.9rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? "Отклики мастеров (" + (selectedOrder.responses_count || 0) + ")" : "Responses (" + (selectedOrder.responses_count || 0) + ")"),
       loadingResp ? React.createElement("div", { className: "loading-spinner" }) : responses2.length === 0 ? React.createElement("p", { style: { color: "var(--text3)", fontSize: "0.8rem" } }, lang === "ru" ? "Пока нет откликов" : "No responses yet") :
@@ -1411,7 +1442,8 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     return React.createElement(React.Fragment, null, React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "Мои заказы" : "My Orders"), orders.map(function(o) {
       return React.createElement("div", { key: o.id, className: "order-card", onClick: function() { viewResponses(o); }, style: { cursor: "pointer" } },
         React.createElement("div", { className: "order-title" }, o.title || o.titleEn),
-        React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", o.location || ""), React.createElement("span", { className: "status-badge status-" + (o.status === "open" ? "open" : o.status === "completed" ? "active" : "open") }, o.status)),
+        React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", o.location || ""), React.createElement("span", { className: "status-badge status-" + (o.status === "open" ? "open" : o.status === "completed" ? "active" : "open") }, o.status),
+        o.status === "completed" && React.createElement("button", { className: "btn btn-sm btn-primary", style: { marginLeft: 8, padding: "3px 10px", fontSize: "0.65rem" }, onClick: function(ev) { ev.stopPropagation(); localStorage.setItem("ss_rehire", JSON.stringify({ master_name: o.accepted_master_name || "", category: o.category_id || "" })); showToast(lang === "ru" ? "\u041F\u0435\u0440\u0435\u0439\u0434\u0438\u0442\u0435 \u0432 \u041D\u043E\u0432\u044B\u0439 \u0437\u0430\u043A\u0430\u0437" : "Go to New Order"); } }, "\u{1F504} " + (lang === "ru" ? "\u0415\u0449\u0451" : "Again"))),
         React.createElement("div", { className: "order-footer" }, React.createElement("div", { className: "order-budget" }, o.budget, o.currency || "€"), React.createElement("div", { className: "order-responses", style: { color: (o.responses_count || 0) > 0 ? "var(--green)" : "var(--text3)" } }, "💬 ", o.responses_count || 0, " ", lang === "ru" ? "откликов" : "responses"))
       );
     }));
@@ -1446,7 +1478,8 @@ textarea.form-input { resize: vertical; min-height: 80px; }
           React.createElement("div", { className: "master-info" },
             React.createElement("div", { className: "master-name", style: { cursor: "pointer" }, onClick: function(ev) { ev.stopPropagation(); setViewProfileId(m.id); } }, m.name || m.nameEn, " ", (m.is_premium || m.premium) && Icons.crown),
             React.createElement("div", { className: "master-cats" }, cats.map(function(c) { return c[lang]; }).join(" \u00B7 ")),
-            React.createElement("div", { className: "master-stats" }, React.createElement("div", { className: "master-rating" }, Icons.star, " ", m.rating || "\u2014"), React.createElement("div", { className: "master-reviews" }, "(", m.reviews_count || m.reviews || 0, ")"), React.createElement("span", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, Icons.location, " ", m.city, ", ", m.country))
+            React.createElement("div", { className: "master-stats" }, React.createElement("div", { className: "master-rating" }, Icons.star, " ", m.rating || "\u2014"),
+            React.createElement("span", { style: { fontSize: "0.6rem", padding: "1px 6px", borderRadius: 8, background: getMasterLevel(m.completed_orders || 0).color + "22", color: getMasterLevel(m.completed_orders || 0).color, fontWeight: 600 } }, getMasterLevel(m.completed_orders || 0).icon, " ", getMasterLevel(m.completed_orders || 0)[lang]), React.createElement("div", { className: "master-reviews" }, "(", m.reviews_count || m.reviews || 0, ")"), React.createElement("span", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, Icons.location, " ", m.city, ", ", m.country))
           )
         );
       })
@@ -1619,7 +1652,8 @@ textarea.form-input { resize: vertical; min-height: 80px; }
           React.createElement("div", { style: { fontFamily: "var(--font-display)", fontSize: "1.1rem", fontWeight: 700 } }, p.name),
           React.createElement("div", { style: { color: "var(--green)", fontSize: "0.8rem" } }, im ? (lang2 === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440" : "Master") : (lang2 === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A" : "Client")),
           React.createElement("div", { style: { display: "flex", justifyContent: "center", gap: 16, marginTop: 10 } },
-            im && React.createElement("div", { style: { textAlign: "center" } }, React.createElement("div", { style: { fontWeight: 700 } }, "\u{1F528} ", p.rating || "\u2014"), React.createElement("div", { style: { fontSize: "0.6rem", color: "var(--text3)" } }, lang2 === "ru" ? "\u0420\u0435\u0439\u0442\u0438\u043D\u0433" : "Rating")),
+            im && React.createElement("div", { style: { textAlign: "center" } }, React.createElement("div", { style: { fontWeight: 700 } }, "\u{1F528} ", p.rating || "\u2014"),
+            React.createElement("div", { style: { fontSize: "0.55rem", color: (p.level || getMasterLevel(p.completed_orders || 0)).color, fontWeight: 700 } }, (p.level || getMasterLevel(p.completed_orders || 0)).icon, " ", (p.level || getMasterLevel(p.completed_orders || 0))[lang2]), React.createElement("div", { style: { fontSize: "0.6rem", color: "var(--text3)" } }, lang2 === "ru" ? "\u0420\u0435\u0439\u0442\u0438\u043D\u0433" : "Rating")),
             React.createElement("div", { style: { textAlign: "center" } }, React.createElement("div", { style: { fontWeight: 700 } }, p.completed_orders || 0), React.createElement("div", { style: { fontSize: "0.6rem", color: "var(--text3)" } }, lang2 === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u043E\u0432" : "Jobs")),
             im && React.createElement("div", { style: { textAlign: "center" } }, React.createElement("div", { style: { fontWeight: 700 } }, p.reviews_count || 0), React.createElement("div", { style: { fontSize: "0.6rem", color: "var(--text3)" } }, lang2 === "ru" ? "\u041E\u0442\u0437\u044B\u0432\u043E\u0432" : "Reviews"))
           )
@@ -1632,6 +1666,20 @@ textarea.form-input { resize: vertical; min-height: 80px; }
         im && React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, lang2 === "ru" ? "\u0422\u0438\u043F" : "Type"), React.createElement("span", null, wl + (p.company_name ? " \u2014 " + p.company_name : ""))),
         cats.length > 0 && React.createElement("div", { style: { marginTop: 10 } }, React.createElement("div", { style: { fontSize: "0.75rem", fontWeight: 600, marginBottom: 6 } }, lang2 === "ru" ? "\u0421\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F" : "Specialization"), React.createElement("div", { className: "cat-select-grid" }, cats.map(function(c) { return React.createElement("span", { key: c.id, className: "cat-select-chip selected" }, c.icon, " ", c[lang2]); }))),
         p.bio && React.createElement("div", { style: { marginTop: 10 } }, React.createElement("div", { style: { fontSize: "0.75rem", fontWeight: 600, marginBottom: 6 } }, lang2 === "ru" ? "\u041E \u0441\u0435\u0431\u0435" : "About"), React.createElement("p", { style: { fontSize: "0.8rem", color: "var(--text3)", lineHeight: 1.5 } }, p.bio)),
+        p.reviews && p.reviews.length > 0 && React.createElement("div", { style: { marginTop: 12 } },
+          React.createElement("div", { style: { fontSize: "0.75rem", fontWeight: 600, marginBottom: 8 } }, lang2 === "ru" ? "\u041E\u0442\u0437\u044B\u0432\u044B" : "Reviews"),
+          p.reviews.slice(0, 5).map(function(rv, ri) {
+            var photos = rv.photos ? (typeof rv.photos === "string" ? JSON.parse(rv.photos) : rv.photos) : [];
+            return React.createElement("div", { key: ri, style: { background: "var(--bg3)", borderRadius: 8, padding: 10, marginBottom: 6 } },
+              React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: "0.75rem" } },
+                React.createElement("span", { style: { fontWeight: 600 } }, rv.reviewer_name || "Client"),
+                React.createElement("span", null, "\u{1F528} ", rv.rating, "/5")
+              ),
+              rv.comment && React.createElement("p", { style: { fontSize: "0.75rem", color: "var(--text3)", marginTop: 4 } }, rv.comment),
+              photos.length > 0 && React.createElement("div", { style: { display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" } }, photos.map(function(ph, pi) { return React.createElement("img", { key: pi, src: ph.url || ph, style: { width: 50, height: 50, objectFit: "cover", borderRadius: 6, cursor: "pointer" }, onClick: function() { window.open(ph.url || ph, "_blank"); } }); }))
+            );
+          })
+        ),
         React.createElement("button", { className: "btn btn-outline btn-full", style: { marginTop: 16 }, onClick: onClose }, lang2 === "ru" ? "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" : "Close")
       )
     );
