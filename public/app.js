@@ -754,10 +754,34 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 .app.wide .cta-section { max-width:800px; margin:30px auto 40px; }
 .app.wide .page { max-width:500px; margin:0 auto; }
 .app.wide .dash { flex-direction:row; }
-.app.wide .dash-content { flex:1; padding:24px 32px; }
-.app.wide .dash-nav { position:static; flex-direction:column; width:220px; border-top:none; border-right:1px solid var(--border); padding:16px 0; min-height:calc(100vh - 52px); }
-.app.wide .dash-nav-item { flex-direction:row; justify-content:flex-start; padding:10px 20px; font-size:0.8rem; gap:10px; }
+.app.wide .dash-content { flex:1; padding:24px 40px; max-width:960px; }
+.app.wide .dash-nav { position:static; flex-direction:column; width:200px; border-top:none; border-right:1px solid var(--border); padding:20px 0; min-height:calc(100vh - 52px); order:-1; }
+
+.app.wide .dash-nav-item { flex-direction:row; justify-content:flex-start; padding:12px 24px; font-size:0.8rem; gap:10px; border-radius:0; }
+.app.wide .dash-nav-item.active { background:var(--green-glow); border-right:3px solid var(--green); }
 .app.wide .admin-grid { grid-template-columns:repeat(4,1fr); }
+
+.app.wide .header { padding:12px 40px; max-width:1200px; margin:0 auto; }
+.app.wide .order-card { transition:transform 0.15s; }
+.app.wide .order-card:hover { transform:translateY(-2px); }
+.app.wide .hero h1 { font-size:2.4rem; letter-spacing:-0.02em; }
+.app.wide .hero p { font-size:1rem; max-width:600px; margin:0 auto 24px; }
+.app.wide .stats-row { padding:0 40px; }
+.app.wide .stat-card { padding:24px 16px; }
+.app.wide .stat-value { font-size:1.6rem; }
+.app.wide .stat-label { font-size:0.7rem; }
+.app.wide .cat-grid { gap:10px; }
+.app.wide .cat-chip { padding:10px 18px; font-size:0.8rem; }
+.app.wide .test-card { min-width:320px; }
+.app.wide .why-card h4 { font-size:0.9rem; }
+.app.wide .why-card p { font-size:0.75rem; }
+.app.wide .footer { max-width:1200px; margin:0 auto; }
+.app.wide .search-bar { max-width:600px; }
+.app.wide .tabs { max-width:800px; }
+.app.wide .master-card { max-width:600px; }
+.app.wide .form-input { padding:12px 16px; font-size:0.9rem; }
+.app.wide .btn { padding:12px 28px; font-size:0.9rem; }
+
 .loading-spinner { display:flex; justify-content:center; padding:30px; }
 .loading-spinner::after { content:''; width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.6s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
@@ -833,7 +857,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
         return;
       }
       var regResult = typeof api !== 'undefined' ? await api.register({ role, name: form.name, email: form.email, phone: form.phone, password: form.password, country: form.country, city: form.city, postal_code: form.postalCode, categories: selectedCats }) : null;
-      if (regResult && regResult.token) { api.setToken(regResult.token); setUser(regResult.user); } else { setUser({ id: 99, name: form.name, email: form.email, role, country: form.country, city: form.city, categories: selectedCats }); }
+      if (regResult && regResult.token && !regResult.error) { api.setToken(regResult.token); setUser(regResult.user); } else { setUser({ id: 99, name: form.name, email: form.email, role, country: form.country, city: form.city, categories: selectedCats }); }
       setPage(role === "master" ? "master" : "client");
       showToast(lang === "ru" ? "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F \u0443\u0441\u043F\u0435\u0448\u043D\u0430!" : "Registration successful!");
     };
@@ -847,7 +871,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const handleLogin = async () => {
       if (!email || !password) { showToast("Enter email and password"); return; }
       var result = typeof api !== 'undefined' ? await api.login(email, password) : null;
-      if (result && result.token) {
+      if (result && result.token && !result.error) {
         api.setToken(result.token);
         setUser(result.user);
         setPage(result.user.role === "master" ? "master" : result.user.role === "admin" ? "admin" : "client");
@@ -940,7 +964,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const { lang } = useContext(AppContext);
     const [responses, setResponses] = useState([]);
     const [loading, setLoading] = useState(true);
-    useEffect(function() { if (typeof api !== "undefined") api.myResponses().then(function(r) { setResponses(r || []); setLoading(false); }); else setLoading(false); }, []);
+    useEffect(function() { if (typeof api !== "undefined") api.myResponses().then(function(r) { setResponses(r && !r.error ? r : []); setLoading(false); }); else setLoading(false); }, []);
     if (loading) return React.createElement("div", { className: "loading-spinner" });
     if (!responses.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4EC}"), React.createElement("p", null, lang === "ru" ? "\u0423 \u0432\u0430\u0441 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442 \u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "No responses yet"));
     return React.createElement(React.Fragment, null, responses.map(function(r) { return React.createElement("div", { key: r.id, className: "order-card" }, React.createElement("div", { className: "order-title" }, r.order_title || "Order #" + r.order_id), React.createElement("div", { className: "order-meta" }, React.createElement("span", null, r.order_location || ""), React.createElement("span", { className: "status-badge status-" + (r.status === "pending" ? "open" : r.status === "accepted" ? "active" : "blocked") }, r.status)), React.createElement("div", { className: "order-budget" }, (r.order_budget || r.proposed_budget || "?") + "\u20AC")); }));
@@ -982,15 +1006,15 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [chatMessages, setChatMessages] = useState([]);
     const [newMsg, setNewMsg] = useState("");
     useEffect(function() { loadConvos(); }, []);
-    function loadConvos() { setLoading(true); if (typeof api !== "undefined") api.getMessages().then(function(r) { setConvos(r || []); setLoading(false); }); else setLoading(false); }
+    function loadConvos() { setLoading(true); if (typeof api !== "undefined") api.getMessages().then(function(r) { setConvos(r && !r.error ? r : []); setLoading(false); }); else setLoading(false); }
     function openChat(otherId, otherName) {
       setChatWith({ id: otherId, name: otherName });
-      if (typeof api !== "undefined") api.getMessages(otherId).then(function(r) { setChatMessages(r || []); });
+      if (typeof api !== "undefined") api.getMessages(otherId).then(function(r) { setChatMessages(r && !r.error ? r : []); });
     }
     function sendMsg() {
       if (!newMsg.trim() || !chatWith) return;
       if (typeof api !== "undefined") api.sendMessage({ receiver_id: chatWith.id, content: newMsg }).then(function() {
-        setNewMsg(""); api.getMessages(chatWith.id).then(function(r) { setChatMessages(r || []); });
+        setNewMsg(""); api.getMessages(chatWith.id).then(function(r) { setChatMessages(r && !r.error ? r : []); });
       });
     }
     if (chatWith) return React.createElement(React.Fragment, null,
@@ -1089,7 +1113,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     function viewResponses(order) {
       setSelectedOrder(order);
       setLoadingResp(true);
-      if (typeof api !== "undefined") api.getResponses(order.id).then(function(r) { setResponses2(r || []); setLoadingResp(false); });
+      if (typeof api !== "undefined") api.getResponses(order.id).then(function(r) { setResponses2(r && !r.error ? r : []); setLoadingResp(false); });
       else setLoadingResp(false);
     }
     function acceptMaster(respId) {
@@ -1152,7 +1176,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       var params = {};
       if (filterCat !== "all") params.category = filterCat;
       if (search) params.search = search;
-      if (typeof api !== "undefined") api.getMasters(params).then(function(r) { setMasters(r || MOCK_MASTERS); setLoading(false); });
+      if (typeof api !== "undefined") api.getMasters(params).then(function(r) { setMasters(r && !r.error ? r : MOCK_MASTERS); setLoading(false); });
       else { setMasters(MOCK_MASTERS.filter(function(m) { return filterCat === "all" || m.categories.includes(filterCat); })); setLoading(false); }
     }
     return React.createElement(React.Fragment, null,
@@ -1191,7 +1215,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   function AdminStatsTab() {
     const { lang } = useContext(AppContext);
     const [stats, setStats] = useState(null);
-    useEffect(function() { if (typeof api !== "undefined") api.adminStats().then(function(r) { setStats(r); }); else setStats({ masters: 342, clients: 1247, orders: 856, open_orders: 128, top_categories: [] }); }, []);
+    useEffect(function() { if (typeof api !== "undefined") api.adminStats().then(function(r) { setStats(r && !r.error ? r : { masters: 0, clients: 0, orders: 0, open_orders: 0, top_categories: [] }); }); else setStats({ masters: 342, clients: 1247, orders: 856, open_orders: 128, top_categories: [] }); }, []);
     if (!stats) return React.createElement("div", { className: "loading-spinner" });
     var cards = [{ value: stats.masters || 0, label: lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u043E\u0432" : "Masters" }, { value: stats.clients || 0, label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u043E\u0432" : "Clients" }, { value: stats.orders || 0, label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u043E\u0432" : "Orders" }, { value: stats.open_orders || 0, label: lang === "ru" ? "\u041E\u0442\u043A\u0440\u044B\u0442\u044B\u0445" : "Open" }];
     return React.createElement(React.Fragment, null,
@@ -1210,7 +1234,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       setLoading(true);
       var params = {};
       if (filter !== "all") params.role = filter;
-      if (typeof api !== "undefined") api.adminUsers(params).then(function(r) { setUsers2(r || MOCK_USERS); setLoading(false); });
+      if (typeof api !== "undefined") api.adminUsers(params).then(function(r) { setUsers2(r && !r.error ? r : MOCK_USERS); setLoading(false); });
       else { setUsers2(MOCK_USERS.filter(function(u) { return filter === "all" || u.role === filter; })); setLoading(false); }
     }
     function toggleBlock(u) { if (typeof api !== "undefined") { var ns = u.status === "active" ? "blocked" : "active"; api.adminUpdateUser(u.id, { status: ns }).then(function() { showToast(ns === "blocked" ? "Blocked" : "Unblocked"); loadUsers(); }); } else showToast("Demo mode"); }
@@ -1267,7 +1291,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [toast, setToast] = useState(null);
     const [wide, setWide] = useState(_isWide());
     useEffect(function() { if (_isTMA) return; var h = function() { setWide(_isWide()); }; window.addEventListener("resize", h); return function() { window.removeEventListener("resize", h); }; }, []);
-    useEffect(function() { if (typeof api !== "undefined" && api.token) { api.me().then(function(me) { if (me && me.id) { setUser(me); setPage(me.role === "master" ? "master" : me.role === "admin" ? "admin" : "client"); } else { api.setToken(null); } }); } }, []);
+    useEffect(function() { if (typeof api !== "undefined" && api.token) { api.me().then(function(me) { if (me && me.id && !me.error) { setUser(me); setPage(me.role === "master" ? "master" : me.role === "admin" ? "admin" : "client"); } else { api.setToken(null); } }); } }, []);
     const showToast = useCallback((msg) => {
       setToast(msg);
     }, []);

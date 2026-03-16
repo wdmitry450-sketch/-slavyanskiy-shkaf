@@ -25,7 +25,7 @@ const api = {
       return data;
     } catch (e) {
       console.warn('API call failed:', path, e.message);
-      return null;
+      return { error: e.message };
     }
   },
 
