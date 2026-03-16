@@ -896,7 +896,7 @@ export async function onRequest(context) {
 
     // Accept response
     const acceptMatch = path.match(/^responses\/(\d+)\/accept$/);
-    if (acceptMatch && method === 'PUT') return handleAcceptResponse(request, env, parseInt(acceptMatch[1]));
+    if (acceptMatch && (method === 'PUT' || method === 'POST')) return handleAcceptResponse(request, env, parseInt(acceptMatch[1]));
 
     // Complete order
     const completeMatch = path.match(/^orders\/(\d+)\/complete$/);
@@ -904,7 +904,7 @@ export async function onRequest(context) {
 
     // Notifications
     if (path === 'notifications' && method === 'GET') return handleGetNotifications(request, env);
-    if (path === 'notifications/read' && method === 'PUT') return handleMarkNotificationsRead(request, env);
+    if (path === 'notifications/read' && (method === 'PUT' || method === 'POST')) return handleMarkNotificationsRead(request, env);
 
     // Masters
     if (path === 'masters' && method === 'GET') return handleGetMasters(request, env);
@@ -912,7 +912,7 @@ export async function onRequest(context) {
     // Profile
     const profileMatch = path.match(/^profile\/(\d+)$/);
     if (profileMatch && method === 'GET') return handleGetProfile(request, env, parseInt(profileMatch[1]));
-    if (path === 'profile' && method === 'PUT') return handleUpdateProfile(request, env);
+    if (path === 'profile' && (method === 'PUT' || method === 'POST')) return handleUpdateProfile(request, env);
 
     // Messages
     if (path === 'messages' && method === 'GET') return handleGetMessages(request, env);
@@ -938,10 +938,10 @@ export async function onRequest(context) {
     if (path === 'admin/users' && method === 'GET') return handleAdminUsers(request, env);
 
     const adminUserMatch = path.match(/^admin\/users\/(\d+)$/);
-    if (adminUserMatch && method === 'PUT') return handleAdminUpdateUser(request, env, parseInt(adminUserMatch[1]));
+    if (adminUserMatch && (method === 'PUT' || method === 'POST')) return handleAdminUpdateUser(request, env, parseInt(adminUserMatch[1]));
 
     const adminTopMatch = path.match(/^admin\/orders\/(\d+)\/top$/);
-    if (adminTopMatch && method === 'PUT') return handleAdminToggleTop(request, env, parseInt(adminTopMatch[1]));
+    if (adminTopMatch && (method === 'PUT' || method === 'POST')) return handleAdminToggleTop(request, env, parseInt(adminTopMatch[1]));
 
     if (path === 'admin/broadcast' && method === 'POST') return handleBroadcast(request, env);
     if (path === 'admin/broadcasts' && method === 'GET') return handleGetBroadcasts(request, env);
