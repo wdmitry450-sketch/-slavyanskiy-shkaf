@@ -802,44 +802,38 @@ async function handleMarkNotificationsRead(request, env) {
 async function handleMediaUpload(request, env) {
   const user = await getUser(request, env);
   if (!user) return err('Unauthorized', 401);
-  if (!env.MEDIA) return err('Media storage not configured. Create R2 bucket "slavic-shkaf-media" and add binding MEDIA in Cloudflare Pages settings.', 500);
+  if (!env.MEDIA) return err('Media storage not configured', 500);
 
   try {
-    const formData = await request.formData();
-    const file = formData.get('file');
-    if (!file) return err('No file provided');
+    const body = await request.json();
+    const { data, name, type, size } = body;
+    if (!data) return err('No file data provided');
 
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm', 'application/pdf'];
-    if (!allowedTypes.includes(file.type)) return err('Unsupported file type. Allowed: JPEG, PNG, GIF, WebP, MP4, MOV, WebM, PDF');
+    if (!allowedTypes.includes(type)) return err('Unsupported file type');
 
-    // Validate size (10MB max for images, 50MB for video)
-    const isVideo = file.type.startsWith('video/'); const isPDF = file.type === 'application/pdf';
+    const isVideo = type.startsWith('video/');
+    const isPDF = type === 'application/pdf';
     const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
-    if (file.size > maxSize) return err(`File too large. Max: ${isVideo ? '50' : '10'}MB`);
+    if (size > maxSize) return err('File too large');
 
-    // Generate unique filename
-    const ext = file.name?.split('.').pop() || (isVideo ? 'mp4' : isPDF ? 'pdf' : 'jpg');
-    const filename = `${user.id}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const key = `chat/${filename}`;
+    const binaryStr = atob(data);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
 
-    // Upload to R2
-    if (!env.MEDIA) return err('Media storage not configured', 500);
-    await env.MEDIA.put(key, file.stream(), {
-      httpMetadata: { contentType: file.type },
-      customMetadata: { userId: String(user.id), originalName: file.name || filename },
+    const ext = name?.split('.').pop() || (isVideo ? 'mp4' : isPDF ? 'pdf' : 'jpg');
+    const filename = user.id + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+
+    await env.MEDIA.put('chat/' + filename, bytes.buffer, {
+      httpMetadata: { contentType: type },
     });
 
-    return json({
-      url: `/api/media/${filename}`,
-      type: isVideo ? 'video' : isPDF ? 'pdf' : 'image',
-      name: file.name || filename,
-      size: file.size,
-    }, 201);
+    return json({ url: '/api/media/' + filename, type: isVideo ? 'video' : isPDF ? 'pdf' : 'image', name: name || filename, size: size }, 201);
   } catch(e) {
-    return err('Upload failed: ' + (e.message || 'Unknown error') + '. Make sure R2 bucket is configured.', 500);
+    return err('Upload failed: ' + e.message, 500);
   }
 }
+
 
 // GET /api/media/:filename — serve a file
 async function handleMediaServe(request, env, filename) {
