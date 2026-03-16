@@ -334,6 +334,21 @@
     { id: 5, name: "\u0421\u0435\u0440\u0433\u0435\u0439 \u041D\u043E\u0432\u0430\u043A", email: "sergei@mail.com", role: "master", country: "PL", status: "active", registeredAt: "2024-12-10" },
     { id: 6, name: "\u0410\u043D\u043D\u0430 \u0421\u0438\u0434\u043E\u0440\u043E\u0432\u0430", email: "anna@mail.com", role: "client", country: "PL", status: "active", registeredAt: "2025-02-28" }
   ];
+  
+var LANGUAGES = [
+  { code: "ru", ru: "Русский", en: "Russian" }, { code: "en", ru: "Английский", en: "English" },
+  { code: "de", ru: "Немецкий", en: "German" }, { code: "pl", ru: "Польский", en: "Polish" },
+  { code: "cs", ru: "Чешский", en: "Czech" }, { code: "fr", ru: "Французский", en: "French" },
+  { code: "es", ru: "Испанский", en: "Spanish" }, { code: "it", ru: "Итальянский", en: "Italian" },
+  { code: "pt", ru: "Португальский", en: "Portuguese" }, { code: "nl", ru: "Нидерландский", en: "Dutch" },
+  { code: "bg", ru: "Болгарский", en: "Bulgarian" }, { code: "ro", ru: "Румынский", en: "Romanian" },
+  { code: "hr", ru: "Хорватский", en: "Croatian" }, { code: "sr", ru: "Сербский", en: "Serbian" },
+  { code: "sk", ru: "Словацкий", en: "Slovak" }, { code: "hu", ru: "Венгерский", en: "Hungarian" },
+  { code: "el", ru: "Греческий", en: "Greek" }, { code: "sv", ru: "Шведский", en: "Swedish" },
+  { code: "da", ru: "Датский", en: "Danish" }, { code: "fi", ru: "Финский", en: "Finnish" },
+  { code: "no", ru: "Норвежский", en: "Norwegian" }, { code: "uk", ru: "Украинский", en: "Ukrainian" },
+];
+
   var AppContext = createContext();
   var Icons = {
     menu: /* @__PURE__ */ React.createElement("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2" }, /* @__PURE__ */ React.createElement("path", { d: "M3 12h18M3 6h18M3 18h18" })),
@@ -819,6 +834,9 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [role, setRole] = useState("master");
     const [form, setForm] = useState({ name: "", email: "", phone: "", country: "", password: "", confirmPassword: "", postalCode: "", city: "" });
     const [selectedCats, setSelectedCats] = useState([]);
+    const [nativeLang, setNativeLang] = useState("");
+    const [addLangs, setAddLangs] = useState([]);
+    var toggleAddLang = function(lc) { setAddLangs(function(p) { return p.includes(lc) ? p.filter(function(c) { return c !== lc; }) : p.length < 5 ? p.concat([lc]) : p; }); };
     const updateForm = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
     const toggleCat = (id) => setSelectedCats((prev) => prev.includes(id) ? prev.filter((c) => c !== id) : prev.length < 5 ? [...prev, id] : prev);
     const handleSubmit = async () => {
@@ -826,12 +844,14 @@ textarea.form-input { resize: vertical; min-height: 80px; }
         showToast(lang === "ru" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043F\u043E\u043B\u044F" : "Fill in required fields");
         return;
       }
-      var regResult = typeof api !== 'undefined' ? await api.register({ role, name: form.name, email: form.email, phone: form.phone, password: form.password, country: form.country, city: form.city, postal_code: form.postalCode, categories: selectedCats }) : null;
+      var regResult = typeof api !== 'undefined' ? await api.register({ role, name: form.name, email: form.email, phone: form.phone, password: form.password, country: form.country, city: form.city, postal_code: form.postalCode, categories: selectedCats, native_language: nativeLang, additional_languages: addLangs }) : null;
       if (regResult && regResult.token && !regResult.error) { api.setToken(regResult.token); setUser(regResult.user); } else { setUser({ id: 99, name: form.name, email: form.email, role, country: form.country, city: form.city, categories: selectedCats }); }
       setPage(role === "master" ? "master" : "client");
       showToast(lang === "ru" ? "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F \u0443\u0441\u043F\u0435\u0448\u043D\u0430!" : "Registration successful!");
     };
-    return /* @__PURE__ */ React.createElement("div", { className: "page" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 20 } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setPage("home"), style: { background: "none", border: "none", color: "var(--text)", cursor: "pointer" } }, Icons.back), /* @__PURE__ */ React.createElement("h1", { className: "page-title", style: { margin: 0 } }, t.title)), /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.role), /* @__PURE__ */ React.createElement("div", { className: "role-toggle" }, /* @__PURE__ */ React.createElement("div", { className: `role-option ${role === "master" ? "active" : ""}`, onClick: () => setRole("master") }, /* @__PURE__ */ React.createElement("div", { className: "role-icon" }, "\u{1F527}"), /* @__PURE__ */ React.createElement("div", { className: "role-label" }, t.master)), /* @__PURE__ */ React.createElement("div", { className: `role-option ${role === "client" ? "active" : ""}`, onClick: () => setRole("client") }, /* @__PURE__ */ React.createElement("div", { className: "role-icon" }, "\u{1F4CB}"), /* @__PURE__ */ React.createElement("div", { className: "role-label" }, t.client))), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.name, " *"), /* @__PURE__ */ React.createElement("input", { className: "form-input", placeholder: t.name, value: form.name, onChange: (e) => updateForm("name", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.email, " *"), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "email", placeholder: t.email, value: form.email, onChange: (e) => updateForm("email", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.phone), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "tel", placeholder: "+49 xxx xxx xxxx", value: form.phone, onChange: (e) => updateForm("phone", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.country), /* @__PURE__ */ React.createElement("select", { className: "form-input", value: form.country, onChange: (e) => updateForm("country", e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "" }, t.selectCountry), COUNTRIES.map((c) => /* @__PURE__ */ React.createElement("option", { key: c.code, value: c.code }, c[lang])))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "form-group", style: { flex: 1 } }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.city), /* @__PURE__ */ React.createElement("input", { className: "form-input", placeholder: t.city, value: form.city, onChange: (e) => updateForm("city", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group", style: { flex: 1 } }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.postalCode), /* @__PURE__ */ React.createElement("input", { className: "form-input", placeholder: "10115", value: form.postalCode, onChange: (e) => updateForm("postalCode", e.target.value) }))), role === "master" && /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.categories, " (", lang === "ru" ? "\u0434\u043E 5" : "up to 5", ")"), /* @__PURE__ */ React.createElement("div", { className: "cat-select-grid" }, CATEGORIES.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, className: `cat-select-chip ${selectedCats.includes(c.id) ? "selected" : ""}`, onClick: () => toggleCat(c.id) }, c.icon, " ", c[lang])))), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.password, " *"), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "password", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", value: form.password, onChange: (e) => updateForm("password", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.confirmPassword), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "password", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", value: form.confirmPassword, onChange: (e) => updateForm("confirmPassword", e.target.value) })), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", style: { marginTop: 8 }, onClick: handleSubmit }, t.submit), /* @__PURE__ */ React.createElement("div", { className: "form-bottom" }, t.hasAccount, " ", /* @__PURE__ */ React.createElement("span", { className: "form-link", onClick: () => setPage("login") }, t.login)));
+    return /* @__PURE__ */ React.createElement("div", { className: "page" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 20 } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setPage("home"), style: { background: "none", border: "none", color: "var(--text)", cursor: "pointer" } }, Icons.back), /* @__PURE__ */ React.createElement("h1", { className: "page-title", style: { margin: 0 } }, t.title)), /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.role), /* @__PURE__ */ React.createElement("div", { className: "role-toggle" }, /* @__PURE__ */ React.createElement("div", { className: `role-option ${role === "master" ? "active" : ""}`, onClick: () => setRole("master") }, /* @__PURE__ */ React.createElement("div", { className: "role-icon" }, "\u{1F527}"), /* @__PURE__ */ React.createElement("div", { className: "role-label" }, t.master)), /* @__PURE__ */ React.createElement("div", { className: `role-option ${role === "client" ? "active" : ""}`, onClick: () => setRole("client") }, /* @__PURE__ */ React.createElement("div", { className: "role-icon" }, "\u{1F4CB}"), /* @__PURE__ */ React.createElement("div", { className: "role-label" }, t.client))), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.name, " *"), /* @__PURE__ */ React.createElement("input", { className: "form-input", placeholder: t.name, value: form.name, onChange: (e) => updateForm("name", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.email, " *"), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "email", placeholder: t.email, value: form.email, onChange: (e) => updateForm("email", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.phone), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "tel", placeholder: "+49 xxx xxx xxxx", value: form.phone, onChange: (e) => updateForm("phone", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.country), /* @__PURE__ */ React.createElement("select", { className: "form-input", value: form.country, onChange: (e) => updateForm("country", e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "" }, t.selectCountry), COUNTRIES.map((c) => /* @__PURE__ */ React.createElement("option", { key: c.code, value: c.code }, c[lang])))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "form-group", style: { flex: 1 } }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.city), /* @__PURE__ */ React.createElement("input", { className: "form-input", placeholder: t.city, value: form.city, onChange: (e) => updateForm("city", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group", style: { flex: 1 } }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.postalCode), /* @__PURE__ */ React.createElement("input", { className: "form-input", placeholder: "10115", value: form.postalCode, onChange: (e) => updateForm("postalCode", e.target.value) }))), role === "master" && /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.categories, " (", lang === "ru" ? "\u0434\u043E 5" : "up to 5", ")"), /* @__PURE__ */ React.createElement("div", { className: "cat-select-grid" }, CATEGORIES.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, className: `cat-select-chip ${selectedCats.includes(c.id) ? "selected" : ""}`, onClick: () => toggleCat(c.id) }, c.icon, " ", c[lang])))), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0420\u043E\u0434\u043D\u043E\u0439 \u044F\u0437\u044B\u043A" : "Native Language"), React.createElement("select", { className: "form-input", value: nativeLang, onChange: function(e) { setNativeLang(e.target.value); } }, React.createElement("option", { value: "" }, lang === "ru" ? "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435" : "Select"), LANGUAGES.map(function(l) { return React.createElement("option", { key: l.code, value: l.code }, l[lang]); }))),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u044F\u0437\u044B\u043A\u0438 (\u0434\u043E 5)" : "Additional Languages (up to 5)"), React.createElement("div", { className: "cat-select-grid" }, LANGUAGES.map(function(l) { return React.createElement("div", { key: l.code, className: "cat-select-chip " + (addLangs.includes(l.code) ? "selected" : ""), onClick: function() { toggleAddLang(l.code); } }, l[lang]); }))),
+      React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.password, " *")), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "password", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", value: form.password, onChange: (e) => updateForm("password", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.confirmPassword), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "password", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", value: form.confirmPassword, onChange: (e) => updateForm("confirmPassword", e.target.value) })), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", style: { marginTop: 8 }, onClick: handleSubmit }, t.submit), /* @__PURE__ */ React.createElement("div", { className: "form-bottom" }, t.hasAccount, " ", /* @__PURE__ */ React.createElement("span", { className: "form-link", onClick: () => setPage("login") }, t.login)));
   }
   function LoginPage() {
     const { lang, setPage, setUser, showToast } = useContext(AppContext);
@@ -874,6 +894,11 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const t = translations[lang].masterDash;
     const tc = translations[lang].common;
     const [tab, setTab] = useState("exchange");
+    useEffect(function() {
+      function handleOpenChat() { setTab("messages"); }
+      window.addEventListener("ss_open_chat", handleOpenChat);
+      return function() { window.removeEventListener("ss_open_chat", handleOpenChat); };
+    }, []);
     const navItems = [
       { id: "exchange", icon: Icons.briefcase, label: t.exchange },
       { id: "responses", icon: Icons.list, label: t.myResponses },
@@ -1131,19 +1156,106 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     );
   }
   function ProfileTab() {
-    const { lang, user } = useContext(AppContext);
+    const { lang, user, setUser, showToast } = useContext(AppContext);
+    const [editing, setEditing] = useState(false);
+    const [form, setForm] = useState({});
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [portfolioFiles, setPortfolioFiles] = useState([]);
+    const avatarRef = useRef(null);
+    const portfolioRef = useRef(null);
+    const [nativeLang2, setNativeLang2] = useState(user?.native_language || "");
+    const [addLangs2, setAddLangs2] = useState(user?.additional_languages || []);
+
     if (!user) return null;
-    const isMaster = user.role === "master";
-    const country = COUNTRIES.find((c) => c.code === user.country);
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "profile-header" }, /* @__PURE__ */ React.createElement("div", { className: "profile-avatar" }, isMaster ? "\u{1F527}" : "\u{1F4CB}"), /* @__PURE__ */ React.createElement("div", { className: "profile-name" }, user.name), /* @__PURE__ */ React.createElement("div", { className: "profile-role" }, isMaster ? lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440" : "Tradesperson" : lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A" : "Client")), /* @__PURE__ */ React.createElement("div", { className: "profile-section" }, /* @__PURE__ */ React.createElement("div", { className: "profile-section-title" }, lang === "ru" ? "\u041B\u0438\u0447\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435" : "Personal Info"), /* @__PURE__ */ React.createElement("div", { className: "profile-field" }, /* @__PURE__ */ React.createElement("span", { className: "profile-field-label" }, "Email"), /* @__PURE__ */ React.createElement("span", { className: "profile-field-value" }, user.email)), /* @__PURE__ */ React.createElement("div", { className: "profile-field" }, /* @__PURE__ */ React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u0421\u0442\u0440\u0430\u043D\u0430" : "Country"), /* @__PURE__ */ React.createElement("span", { className: "profile-field-value" }, country?.[lang] || "\u2014")), /* @__PURE__ */ React.createElement("div", { className: "profile-field" }, /* @__PURE__ */ React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u0413\u043E\u0440\u043E\u0434" : "City"), /* @__PURE__ */ React.createElement("span", { className: "profile-field-value" }, user.city || "\u2014"))), isMaster && /* @__PURE__ */ React.createElement("div", { className: "profile-section" }, /* @__PURE__ */ React.createElement("div", { className: "profile-section-title" }, lang === "ru" ? "\u0421\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F" : "Specialization"), /* @__PURE__ */ React.createElement("div", { className: "cat-select-grid" }, (user.categories || []).map((catId) => {
-      const c = CATEGORIES.find((cat) => cat.id === catId);
-      return c ? /* @__PURE__ */ React.createElement("span", { key: c.id, className: "cat-select-chip selected" }, c.icon, " ", c[lang]) : null;
-    }))), isMaster && /* @__PURE__ */ React.createElement("div", { className: "profile-section" }, /* @__PURE__ */ React.createElement("div", { className: "profile-section-title" }, lang === "ru" ? "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B / \u041B\u0438\u0446\u0435\u043D\u0437\u0438\u0438" : "Documents / Licenses"), /* @__PURE__ */ React.createElement("div", { style: { border: "2px dashed var(--border)", borderRadius: "var(--radius)", padding: 20, textAlign: "center", cursor: "pointer" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: "1.5rem", marginBottom: 4 } }, "\u{1F4C4}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)" } }, lang === "ru" ? "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u0434\u043B\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432" : "Tap to upload documents"))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-outline btn-full" }, lang === "ru" ? "\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u0440\u043E\u0444\u0438\u043B\u044C" : "Edit Profile"));
+    var isMaster = user.role === "master";
+    var country = COUNTRIES.find(function(c) { return c.code === user.country; });
+    var natLang = LANGUAGES.find(function(l) { return l.code === (user.native_language || nativeLang2); });
+    var addLangNames = (user.additional_languages || addLangs2 || []).map(function(lc) { var l = LANGUAGES.find(function(x) { return x.code === lc; }); return l ? l[lang] : lc; });
+
+    function startEdit() {
+      setForm({ name: user.name || "", email: user.email || "", phone: user.phone || "", city: user.city || "", bio: user.bio || "", experience: user.experience || "" });
+      setNativeLang2(user.native_language || "");
+      setAddLangs2(user.additional_languages || []);
+      setEditing(true);
+    }
+
+    async function saveProfile() {
+      var updates = Object.assign({}, form);
+      updates.native_language = nativeLang2;
+      updates.additional_languages = addLangs2;
+      // Upload avatar
+      if (avatarFile && typeof api !== "undefined") {
+        var av = await api.uploadMedia(avatarFile);
+        if (av && av.url) updates.avatar_url = av.url;
+      }
+      if (typeof api !== "undefined") {
+        var r = await api.updateProfile(updates);
+        if (r && !r.error) {
+          setUser(Object.assign({}, user, updates));
+          showToast(lang === "ru" ? "\u041F\u0440\u043E\u0444\u0438\u043B\u044C \u043E\u0431\u043D\u043E\u0432\u043B\u0451\u043D" : "Profile updated");
+          setEditing(false);
+        } else showToast((r && r.error) || "Error");
+      }
+    }
+
+    if (editing) return React.createElement(React.Fragment, null,
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 } },
+        React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700 } }, lang === "ru" ? "\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435" : "Edit Profile"),
+        React.createElement("button", { className: "btn btn-sm btn-outline", onClick: function() { setEditing(false); } }, lang === "ru" ? "\u041E\u0442\u043C\u0435\u043D\u0430" : "Cancel")
+      ),
+      React.createElement("div", { style: { textAlign: "center", marginBottom: 20 } },
+        React.createElement("div", { style: { width: 80, height: 80, borderRadius: "50%", background: "var(--bg3)", border: "3px solid var(--green)", margin: "0 auto 8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", overflow: "hidden", cursor: "pointer" }, onClick: function() { if (avatarRef.current) avatarRef.current.click(); } },
+          (avatarFile ? React.createElement("img", { src: URL.createObjectURL(avatarFile), style: { width: "100%", height: "100%", objectFit: "cover" } }) : user.avatar_url ? React.createElement("img", { src: user.avatar_url, style: { width: "100%", height: "100%", objectFit: "cover" } }) : (isMaster ? "\u{1F527}" : "\u{1F4CB}"))
+        ),
+        React.createElement("input", { ref: avatarRef, type: "file", accept: "image/*", style: { display: "none" }, onChange: function(e) { if (e.target.files[0]) setAvatarFile(e.target.files[0]); } }),
+        React.createElement("div", { style: { fontSize: "0.7rem", color: "var(--green)", cursor: "pointer" }, onClick: function() { if (avatarRef.current) avatarRef.current.click(); } }, lang === "ru" ? "\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0444\u043E\u0442\u043E" : "Change photo")
+      ),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0418\u043C\u044F" : "Name"), React.createElement("input", { className: "form-input", value: form.name, onChange: function(e) { setForm(Object.assign({}, form, { name: e.target.value })); } })),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, "Email"), React.createElement("input", { className: "form-input", value: form.email, onChange: function(e) { setForm(Object.assign({}, form, { email: e.target.value })); } })),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0422\u0435\u043B\u0435\u0444\u043E\u043D" : "Phone"), React.createElement("input", { className: "form-input", value: form.phone, onChange: function(e) { setForm(Object.assign({}, form, { phone: e.target.value })); } })),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0413\u043E\u0440\u043E\u0434" : "City"), React.createElement("input", { className: "form-input", value: form.city, onChange: function(e) { setForm(Object.assign({}, form, { city: e.target.value })); } })),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u041E \u0441\u0435\u0431\u0435" : "About"), React.createElement("textarea", { className: "form-input", rows: 3, value: form.bio, onChange: function(e) { setForm(Object.assign({}, form, { bio: e.target.value })); } })),
+      isMaster && React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u041E\u043F\u044B\u0442" : "Experience"), React.createElement("input", { className: "form-input", value: form.experience, onChange: function(e) { setForm(Object.assign({}, form, { experience: e.target.value })); } })),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0420\u043E\u0434\u043D\u043E\u0439 \u044F\u0437\u044B\u043A" : "Native Language"), React.createElement("select", { className: "form-input", value: nativeLang2, onChange: function(e) { setNativeLang2(e.target.value); } }, React.createElement("option", { value: "" }, "—"), LANGUAGES.map(function(l) { return React.createElement("option", { key: l.code, value: l.code }, l[lang]); }))),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0414\u043E\u043F. \u044F\u0437\u044B\u043A\u0438" : "Other Languages"), React.createElement("div", { className: "cat-select-grid" }, LANGUAGES.map(function(l) { return React.createElement("div", { key: l.code, className: "cat-select-chip " + (addLangs2.includes(l.code) ? "selected" : ""), onClick: function() { setAddLangs2(function(p) { return p.includes(l.code) ? p.filter(function(c) { return c !== l.code; }) : p.concat([l.code]); }); } }, l[lang]); }))),
+      React.createElement("button", { className: "btn btn-primary btn-full", style: { marginTop: 12 }, onClick: saveProfile }, lang === "ru" ? "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C" : "Save")
+    );
+
+    return React.createElement(React.Fragment, null,
+      React.createElement("div", { className: "profile-header" },
+        React.createElement("div", { className: "profile-avatar", style: user.avatar_url ? { backgroundImage: "url(" + user.avatar_url + ")", backgroundSize: "cover", backgroundPosition: "center" } : {} }, !user.avatar_url && (isMaster ? "\u{1F527}" : "\u{1F4CB}")),
+        React.createElement("div", { className: "profile-name" }, user.name),
+        React.createElement("div", { className: "profile-role" }, isMaster ? (lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440" : "Tradesperson") : (lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A" : "Client"))
+      ),
+      React.createElement("div", { className: "profile-section" },
+        React.createElement("div", { className: "profile-section-title" }, lang === "ru" ? "\u041B\u0438\u0447\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435" : "Personal Info"),
+        React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, "Email"), React.createElement("span", null, user.email)),
+        React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u0421\u0442\u0440\u0430\u043D\u0430" : "Country"), React.createElement("span", null, country ? country[lang] : "\u2014")),
+        React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u0413\u043E\u0440\u043E\u0434" : "City"), React.createElement("span", null, user.city || "\u2014")),
+        React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u0422\u0435\u043B\u0435\u0444\u043E\u043D" : "Phone"), React.createElement("span", null, user.phone || "\u2014")),
+        user.bio && React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u041E \u0441\u0435\u0431\u0435" : "About"), React.createElement("span", null, user.bio))
+      ),
+      React.createElement("div", { className: "profile-section" },
+        React.createElement("div", { className: "profile-section-title" }, lang === "ru" ? "\u042F\u0437\u044B\u043A\u0438" : "Languages"),
+        React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u0420\u043E\u0434\u043D\u043E\u0439" : "Native"), React.createElement("span", null, natLang ? natLang[lang] : "\u2014")),
+        addLangNames.length > 0 && React.createElement("div", { className: "profile-field" }, React.createElement("span", { className: "profile-field-label" }, lang === "ru" ? "\u0414\u043E\u043F." : "Other"), React.createElement("span", null, addLangNames.join(", ")))
+      ),
+      isMaster && user.categories && user.categories.length > 0 && React.createElement("div", { className: "profile-section" },
+        React.createElement("div", { className: "profile-section-title" }, lang === "ru" ? "\u0421\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F" : "Specialization"),
+        React.createElement("div", { className: "cat-select-grid" }, user.categories.map(function(catId) { var c = CATEGORIES.find(function(cat) { return cat.id === catId; }); return c ? React.createElement("span", { key: c.id, className: "cat-select-chip selected" }, c.icon, " ", c[lang]) : null; }))
+      ),
+      React.createElement("button", { className: "btn btn-primary btn-full", style: { marginTop: 16 }, onClick: startEdit }, lang === "ru" ? "\u2270\uFE0F \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C" : "\u270F\uFE0F Edit Profile")
+    );
   }
   function ClientDashboard() {
     const { lang, notifCount } = useContext(AppContext);
     const t = translations[lang].clientDash;
     const [tab, setTab] = useState("myOrders");
+    useEffect(function() {
+      function handleOpenChat() { setTab("messages"); }
+      window.addEventListener("ss_open_chat", handleOpenChat);
+      return function() { window.removeEventListener("ss_open_chat", handleOpenChat); };
+    }, []);
     const navItems = [
       { id: "newOrder", icon: Icons.plus, label: t.newOrder },
       { id: "myOrders", icon: Icons.list, label: t.myOrders },
@@ -1157,6 +1269,9 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const { lang, showToast } = useContext(AppContext);
     const t = translations[lang].orderForm;
     const [form, setForm] = useState({ category_id: "", title: "", description: "", budget: "", deadline: "", location: "" });
+    var [orderFiles, setOrderFiles] = useState([]);
+    var orderFileRef = useRef(null);
+    function handleOrderFiles(e) { var f = Array.from(e.target.files || []); if (orderFiles.length + f.length > 10) return; setOrderFiles(function(p) { return p.concat(f); }); e.target.value = ""; }
     const [submitting, setSubmitting] = useState(false);
     var update = function(f, v) { setForm(function(p) { var n = Object.assign({}, p); n[f] = v; return n; }); };
     var handleSubmit = async function() {
@@ -1165,7 +1280,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       var body = Object.assign({}, form); if (body.budget) body.budget = parseFloat(body.budget);
       var result = typeof api !== "undefined" ? await api.createOrder(body) : null;
       setSubmitting(false);
-      if (result && result.id) { showToast(lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437 \u043E\u043F\u0443\u0431\u043B\u0438\u043A\u043E\u0432\u0430\u043D!" : "Order published!"); setForm({ category_id: "", title: "", description: "", budget: "", deadline: "", location: "" }); }
+      if (result && result.id) { showToast(lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437 \u043E\u043F\u0443\u0431\u043B\u0438\u043A\u043E\u0432\u0430\u043D!" : "Order published!"); setForm({ category_id: "", title: "", description: "", budget: "", deadline: "", location: "" }); setOrderFiles([]); }
       else showToast((result && result.error) || "Error");
     };
     return React.createElement(React.Fragment, null,
@@ -1175,6 +1290,14 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, t.description), React.createElement("textarea", { className: "form-input", value: form.description, onChange: function(e) { update("description", e.target.value); } })),
       React.createElement("div", { style: { display: "flex", gap: 10 } }, React.createElement("div", { className: "form-group", style: { flex: 1 } }, React.createElement("label", { className: "form-label" }, t.budget), React.createElement("input", { className: "form-input", type: "number", value: form.budget, onChange: function(e) { update("budget", e.target.value); } })), React.createElement("div", { className: "form-group", style: { flex: 1 } }, React.createElement("label", { className: "form-label" }, t.deadline), React.createElement("input", { className: "form-input", type: "date", value: form.deadline, onChange: function(e) { update("deadline", e.target.value); } }))),
       React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, t.location), React.createElement("input", { className: "form-input", value: form.location, onChange: function(e) { update("location", e.target.value); } })),
+      React.createElement("input", { ref: orderFileRef, type: "file", accept: "image/*,video/*,application/pdf", multiple: true, style: { display: "none" }, onChange: handleOrderFiles }),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0424\u0430\u0439\u043B\u044B (\u0444\u043E\u0442\u043E, \u0432\u0438\u0434\u0435\u043E, PDF)" : "Files (photo, video, PDF)"),
+        React.createElement("div", { style: { border: "2px dashed var(--border)", borderRadius: "var(--radius)", padding: 16, textAlign: "center", cursor: "pointer" }, onClick: function() { if (orderFileRef.current) orderFileRef.current.click(); } },
+          React.createElement("div", { style: { fontSize: "1.5rem", marginBottom: 4 } }, "\u{1F4CE}"),
+          React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)" } }, lang === "ru" ? "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u0434\u043B\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438 (\u0434\u043E 10)" : "Click to upload (max 10)")
+        ),
+        orderFiles.length > 0 && React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 } }, orderFiles.map(function(f, fi) { return React.createElement("div", { key: fi, style: { position: "relative", display: "inline-flex", alignItems: "center", gap: 4, background: "var(--bg3)", borderRadius: 8, padding: "4px 8px", fontSize: "0.7rem", color: "var(--text2)" } }, f.name.slice(0, 15), React.createElement("button", { onClick: function() { setOrderFiles(function(p) { return p.filter(function(_, i) { return i !== fi; }); }); }, style: { background: "none", border: "none", color: "var(--red)", cursor: "pointer", fontSize: "0.8rem" } }, "\u2715")); }))
+      ),
       React.createElement("button", { className: "btn btn-primary btn-full", onClick: handleSubmit, disabled: submitting }, submitting ? "..." : t.submit)
     );
   }
@@ -1230,13 +1353,13 @@ textarea.form-input { resize: vertical; min-height: 80px; }
             ),
             r.status === "accepted" ? React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" } },
               React.createElement("span", { className: "status-badge status-active" }, "\u2705 " + (lang === "ru" ? "\u0412\u044B\u0431\u0440\u0430\u043D" : "Chosen")),
-              React.createElement("button", { className: "btn btn-sm btn-primary", style: { padding: "5px 14px", fontSize: "0.7rem" }, onClick: function(ev) { ev.stopPropagation(); if (typeof localStorage !== "undefined") localStorage.setItem("ss_chat_with", JSON.stringify({ id: r.master_id, name: r.master_name || "Master" })); showToast(lang === "ru" ? "\u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F" : "Open Messages"); } }, "\u{1F4AC} " + (lang === "ru" ? "\u0427\u0430\u0442" : "Chat"))
+              React.createElement("button", { className: "btn btn-sm btn-primary", style: { padding: "5px 14px", fontSize: "0.7rem" }, onClick: function(ev) { ev.stopPropagation(); if (typeof localStorage !== "undefined") localStorage.setItem("ss_chat_with", JSON.stringify({ id: r.master_id, name: r.master_name || "Master" })); window.dispatchEvent(new CustomEvent("ss_open_chat")); } }, "\u{1F4AC} " + (lang === "ru" ? "\u0427\u0430\u0442" : "Chat"))
             ) :
             r.status === "pending" && selectedOrder.status === "open" ? React.createElement("button", { className: "btn btn-sm btn-primary", onClick: function() { acceptMaster(r.id); } }, lang === "ru" ? "Выбрать" : "Accept") : null
           ),
           r.message && React.createElement("p", { style: { fontSize: "0.8rem", color: "var(--text2)", marginTop: 8, lineHeight: 1.4 } }, r.message),
           r.proposed_budget && React.createElement("div", { className: "order-budget", style: { marginTop: 6 } }, r.proposed_budget, "€"),
-          r.status === "accepted" && React.createElement("button", { className: "btn btn-primary btn-full", style: { marginTop: 12 }, onClick: function(ev) { ev.stopPropagation(); if (typeof localStorage !== "undefined") localStorage.setItem("ss_chat_with", JSON.stringify({ id: r.master_id, name: r.master_name || "Master" })); showToast(lang === "ru" ? "\u041F\u0435\u0440\u0435\u0439\u0434\u0438\u0442\u0435 \u0432 \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F" : "Go to Messages tab"); } }, "\u{1F4AC} " + (lang === "ru" ? "\u041D\u0430\u0447\u0430\u0442\u044C \u0447\u0430\u0442" : "Start Chat"))
+          r.status === "accepted" && React.createElement("button", { className: "btn btn-primary btn-full", style: { marginTop: 12 }, onClick: function(ev) { ev.stopPropagation(); if (typeof localStorage !== "undefined") localStorage.setItem("ss_chat_with", JSON.stringify({ id: r.master_id, name: r.master_name || "Master" })); window.dispatchEvent(new CustomEvent("ss_open_chat")); } }, "\u{1F4AC} " + (lang === "ru" ? "\u041D\u0430\u0447\u0430\u0442\u044C \u0447\u0430\u0442" : "Start Chat"))
         );
       })
     );
