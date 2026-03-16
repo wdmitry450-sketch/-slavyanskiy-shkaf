@@ -937,7 +937,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
           (order.is_premium || order.is_top || order.premium) && React.createElement("span", { className: "order-badge badge-premium" }, Icons.crown, " ", tc.premium),
           React.createElement("div", { className: "order-title" }, order.title || order.titleEn),
           React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", order.location || ""), React.createElement("span", null, Icons.calendar, " ", order.deadline || "")),
-          React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)", marginBottom: 8 } }, ((order.description || order.descriptionEn || "")).slice(0, 80), "..."),
+          React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)", marginBottom: 8 } }, ((order.description || order.descriptionEn || "")).slice(0, 80), "...", order.attachments && React.createElement("span", { style: { color: "var(--green)", fontSize: "0.7rem", marginLeft: 6 } }, "\u{1F4CE} ", (typeof order.attachments === "string" ? JSON.parse(order.attachments) : order.attachments || []).length, " ", lang === "ru" ? "\u0432\u043B\u043E\u0436." : "files")),
           React.createElement("div", { className: "order-footer" }, React.createElement("div", { className: "order-budget" }, order.budget || "?", order.currency || "\u20AC"), React.createElement("div", { className: "order-responses" }, order.responses_count || order.responses || 0, " ", lang === "ru" ? "\u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "responses"))
         );
       }),
@@ -948,7 +948,23 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const { lang, showToast } = useContext(AppContext);
     const tc = translations[lang].common;
     const cat = CATEGORIES.find((c) => c.id === order.category);
-    return /* @__PURE__ */ React.createElement("div", { className: "modal-overlay", onClick: onClose }, /* @__PURE__ */ React.createElement("div", { className: "modal", onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { className: "modal-handle" }), order.premium && /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("span", { className: "order-badge badge-premium", style: { position: "static" } }, Icons.crown, " ", tc.premium)), /* @__PURE__ */ React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? order.title : order.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta", style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("span", null, cat?.icon, " ", cat?.[lang]), /* @__PURE__ */ React.createElement("span", null, Icons.location, " ", order.location), /* @__PURE__ */ React.createElement("span", null, Icons.calendar, " ", order.deadline)), /* @__PURE__ */ React.createElement("p", { style: { fontSize: "0.85rem", color: "var(--text2)", lineHeight: 1.6, marginBottom: 16 } }, lang === "ru" ? order.description : order.descriptionEn), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0411\u044E\u0434\u0436\u0435\u0442" : "Budget"), /* @__PURE__ */ React.createElement("div", { className: "order-budget", style: { fontSize: "1.3rem" } }, order.budget, order.currency)), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "right" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A" : "Client"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: "0.85rem" } }, order.clientName))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", onClick: async () => {
+    return /* @__PURE__ */ React.createElement("div", { className: "modal-overlay", onClick: onClose }, /* @__PURE__ */ React.createElement("div", { className: "modal", onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { className: "modal-handle" }), order.premium && /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("span", { className: "order-badge badge-premium", style: { position: "static" } }, Icons.crown, " ", tc.premium)), /* @__PURE__ */ React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? order.title : order.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta", style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("span", null, cat?.icon, " ", cat?.[lang]), /* @__PURE__ */ React.createElement("span", null, Icons.location, " ", order.location), /* @__PURE__ */ React.createElement("span", null, Icons.calendar, " ", order.deadline)), /* @__PURE__ */ React.createElement("p", { style: { fontSize: "0.85rem", color: "var(--text2)", lineHeight: 1.6, marginBottom: 16 } }, lang === "ru" ? order.description : order.descriptionEn),
+        (function() {
+          try {
+            var atts = order.attachments ? (typeof order.attachments === "string" ? JSON.parse(order.attachments) : order.attachments) : [];
+            if (!atts || !atts.length) return null;
+            return React.createElement("div", { style: { marginBottom: 12, marginTop: 12 } },
+              React.createElement("div", { style: { fontSize: "0.75rem", fontWeight: 600, color: "var(--text2)", marginBottom: 8 } }, (lang === "ru" ? "\u0412\u043B\u043E\u0436\u0435\u043D\u0438\u044F" : "Attachments") + " (" + atts.length + ")"),
+              React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 } },
+                atts.map(function(att, ai) {
+                  if (att.type === "video") return React.createElement("video", { key: ai, src: att.url, controls: true, style: { width: "100%", maxHeight: 200, borderRadius: 8, background: "var(--bg3)" }, preload: "metadata" });
+                  if (att.type === "pdf") return React.createElement("a", { key: ai, href: att.url, target: "_blank", style: { display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", background: "var(--bg3)", borderRadius: 8, color: "var(--text)", textDecoration: "none", fontSize: "0.75rem" } }, "\u{1F4C4} ", att.name || "document.pdf");
+                  return React.createElement("img", { key: ai, src: att.url, alt: att.name || "", style: { width: atts.length > 2 ? "30%" : atts.length > 1 ? "48%" : "100%", borderRadius: 8, cursor: "pointer", objectFit: "cover", maxHeight: 150 }, onClick: function() { window.open(att.url, "_blank"); } });
+                })
+              )
+            );
+          } catch(e) { return null; }
+        })(), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0411\u044E\u0434\u0436\u0435\u0442" : "Budget"), /* @__PURE__ */ React.createElement("div", { className: "order-budget", style: { fontSize: "1.3rem" } }, order.budget, order.currency)), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "right" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A" : "Client"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: "0.85rem" } }, order.clientName))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", onClick: async () => {
         var respondResult = typeof api !== "undefined" ? await api.respondToOrder(order.id, { message: "", proposed_budget: order.budget }) : null;
         if (respondResult && respondResult.success) showToast(lang === "ru" ? "\u041E\u0442\u043A\u043B\u0438\u043A \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D!" : "Response sent!");
         else showToast((respondResult && respondResult.error) || "Error");
@@ -1277,7 +1293,16 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     var handleSubmit = async function() {
       if (!form.title || !form.category_id) { showToast(lang === "ru" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0438 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E" : "Fill title and category"); return; }
       setSubmitting(true);
-      var body = Object.assign({}, form); if (body.budget) body.budget = parseFloat(body.budget);
+      var fileAtts = [];
+      if (orderFiles.length > 0 && typeof api !== "undefined") {
+        for (var oi = 0; oi < orderFiles.length; oi++) {
+          var ur = await api.uploadMedia(orderFiles[oi]);
+          if (ur && ur.url) fileAtts.push({ type: ur.type, url: ur.url, name: ur.name });
+        }
+      }
+      var body = Object.assign({}, form);
+      if (body.budget) body.budget = parseFloat(body.budget);
+      if (fileAtts.length) body.attachments = fileAtts;
       var result = typeof api !== "undefined" ? await api.createOrder(body) : null;
       setSubmitting(false);
       if (result && result.id) { showToast(lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437 \u043E\u043F\u0443\u0431\u043B\u0438\u043A\u043E\u0432\u0430\u043D!" : "Order published!"); setForm({ category_id: "", title: "", description: "", budget: "", deadline: "", location: "" }); setOrderFiles([]); }
