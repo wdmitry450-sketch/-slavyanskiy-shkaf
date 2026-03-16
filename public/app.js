@@ -880,17 +880,40 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     return /* @__PURE__ */ React.createElement("div", { className: "dash" }, /* @__PURE__ */ React.createElement("div", { className: "dash-content" }, tab === "exchange" && /* @__PURE__ */ React.createElement(ExchangeTab, null), tab === "responses" && /* @__PURE__ */ React.createElement(ResponsesTab, null), tab === "calendar" && /* @__PURE__ */ React.createElement(CalendarTab, null), tab === "messages" && /* @__PURE__ */ React.createElement(MessagesTab, null), tab === "profile" && /* @__PURE__ */ React.createElement(ProfileTab, null)), /* @__PURE__ */ React.createElement("nav", { className: "dash-nav" }, navItems.map((item) => /* @__PURE__ */ React.createElement("button", { key: item.id, className: `dash-nav-item ${tab === item.id ? "active" : ""}`, onClick: () => setTab(item.id) }, item.icon, /* @__PURE__ */ React.createElement("span", null, item.label)))));
   }
   function ExchangeTab() {
-    const { lang } = useContext(AppContext);
+    const { lang, showToast } = useContext(AppContext);
     const tc = translations[lang].common;
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [filterCat, setFilterCat] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const filtered = MOCK_ORDERS.filter((o) => {
-      const matchSearch = search === "" || o.title.toLowerCase().includes(search.toLowerCase()) || o.titleEn.toLowerCase().includes(search.toLowerCase());
-      const matchCat = filterCat === "all" || o.category === filterCat;
-      return matchSearch && matchCat;
-    }).sort((a, b) => (b.premium ? 1 : 0) - (a.premium ? 1 : 0));
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "search-bar" }, Icons.search, /* @__PURE__ */ React.createElement("input", { placeholder: tc.search, value: search, onChange: (e) => setSearch(e.target.value) }), /* @__PURE__ */ React.createElement("button", { className: "filter-btn" }, Icons.filter, " ", tc.filter)), /* @__PURE__ */ React.createElement("div", { className: "tabs" }, /* @__PURE__ */ React.createElement("div", { className: `tab ${filterCat === "all" ? "active" : ""}`, onClick: () => setFilterCat("all") }, tc.all), CATEGORIES.slice(0, 6).map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, className: `tab ${filterCat === c.id ? "active" : ""}`, onClick: () => setFilterCat(c.id) }, c.icon, " ", c[lang]))), filtered.map((order) => /* @__PURE__ */ React.createElement("div", { key: order.id, className: `order-card ${order.premium ? "premium" : ""}`, onClick: () => setSelectedOrder(order) }, order.premium && /* @__PURE__ */ React.createElement("span", { className: "order-badge badge-premium" }, Icons.crown, " ", tc.premium), /* @__PURE__ */ React.createElement("div", { className: "order-title" }, lang === "ru" ? order.title : order.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta" }, /* @__PURE__ */ React.createElement("span", null, Icons.location, " ", order.location), /* @__PURE__ */ React.createElement("span", null, Icons.calendar, " ", order.deadline)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)", marginBottom: 8, lineHeight: 1.4 } }, (lang === "ru" ? order.description : order.descriptionEn).slice(0, 80), "..."), /* @__PURE__ */ React.createElement("div", { className: "order-footer" }, /* @__PURE__ */ React.createElement("div", { className: "order-budget" }, order.budget, order.currency), /* @__PURE__ */ React.createElement("div", { className: "order-responses" }, order.responses, " ", lang === "ru" ? "\u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "responses")))), selectedOrder && /* @__PURE__ */ React.createElement(OrderModal, { order: selectedOrder, onClose: () => setSelectedOrder(null) }));
+    useEffect(function() { loadOrders(); }, [filterCat]);
+    function loadOrders() {
+      setLoading(true);
+      var params = { status: "open" };
+      if (filterCat !== "all") params.category = filterCat;
+      if (typeof api !== "undefined") api.getOrders(params).then(function(r) { setOrders(r && r.orders ? r.orders : MOCK_ORDERS); setLoading(false); });
+      else { setOrders(MOCK_ORDERS); setLoading(false); }
+    }
+    var filtered = orders.filter(function(o) { return !search || (o.title||"").toLowerCase().includes(search.toLowerCase()); });
+    return React.createElement(React.Fragment, null,
+      React.createElement("div", { className: "search-bar" }, Icons.search, React.createElement("input", { placeholder: tc.search, value: search, onChange: function(e) { setSearch(e.target.value); } })),
+      React.createElement("div", { className: "tabs" },
+        React.createElement("div", { className: "tab " + (filterCat === "all" ? "active" : ""), onClick: function() { setFilterCat("all"); } }, tc.all),
+        CATEGORIES.slice(0, 6).map(function(c) { return React.createElement("div", { key: c.id, className: "tab " + (filterCat === c.id ? "active" : ""), onClick: function() { setFilterCat(c.id); } }, c.icon, " ", c[lang]); })
+      ),
+      loading ? React.createElement("div", { className: "loading-spinner" }) : filtered.length === 0 ? React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4CB}"), React.createElement("p", null, tc.noResults)) :
+      filtered.map(function(order) {
+        return React.createElement("div", { key: order.id, className: "order-card " + (order.is_premium || order.is_top || order.premium ? "premium" : ""), onClick: function() { setSelectedOrder(order); } },
+          (order.is_premium || order.is_top || order.premium) && React.createElement("span", { className: "order-badge badge-premium" }, Icons.crown, " ", tc.premium),
+          React.createElement("div", { className: "order-title" }, order.title || order.titleEn),
+          React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", order.location || ""), React.createElement("span", null, Icons.calendar, " ", order.deadline || "")),
+          React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)", marginBottom: 8 } }, ((order.description || order.descriptionEn || "")).slice(0, 80), "..."),
+          React.createElement("div", { className: "order-footer" }, React.createElement("div", { className: "order-budget" }, order.budget || "?", order.currency || "\u20AC"), React.createElement("div", { className: "order-responses" }, order.responses_count || order.responses || 0, " ", lang === "ru" ? "\u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "responses"))
+        );
+      }),
+      selectedOrder && React.createElement(OrderModal, { order: selectedOrder, onClose: function() { setSelectedOrder(null); loadOrders(); } })
+    );
   }
   function OrderModal({ order, onClose }) {
     const { lang, showToast } = useContext(AppContext);
@@ -903,7 +926,12 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   }
   function ResponsesTab() {
     const { lang } = useContext(AppContext);
-    return /* @__PURE__ */ React.createElement("div", { className: "empty-state" }, /* @__PURE__ */ React.createElement("div", { className: "emoji" }, "\u{1F4EC}"), /* @__PURE__ */ React.createElement("p", null, lang === "ru" ? "\u0423 \u0432\u0430\u0441 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442 \u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432.\n\u041E\u0442\u043A\u043B\u0438\u043A\u043D\u0438\u0442\u0435\u0441\u044C \u043D\u0430 \u0437\u0430\u043A\u0430\u0437 \u0438\u0437 \u0431\u0438\u0440\u0436\u0438!" : "You have no responses yet.\nRespond to an order from the board!"));
+    const [responses, setResponses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    useEffect(function() { if (typeof api !== "undefined") api.myResponses().then(function(r) { setResponses(r || []); setLoading(false); }); else setLoading(false); }, []);
+    if (loading) return React.createElement("div", { className: "loading-spinner" });
+    if (!responses.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4EC}"), React.createElement("p", null, lang === "ru" ? "\u0423 \u0432\u0430\u0441 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442 \u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "No responses yet"));
+    return React.createElement(React.Fragment, null, responses.map(function(r) { return React.createElement("div", { key: r.id, className: "order-card" }, React.createElement("div", { className: "order-title" }, r.order_title || "Order #" + r.order_id), React.createElement("div", { className: "order-meta" }, React.createElement("span", null, r.order_location || ""), React.createElement("span", { className: "status-badge status-" + (r.status === "pending" ? "open" : r.status === "accepted" ? "active" : "blocked") }, r.status)), React.createElement("div", { className: "order-budget" }, (r.order_budget || r.proposed_budget || "?") + "\u20AC")); }));
   }
   function CalendarTab() {
     const { lang } = useContext(AppContext);
@@ -964,29 +992,72 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   function NewOrderTab() {
     const { lang, showToast } = useContext(AppContext);
     const t = translations[lang].orderForm;
-    const [form, setForm] = useState({ category: "", description: "", budget: "", deadline: "", location: "" });
-    const update = (f, v) => setForm((p) => ({ ...p, [f]: v }));
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h2", { className: "page-title" }, t.title), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.category), /* @__PURE__ */ React.createElement("select", { className: "form-input", value: form.category, onChange: (e) => update("category", e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "" }, t.selectCategory), CATEGORIES.map((c) => /* @__PURE__ */ React.createElement("option", { key: c.id, value: c.id }, c.icon, " ", c[lang])))), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.description), /* @__PURE__ */ React.createElement("textarea", { className: "form-input", placeholder: lang === "ru" ? "\u041E\u043F\u0438\u0448\u0438\u0442\u0435 \u043F\u043E\u0434\u0440\u043E\u0431\u043D\u043E \u0447\u0442\u043E \u043D\u0443\u0436\u043D\u043E \u0441\u0434\u0435\u043B\u0430\u0442\u044C..." : "Describe in detail what needs to be done...", value: form.description, onChange: (e) => update("description", e.target.value) })), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "form-group", style: { flex: 1 } }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.budget), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "number", placeholder: "1500", value: form.budget, onChange: (e) => update("budget", e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "form-group", style: { flex: 1 } }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.deadline), /* @__PURE__ */ React.createElement("input", { className: "form-input", type: "date", value: form.deadline, onChange: (e) => update("deadline", e.target.value) }))), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, t.location), /* @__PURE__ */ React.createElement("input", { className: "form-input", placeholder: lang === "ru" ? "\u0413\u043E\u0440\u043E\u0434, \u0440\u0430\u0439\u043E\u043D..." : "City, area...", value: form.location, onChange: (e) => update("location", e.target.value) })), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", onClick: () => showToast(lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437 \u043E\u043F\u0443\u0431\u043B\u0438\u043A\u043E\u0432\u0430\u043D!" : "Order published!") }, t.submit));
+    const [form, setForm] = useState({ category_id: "", title: "", description: "", budget: "", deadline: "", location: "" });
+    const [submitting, setSubmitting] = useState(false);
+    var update = function(f, v) { setForm(function(p) { var n = Object.assign({}, p); n[f] = v; return n; }); };
+    var handleSubmit = async function() {
+      if (!form.title || !form.category_id) { showToast(lang === "ru" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0438 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E" : "Fill title and category"); return; }
+      setSubmitting(true);
+      var body = Object.assign({}, form); if (body.budget) body.budget = parseFloat(body.budget);
+      var result = typeof api !== "undefined" ? await api.createOrder(body) : null;
+      setSubmitting(false);
+      if (result && result.id) { showToast(lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437 \u043E\u043F\u0443\u0431\u043B\u0438\u043A\u043E\u0432\u0430\u043D!" : "Order published!"); setForm({ category_id: "", title: "", description: "", budget: "", deadline: "", location: "" }); }
+      else showToast((result && result.error) || "Error");
+    };
+    return React.createElement(React.Fragment, null,
+      React.createElement("h2", { className: "page-title" }, t.title),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, t.category), React.createElement("select", { className: "form-input", value: form.category_id, onChange: function(e) { update("category_id", e.target.value); } }, React.createElement("option", { value: "" }, t.selectCategory), CATEGORIES.map(function(c) { return React.createElement("option", { key: c.id, value: c.id }, c.icon, " ", c[lang]); }))),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 *" : "Title *"), React.createElement("input", { className: "form-input", value: form.title, onChange: function(e) { update("title", e.target.value); } })),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, t.description), React.createElement("textarea", { className: "form-input", value: form.description, onChange: function(e) { update("description", e.target.value); } })),
+      React.createElement("div", { style: { display: "flex", gap: 10 } }, React.createElement("div", { className: "form-group", style: { flex: 1 } }, React.createElement("label", { className: "form-label" }, t.budget), React.createElement("input", { className: "form-input", type: "number", value: form.budget, onChange: function(e) { update("budget", e.target.value); } })), React.createElement("div", { className: "form-group", style: { flex: 1 } }, React.createElement("label", { className: "form-label" }, t.deadline), React.createElement("input", { className: "form-input", type: "date", value: form.deadline, onChange: function(e) { update("deadline", e.target.value); } }))),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, t.location), React.createElement("input", { className: "form-input", value: form.location, onChange: function(e) { update("location", e.target.value); } })),
+      React.createElement("button", { className: "btn btn-primary btn-full", onClick: handleSubmit, disabled: submitting }, submitting ? "..." : t.submit)
+    );
   }
   function MyOrdersTab() {
-    const { lang } = useContext(AppContext);
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u041C\u043E\u0438 \u0437\u0430\u043A\u0430\u0437\u044B" : "My Orders"), MOCK_ORDERS.slice(0, 3).map((order) => /* @__PURE__ */ React.createElement("div", { key: order.id, className: "order-card" }, /* @__PURE__ */ React.createElement("div", { className: "order-title" }, lang === "ru" ? order.title : order.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta" }, /* @__PURE__ */ React.createElement("span", null, Icons.location, " ", order.location), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: `status-badge status-${order.status}` }, order.status))), /* @__PURE__ */ React.createElement("div", { className: "order-footer" }, /* @__PURE__ */ React.createElement("div", { className: "order-budget" }, order.budget, order.currency), /* @__PURE__ */ React.createElement("div", { className: "order-responses" }, order.responses, " ", lang === "ru" ? "\u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "responses")))));
+    const { lang, user } = useContext(AppContext);
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    useEffect(function() { if (typeof api !== "undefined") api.getOrders({ status: "all" }).then(function(r) { setOrders((r && r.orders || []).filter(function(o) { return o.client_id === (user && user.id); })); setLoading(false); }); else { setOrders(MOCK_ORDERS.slice(0,3)); setLoading(false); } }, []);
+    if (loading) return React.createElement("div", { className: "loading-spinner" });
+    if (!orders.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4CB}"), React.createElement("p", null, lang === "ru" ? "\u0423 \u0432\u0430\u0441 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442 \u0437\u0430\u043A\u0430\u0437\u043E\u0432" : "No orders yet"));
+    return React.createElement(React.Fragment, null, React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u041C\u043E\u0438 \u0437\u0430\u043A\u0430\u0437\u044B" : "My Orders"), orders.map(function(o) { return React.createElement("div", { key: o.id, className: "order-card" }, React.createElement("div", { className: "order-title" }, o.title || o.titleEn), React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", o.location || ""), React.createElement("span", { className: "status-badge status-" + o.status }, o.status)), React.createElement("div", { className: "order-footer" }, React.createElement("div", { className: "order-budget" }, o.budget, o.currency || "\u20AC"), React.createElement("div", { className: "order-responses" }, o.responses_count || 0, " ", lang === "ru" ? "\u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "responses"))); }));
   }
   function MastersCatalogTab() {
     const { lang } = useContext(AppContext);
+    const tc = translations[lang].common;
+    const [masters, setMasters] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [filterCat, setFilterCat] = useState("all");
-    const tc = translations[lang].common;
-    const filtered = MOCK_MASTERS.filter((m) => {
-      const name = (lang === "ru" ? m.name : m.nameEn).toLowerCase();
-      const matchSearch = search === "" || name.includes(search.toLowerCase());
-      const matchCat = filterCat === "all" || m.categories.includes(filterCat);
-      return matchSearch && matchCat;
-    });
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "search-bar" }, Icons.search, /* @__PURE__ */ React.createElement("input", { placeholder: tc.search, value: search, onChange: (e) => setSearch(e.target.value) })), /* @__PURE__ */ React.createElement("div", { className: "tabs" }, /* @__PURE__ */ React.createElement("div", { className: `tab ${filterCat === "all" ? "active" : ""}`, onClick: () => setFilterCat("all") }, tc.all), CATEGORIES.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, className: `tab ${filterCat === c.id ? "active" : ""}`, onClick: () => setFilterCat(c.id) }, c.icon, " ", c[lang]))), filtered.length === 0 && /* @__PURE__ */ React.createElement("div", { className: "empty-state" }, /* @__PURE__ */ React.createElement("div", { className: "emoji" }, "\u{1F50D}"), /* @__PURE__ */ React.createElement("p", null, lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u044B. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0434\u0440\u0443\u0433\u0443\u044E \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E." : "No masters found. Try another category.")), filtered.map((m) => {
-      const cats = m.categories.map((cid) => CATEGORIES.find((c) => c.id === cid)).filter(Boolean);
-      return /* @__PURE__ */ React.createElement("div", { key: m.id, className: `master-card ${m.premium ? "premium" : ""}` }, /* @__PURE__ */ React.createElement("div", { className: "master-avatar" }, "\u{1F527}"), /* @__PURE__ */ React.createElement("div", { className: "master-info" }, /* @__PURE__ */ React.createElement("div", { className: "master-name" }, lang === "ru" ? m.name : m.nameEn, m.premium && /* @__PURE__ */ React.createElement("span", null, Icons.crown)), /* @__PURE__ */ React.createElement("div", { className: "master-cats" }, cats.map((c) => c[lang]).join(" \xB7 ")), /* @__PURE__ */ React.createElement("div", { className: "master-stats" }, /* @__PURE__ */ React.createElement("div", { className: "master-rating" }, Icons.star, " ", m.rating), /* @__PURE__ */ React.createElement("div", { className: "master-reviews" }, "(", m.reviews, ")"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, Icons.location, " ", m.city, ", ", m.country))));
-    }));
+    useEffect(function() { loadMasters(); }, [filterCat]);
+    function loadMasters() {
+      setLoading(true);
+      var params = {};
+      if (filterCat !== "all") params.category = filterCat;
+      if (search) params.search = search;
+      if (typeof api !== "undefined") api.getMasters(params).then(function(r) { setMasters(r || MOCK_MASTERS); setLoading(false); });
+      else { setMasters(MOCK_MASTERS.filter(function(m) { return filterCat === "all" || m.categories.includes(filterCat); })); setLoading(false); }
+    }
+    return React.createElement(React.Fragment, null,
+      React.createElement("div", { className: "search-bar" }, Icons.search, React.createElement("input", { placeholder: tc.search, value: search, onChange: function(e) { setSearch(e.target.value); }, onKeyDown: function(e) { if (e.key === "Enter") loadMasters(); } })),
+      React.createElement("div", { className: "tabs" },
+        React.createElement("div", { className: "tab " + (filterCat === "all" ? "active" : ""), onClick: function() { setFilterCat("all"); } }, tc.all),
+        CATEGORIES.map(function(c) { return React.createElement("div", { key: c.id, className: "tab " + (filterCat === c.id ? "active" : ""), onClick: function() { setFilterCat(c.id); } }, c.icon, " ", c[lang]); })
+      ),
+      loading ? React.createElement("div", { className: "loading-spinner" }) : masters.length === 0 ? React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F50D}"), React.createElement("p", null, tc.noResults)) :
+      masters.map(function(m) {
+        var cats = (m.categories || []).map(function(cid) { return CATEGORIES.find(function(c) { return c.id === cid; }); }).filter(Boolean);
+        return React.createElement("div", { key: m.id, className: "master-card " + (m.is_premium || m.premium ? "premium" : "") },
+          React.createElement("div", { className: "master-avatar" }, "\u{1F527}"),
+          React.createElement("div", { className: "master-info" },
+            React.createElement("div", { className: "master-name" }, m.name || m.nameEn, " ", (m.is_premium || m.premium) && Icons.crown),
+            React.createElement("div", { className: "master-cats" }, cats.map(function(c) { return c[lang]; }).join(" \u00B7 ")),
+            React.createElement("div", { className: "master-stats" }, React.createElement("div", { className: "master-rating" }, Icons.star, " ", m.rating || "\u2014"), React.createElement("div", { className: "master-reviews" }, "(", m.reviews_count || m.reviews || 0, ")"), React.createElement("span", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, Icons.location, " ", m.city, ", ", m.country))
+          )
+        );
+      })
+    );
   }
   function AdminPanel() {
     const { lang } = useContext(AppContext);
@@ -1003,65 +1074,74 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   }
   function AdminStatsTab() {
     const { lang } = useContext(AppContext);
-    const stats = [
-      { value: "342", label: lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u043E\u0432" : "Masters" },
-      { value: "1,247", label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u043E\u0432" : "Clients" },
-      { value: "856", label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u043E\u0432" : "Orders" },
-      { value: "\u20AC47.2K", label: lang === "ru" ? "\u041E\u0431\u043E\u0440\u043E\u0442" : "Revenue" }
-    ];
-    const weeklyData = [
-      { label: lang === "ru" ? "\u041F\u043D" : "Mo", val: 12 },
-      { label: lang === "ru" ? "\u0412\u0442" : "Tu", val: 19 },
-      { label: lang === "ru" ? "\u0421\u0440" : "We", val: 8 },
-      { label: lang === "ru" ? "\u0427\u0442" : "Th", val: 25 },
-      { label: lang === "ru" ? "\u041F\u0442" : "Fr", val: 15 },
-      { label: lang === "ru" ? "\u0421\u0431" : "Sa", val: 22 },
-      { label: lang === "ru" ? "\u0412\u0441" : "Su", val: 11 }
-    ];
-    const maxVal = Math.max(...weeklyData.map((d) => d.val));
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430" : "Statistics"), /* @__PURE__ */ React.createElement("div", { className: "admin-grid" }, stats.map((s, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "admin-stat" }, /* @__PURE__ */ React.createElement("div", { className: "admin-stat-value" }, s.value), /* @__PURE__ */ React.createElement("div", { className: "admin-stat-label" }, s.label)))), /* @__PURE__ */ React.createElement("div", { style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 16, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.8rem", fontWeight: 700, marginBottom: 16 } }, lang === "ru" ? "\u041D\u043E\u0432\u044B\u0435 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438 \u0437\u0430 \u043D\u0435\u0434\u0435\u043B\u044E" : "New registrations this week"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "flex-end", gap: 8, height: 100 } }, weeklyData.map((d, i) => /* @__PURE__ */ React.createElement("div", { key: i, style: { flex: 1, textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { height: `${d.val / maxVal * 70}px`, background: "var(--green)", borderRadius: "4px 4px 0 0", marginBottom: 4, transition: "height 0.3s" } }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.6rem", color: "var(--text3)" } }, d.label), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.65rem", fontWeight: 600, color: "var(--green)" } }, d.val))))), /* @__PURE__ */ React.createElement("div", { style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.8rem", fontWeight: 700, marginBottom: 12 } }, lang === "ru" ? "\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u044B\u0435 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438" : "Popular Categories"), [{ cat: "renovation", pct: 85 }, { cat: "plumbing", pct: 72 }, { cat: "electrical", pct: 65 }, { cat: "painting", pct: 48 }, { cat: "tiling", pct: 41 }].map(({ cat, pct }) => {
-      const c = CATEGORIES.find((ca) => ca.id === cat);
-      return /* @__PURE__ */ React.createElement("div", { key: cat, style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: "0.75rem", marginBottom: 3 } }, /* @__PURE__ */ React.createElement("span", null, c?.icon, " ", c?.[lang]), /* @__PURE__ */ React.createElement("span", { className: "text-green" }, pct, "%")), /* @__PURE__ */ React.createElement("div", { style: { height: 6, background: "var(--bg3)", borderRadius: 3 } }, /* @__PURE__ */ React.createElement("div", { style: { height: "100%", width: `${pct}%`, background: "var(--green)", borderRadius: 3, transition: "width 0.5s" } })));
-    })));
+    const [stats, setStats] = useState(null);
+    useEffect(function() { if (typeof api !== "undefined") api.adminStats().then(function(r) { setStats(r); }); else setStats({ masters: 342, clients: 1247, orders: 856, open_orders: 128, top_categories: [] }); }, []);
+    if (!stats) return React.createElement("div", { className: "loading-spinner" });
+    var cards = [{ value: stats.masters || 0, label: lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u043E\u0432" : "Masters" }, { value: stats.clients || 0, label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u043E\u0432" : "Clients" }, { value: stats.orders || 0, label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u043E\u0432" : "Orders" }, { value: stats.open_orders || 0, label: lang === "ru" ? "\u041E\u0442\u043A\u0440\u044B\u0442\u044B\u0445" : "Open" }];
+    return React.createElement(React.Fragment, null,
+      React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430" : "Statistics"),
+      React.createElement("div", { className: "admin-grid" }, cards.map(function(s, i) { return React.createElement("div", { key: i, className: "admin-stat" }, React.createElement("div", { className: "admin-stat-value" }, s.value), React.createElement("div", { className: "admin-stat-label" }, s.label)); })),
+      stats.top_categories && stats.top_categories.length > 0 && React.createElement("div", { style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 16 } }, React.createElement("div", { style: { fontSize: "0.8rem", fontWeight: 700, marginBottom: 12 } }, lang === "ru" ? "\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u044B\u0435 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438" : "Popular Categories"), stats.top_categories.map(function(tc2) { var c = CATEGORIES.find(function(ca) { return ca.id === tc2.category_id; }); return React.createElement("div", { key: tc2.category_id, style: { display: "flex", justifyContent: "space-between", fontSize: "0.75rem", padding: "4px 0" } }, React.createElement("span", null, c ? c.icon + " " + c[lang] : tc2.category_id), React.createElement("span", { className: "text-green" }, tc2.count)); }))
+    );
   }
   function AdminUsersTab() {
     const { lang, showToast } = useContext(AppContext);
+    const [users2, setUsers2] = useState([]);
     const [filter, setFilter] = useState("all");
-    const filtered = MOCK_USERS.filter((u) => filter === "all" || u.role === filter);
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0438" : "Users"), /* @__PURE__ */ React.createElement("div", { className: "tabs" }, [{ id: "all", label: lang === "ru" ? "\u0412\u0441\u0435" : "All" }, { id: "master", label: lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u0430" : "Masters" }, { id: "client", label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u0438" : "Clients" }].map((t) => /* @__PURE__ */ React.createElement("div", { key: t.id, className: `tab ${filter === t.id ? "active" : ""}`, onClick: () => setFilter(t.id) }, t.label))), filtered.map((u) => /* @__PURE__ */ React.createElement("div", { key: u.id, style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 12, marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: "0.85rem" } }, u.name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, u.email, " \xB7 ", u.role === "master" ? "\u{1F527}" : "\u{1F4CB}", " ", u.country)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { className: `status-badge ${u.status === "active" ? "status-active" : "status-blocked"}` }, u.status), /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        className: "btn btn-sm btn-outline",
-        style: { padding: "4px 8px", fontSize: "0.65rem" },
-        onClick: () => showToast(u.status === "active" ? lang === "ru" ? "\u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D" : "Blocked" : lang === "ru" ? "\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D" : "Unblocked")
-      },
-      u.status === "active" ? "\u{1F6AB}" : "\u2705"
-    )))));
+    const [loading, setLoading] = useState(true);
+    useEffect(function() { loadUsers(); }, [filter]);
+    function loadUsers() {
+      setLoading(true);
+      var params = {};
+      if (filter !== "all") params.role = filter;
+      if (typeof api !== "undefined") api.adminUsers(params).then(function(r) { setUsers2(r || MOCK_USERS); setLoading(false); });
+      else { setUsers2(MOCK_USERS.filter(function(u) { return filter === "all" || u.role === filter; })); setLoading(false); }
+    }
+    function toggleBlock(u) { if (typeof api !== "undefined") { var ns = u.status === "active" ? "blocked" : "active"; api.adminUpdateUser(u.id, { status: ns }).then(function() { showToast(ns === "blocked" ? "Blocked" : "Unblocked"); loadUsers(); }); } else showToast("Demo mode"); }
+    return React.createElement(React.Fragment, null,
+      React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0438" : "Users"),
+      React.createElement("div", { className: "tabs" }, [{ id: "all", label: lang === "ru" ? "\u0412\u0441\u0435" : "All" }, { id: "master", label: lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u0430" : "Masters" }, { id: "client", label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u0438" : "Clients" }].map(function(t) { return React.createElement("div", { key: t.id, className: "tab " + (filter === t.id ? "active" : ""), onClick: function() { setFilter(t.id); } }, t.label); })),
+      loading ? React.createElement("div", { className: "loading-spinner" }) : users2.map(function(u) {
+        return React.createElement("div", { key: u.id, style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 12, marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" } },
+          React.createElement("div", null, React.createElement("div", { style: { fontWeight: 700, fontSize: "0.85rem" } }, u.name), React.createElement("div", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, u.email, " \u00B7 ", u.role === "master" ? "\u{1F527}" : "\u{1F4CB}", " ", u.country)),
+          React.createElement("div", { style: { display: "flex", gap: 6, alignItems: "center" } }, React.createElement("span", { className: "status-badge " + (u.status === "active" ? "status-active" : "status-blocked") }, u.status), React.createElement("button", { className: "btn btn-sm btn-outline", style: { padding: "4px 8px", fontSize: "0.65rem" }, onClick: function() { toggleBlock(u); } }, u.status === "active" ? "\u{1F6AB}" : "\u2705"))
+        );
+      })
+    );
   }
   function AdminOrdersTab() {
     const { lang, showToast } = useContext(AppContext);
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0437\u0430\u043A\u0430\u0437\u0430\u043C\u0438" : "Order Management"), MOCK_ORDERS.map((o) => /* @__PURE__ */ React.createElement("div", { key: o.id, className: `order-card ${o.premium ? "premium" : ""}` }, o.premium && /* @__PURE__ */ React.createElement("span", { className: "order-badge badge-premium" }, Icons.crown), /* @__PURE__ */ React.createElement("div", { className: "order-title" }, lang === "ru" ? o.title : o.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta" }, /* @__PURE__ */ React.createElement("span", null, Icons.location, " ", o.location), /* @__PURE__ */ React.createElement("span", null, o.clientName), /* @__PURE__ */ React.createElement("span", null, o.budget, "\u20AC")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginTop: 8 } }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-sm btn-primary", style: { padding: "4px 10px", fontSize: "0.65rem" }, onClick: () => showToast(lang === "ru" ? "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u0432 \u0422\u041E\u041F" : "Added to TOP") }, "\u2B50 TOP"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-sm btn-outline", style: { padding: "4px 10px", fontSize: "0.65rem" }, onClick: () => showToast(lang === "ru" ? "\u0423\u0434\u0430\u043B\u0435\u043D\u043E" : "Deleted") }, "\u{1F5D1}\uFE0F")))));
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    useEffect(function() { loadOrders(); }, []);
+    function loadOrders() { setLoading(true); if (typeof api !== "undefined") api.getOrders({ status: "all", limit: 50 }).then(function(r) { setOrders(r && r.orders || MOCK_ORDERS); setLoading(false); }); else { setOrders(MOCK_ORDERS); setLoading(false); } }
+    function toggleTop(o) { if (typeof api !== "undefined") api.adminToggleTop(o.id, { is_top: o.is_top ? 0 : 1, is_premium: o.is_premium ? 0 : 1 }).then(function() { showToast(o.is_top ? "Removed TOP" : "Added TOP!"); loadOrders(); }); else showToast("Demo"); }
+    if (loading) return React.createElement("div", { className: "loading-spinner" });
+    return React.createElement(React.Fragment, null, React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0437\u0430\u043A\u0430\u0437\u0430\u043C\u0438" : "Orders"), orders.map(function(o) { return React.createElement("div", { key: o.id, className: "order-card " + (o.is_premium || o.is_top || o.premium ? "premium" : "") }, (o.is_premium || o.is_top || o.premium) && React.createElement("span", { className: "order-badge badge-premium" }, Icons.crown), React.createElement("div", { className: "order-title" }, o.title || o.titleEn), React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", o.location), React.createElement("span", null, o.client_name || o.clientName || ""), React.createElement("span", null, o.budget, "\u20AC")), React.createElement("button", { className: "btn btn-sm btn-yellow", style: { marginTop: 8, fontSize: "0.65rem" }, onClick: function() { toggleTop(o); } }, "\u2B50 ", (o.is_top || o.premium) ? (lang === "ru" ? "\u0421\u043D\u044F\u0442\u044C" : "Remove") : "TOP")); }));
   }
   function AdminTopsTab() {
-    const { lang, showToast } = useContext(AppContext);
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, "TOP / Premium"), /* @__PURE__ */ React.createElement("p", { style: { fontSize: "0.8rem", color: "var(--text3)", marginBottom: 16 } }, lang === "ru" ? "\u0423\u043F\u0440\u0430\u0432\u043B\u044F\u0439\u0442\u0435 \u043F\u0440\u0435\u043C\u0438\u0430\u043B\u044C\u043D\u044B\u043C\u0438 \u0440\u0430\u0437\u043C\u0435\u0449\u0435\u043D\u0438\u044F\u043C\u0438. \u0422\u041E\u041F-\u043E\u0431\u044A\u044F\u0432\u043B\u0435\u043D\u0438\u044F \u043E\u0442\u043E\u0431\u0440\u0430\u0436\u0430\u044E\u0442\u0441\u044F \u043F\u0435\u0440\u0432\u044B\u043C\u0438 \u0432 \u043B\u0435\u043D\u0442\u0435." : "Manage premium placements. TOP ads are shown first in the feed."), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.85rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? "\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0435 \u0422\u041E\u041F-\u043E\u0431\u044A\u044F\u0432\u043B\u0435\u043D\u0438\u044F" : "Active TOP Listings"), MOCK_ORDERS.filter((o) => o.premium).map((o) => /* @__PURE__ */ React.createElement("div", { key: o.id, className: "order-card premium" }, /* @__PURE__ */ React.createElement("span", { className: "order-badge badge-premium" }, Icons.crown, " PREMIUM"), /* @__PURE__ */ React.createElement("div", { className: "order-title" }, lang === "ru" ? o.title : o.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta" }, /* @__PURE__ */ React.createElement("span", null, o.clientName), /* @__PURE__ */ React.createElement("span", null, o.budget, "\u20AC")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-sm btn-outline", style: { marginTop: 8, fontSize: "0.65rem" }, onClick: () => showToast(lang === "ru" ? "\u0421\u043D\u044F\u0442\u043E \u0441 \u0422\u041E\u041F" : "Removed from TOP") }, lang === "ru" ? "\u0421\u043D\u044F\u0442\u044C \u0422\u041E\u041F" : "Remove TOP"))), /* @__PURE__ */ React.createElement("div", { className: "divider" }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.85rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0432 \u0422\u041E\u041F" : "Add to TOP"), MOCK_ORDERS.filter((o) => !o.premium).slice(0, 3).map((o) => /* @__PURE__ */ React.createElement("div", { key: o.id, className: "order-card" }, /* @__PURE__ */ React.createElement("div", { className: "order-title" }, lang === "ru" ? o.title : o.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta" }, /* @__PURE__ */ React.createElement("span", null, o.clientName), /* @__PURE__ */ React.createElement("span", null, o.budget, "\u20AC")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-sm btn-yellow", style: { marginTop: 8, fontSize: "0.65rem" }, onClick: () => showToast(lang === "ru" ? "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u0432 \u0422\u041E\u041F!" : "Added to TOP!") }, "\u2B50 ", lang === "ru" ? "\u0421\u0434\u0435\u043B\u0430\u0442\u044C \u0422\u041E\u041F" : "Make TOP"))));
+    return React.createElement(AdminOrdersTab);
   }
   function AdminBroadcastTab() {
     const { lang, showToast } = useContext(AppContext);
     const [target, setTarget] = useState("all");
     const [message, setMessage] = useState("");
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u0420\u0430\u0441\u0441\u044B\u043B\u043A\u0430 \u0447\u0435\u0440\u0435\u0437 \u0431\u043E\u0442\u0430" : "Bot Broadcast"), /* @__PURE__ */ React.createElement("p", { style: { fontSize: "0.75rem", color: "var(--text3)", marginBottom: 12 } }, lang === "ru" ? "\u041E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F\u043C \u0447\u0435\u0440\u0435\u0437 Telegram \u0431\u043E\u0442\u0430" : "Send a message to users via Telegram bot"), /* @__PURE__ */ React.createElement("div", { className: "form-label" }, lang === "ru" ? "\u041F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u0438" : "Recipients"), /* @__PURE__ */ React.createElement("div", { className: "broadcast-target" }, [
-      { id: "all", label: lang === "ru" ? "\u0412\u0441\u0435\u043C" : "All" },
-      { id: "masters", label: lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u0430" : "Masters" },
-      { id: "clients", label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u0438" : "Clients" }
-    ].map((t) => /* @__PURE__ */ React.createElement("button", { key: t.id, className: `target-btn ${target === t.id ? "active" : ""}`, onClick: () => setTarget(t.id) }, t.label))), /* @__PURE__ */ React.createElement("div", { className: "form-group" }, /* @__PURE__ */ React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0422\u0435\u043A\u0441\u0442 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F" : "Message text"), /* @__PURE__ */ React.createElement("textarea", { className: "form-input", rows: 5, placeholder: lang === "ru" ? "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0442\u0435\u043A\u0441\u0442 \u0440\u0430\u0441\u0441\u044B\u043B\u043A\u0438..." : "Enter broadcast message...", value: message, onChange: (e) => setMessage(e.target.value), style: { minHeight: 120 } })), /* @__PURE__ */ React.createElement("div", { style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 12, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.75rem", fontWeight: 600, marginBottom: 6 } }, lang === "ru" ? "\u041F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440" : "Preview"), /* @__PURE__ */ React.createElement("div", { style: { background: "var(--bg3)", borderRadius: "var(--radius-sm)", padding: 10, fontSize: "0.8rem", color: "var(--text2)", lineHeight: 1.5, minHeight: 40 } }, message || (lang === "ru" ? "\u0422\u0435\u043A\u0441\u0442 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F \u0437\u0434\u0435\u0441\u044C..." : "Message preview will appear here..."))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.7rem", color: "var(--text3)", marginBottom: 12 } }, "\u{1F4CA} ", lang === "ru" ? "\u041F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u0435\u0439:" : "Recipients:", " ", target === "all" ? "1,589" : target === "masters" ? "342" : "1,247"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", onClick: () => {
-      if (!message.trim()) {
-        showToast(lang === "ru" ? "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0442\u0435\u043A\u0441\u0442" : "Enter message text");
-        return;
-      }
-      showToast(lang === "ru" ? `\u0420\u0430\u0441\u0441\u044B\u043B\u043A\u0430 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0430: ${target === "all" ? "\u0432\u0441\u0435\u043C" : target === "masters" ? "\u043C\u0430\u0441\u0442\u0435\u0440\u0430\u043C" : "\u0437\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u0430\u043C"}!` : `Broadcast sent to ${target}!`);
-      setMessage("");
-    } }, Icons.send, " ", lang === "ru" ? "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0440\u0430\u0441\u0441\u044B\u043B\u043A\u0443" : "Send Broadcast"));
+    const [sending, setSending] = useState(false);
+    var handleSend = async function() {
+      if (!message.trim()) { showToast(lang === "ru" ? "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0442\u0435\u043A\u0441\u0442" : "Enter message"); return; }
+      setSending(true);
+      var result = typeof api !== "undefined" ? await api.adminBroadcast({ target: target, message: message }) : null;
+      setSending(false);
+      if (result && result.success) { showToast(lang === "ru" ? "\u041E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043E: " + (result.sent_count || 0) : "Sent: " + (result.sent_count || 0)); setMessage(""); }
+      else showToast((result && result.error) || "Sent (demo)");
+    };
+    return React.createElement(React.Fragment, null,
+      React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u0420\u0430\u0441\u0441\u044B\u043B\u043A\u0430 \u0447\u0435\u0440\u0435\u0437 \u0431\u043E\u0442\u0430" : "Bot Broadcast"),
+      React.createElement("div", { className: "form-label" }, lang === "ru" ? "\u041F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u0438" : "Recipients"),
+      React.createElement("div", { className: "broadcast-target" }, [{ id: "all", label: lang === "ru" ? "\u0412\u0441\u0435\u043C" : "All" }, { id: "masters", label: lang === "ru" ? "\u041C\u0430\u0441\u0442\u0435\u0440\u0430" : "Masters" }, { id: "clients", label: lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A\u0438" : "Clients" }].map(function(t) { return React.createElement("button", { key: t.id, className: "target-btn " + (target === t.id ? "active" : ""), onClick: function() { setTarget(t.id); } }, t.label); })),
+      React.createElement("div", { className: "form-group" }, React.createElement("label", { className: "form-label" }, lang === "ru" ? "\u0422\u0435\u043A\u0441\u0442" : "Message"), React.createElement("textarea", { className: "form-input", rows: 5, value: message, onChange: function(e) { setMessage(e.target.value); }, style: { minHeight: 120 } })),
+      React.createElement("button", { className: "btn btn-primary btn-full", onClick: handleSend, disabled: sending }, Icons.send, " ", sending ? "..." : (lang === "ru" ? "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C" : "Send"))
+    );
   }
   function App() {
     const [lang, setLang] = useState("ru");
