@@ -199,7 +199,8 @@ async function handleCreateOrder(request, env) {
   if (!user) return err('Unauthorized', 401);
   if (user.role !== 'client' && user.role !== 'admin') return err('Only clients can create orders', 403);
 
-  const { category_id, title, description, budget, currency, deadline, location } = await request.json();
+  const body = await request.json();
+  const { category_id, title, description, budget, currency, deadline, location } = body;
   if (!title || !category_id) return err('Title and category required');
 
   const result = await env.DB.prepare(
