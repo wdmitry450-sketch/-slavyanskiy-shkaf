@@ -781,7 +781,17 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   function Header() {
     const { lang, setLang, page, setPage, user, setUser, setMenuOpen } = useContext(AppContext);
     const t = translations[lang].nav;
-    return /* @__PURE__ */ React.createElement("header", { className: "header" }, /* @__PURE__ */ React.createElement("div", { className: "header-logo", onClick: () => setPage("home") }, /* @__PURE__ */ React.createElement("img", { src: user?.role === "master" ? LOGO_OPEN_SM : LOGO_CLOSED_SM, alt: "SlavicShkaf", style: { height: 32, borderRadius: 4 } })), /* @__PURE__ */ React.createElement("div", { className: "header-right" }, /* @__PURE__ */ React.createElement("div", { className: "lang-toggle" }, /* @__PURE__ */ React.createElement("button", { className: `lang-btn ${lang === "ru" ? "active" : ""}`, onClick: () => setLang("ru") }, "RU"), /* @__PURE__ */ React.createElement("button", { className: `lang-btn ${lang === "en" ? "active" : ""}`, onClick: () => setLang("en") }, "EN")), user ? /* @__PURE__ */ React.createElement("button", { className: "menu-btn", onClick: () => setMenuOpen(true) }, Icons.menu) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { className: "header-btn", onClick: () => setPage("login") }, t.login), /* @__PURE__ */ React.createElement("button", { className: "header-btn filled", onClick: () => setPage("register") }, t.register))));
+    return /* @__PURE__ */ React.createElement("header", { className: "header" }, /* @__PURE__ */ React.createElement("div", { className: "header-logo", onClick: () => setPage("home") }, /* @__PURE__ */ React.createElement("img", { src: user?.role === "master" ? LOGO_OPEN_SM : LOGO_CLOSED_SM, alt: "SlavicShkaf", style: { height: 32, borderRadius: 4 } })), /* @__PURE__ */ React.createElement("div", { className: "header-right" }, /* @__PURE__ */ React.createElement("div", { className: "lang-toggle" }, /* @__PURE__ */ React.createElement("button", { className: `lang-btn ${lang === "ru" ? "active" : ""}`, onClick: () => setLang("ru") }, "RU"), /* @__PURE__ */ React.createElement("button", { className: `lang-btn ${lang === "en" ? "active" : ""}`, onClick: () => setLang("en") }, "EN")), user ? React.createElement(React.Fragment, null,
+          React.createElement("button", { className: "menu-btn", style: { position: "relative" }, onClick: () => {
+            if (typeof api !== "undefined") api.getNotifications(true).then(function(r) {
+              if (r && r.notifications && r.notifications.length > 0) {
+                showToast(r.notifications[0].title + ": " + r.notifications[0].message);
+                api.markNotificationsRead();
+              } else { showToast(lang === "ru" ? "\u041D\u0435\u0442 \u043D\u043E\u0432\u044B\u0445 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439" : "No new notifications"); }
+            });
+          } }, React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2" }, React.createElement("path", { d: "M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" }))),
+          React.createElement("button", { className: "menu-btn", onClick: () => setMenuOpen(true) }, Icons.menu)
+        ) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { className: "header-btn", onClick: () => setPage("login") }, t.login), /* @__PURE__ */ React.createElement("button", { className: "header-btn filled", onClick: () => setPage("register") }, t.register))));
   }
   function Sidebar() {
     const { lang, user, setUser, setPage, menuOpen, setMenuOpen } = useContext(AppContext);
@@ -919,10 +929,12 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const { lang, showToast } = useContext(AppContext);
     const tc = translations[lang].common;
     const cat = CATEGORIES.find((c) => c.id === order.category);
-    return /* @__PURE__ */ React.createElement("div", { className: "modal-overlay", onClick: onClose }, /* @__PURE__ */ React.createElement("div", { className: "modal", onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { className: "modal-handle" }), order.premium && /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("span", { className: "order-badge badge-premium", style: { position: "static" } }, Icons.crown, " ", tc.premium)), /* @__PURE__ */ React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? order.title : order.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta", style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("span", null, cat?.icon, " ", cat?.[lang]), /* @__PURE__ */ React.createElement("span", null, Icons.location, " ", order.location), /* @__PURE__ */ React.createElement("span", null, Icons.calendar, " ", order.deadline)), /* @__PURE__ */ React.createElement("p", { style: { fontSize: "0.85rem", color: "var(--text2)", lineHeight: 1.6, marginBottom: 16 } }, lang === "ru" ? order.description : order.descriptionEn), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0411\u044E\u0434\u0436\u0435\u0442" : "Budget"), /* @__PURE__ */ React.createElement("div", { className: "order-budget", style: { fontSize: "1.3rem" } }, order.budget, order.currency)), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "right" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A" : "Client"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: "0.85rem" } }, order.clientName))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", onClick: () => {
-      showToast(lang === "ru" ? "\u041E\u0442\u043A\u043B\u0438\u043A \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D!" : "Response sent!");
-      onClose();
-    } }, tc.respond), /* @__PURE__ */ React.createElement("button", { className: "btn btn-outline btn-full", style: { marginTop: 8 }, onClick: onClose }, tc.cancel)));
+    return /* @__PURE__ */ React.createElement("div", { className: "modal-overlay", onClick: onClose }, /* @__PURE__ */ React.createElement("div", { className: "modal", onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { className: "modal-handle" }), order.premium && /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("span", { className: "order-badge badge-premium", style: { position: "static" } }, Icons.crown, " ", tc.premium)), /* @__PURE__ */ React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? order.title : order.titleEn), /* @__PURE__ */ React.createElement("div", { className: "order-meta", style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("span", null, cat?.icon, " ", cat?.[lang]), /* @__PURE__ */ React.createElement("span", null, Icons.location, " ", order.location), /* @__PURE__ */ React.createElement("span", null, Icons.calendar, " ", order.deadline)), /* @__PURE__ */ React.createElement("p", { style: { fontSize: "0.85rem", color: "var(--text2)", lineHeight: 1.6, marginBottom: 16 } }, lang === "ru" ? order.description : order.descriptionEn), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0411\u044E\u0434\u0436\u0435\u0442" : "Budget"), /* @__PURE__ */ React.createElement("div", { className: "order-budget", style: { fontSize: "1.3rem" } }, order.budget, order.currency)), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "right" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "var(--text3)", fontSize: "0.75rem" } }, lang === "ru" ? "\u0417\u0430\u043A\u0430\u0437\u0447\u0438\u043A" : "Client"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: "0.85rem" } }, order.clientName))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-full", onClick: async () => {
+        var respondResult = typeof api !== "undefined" ? await api.respondToOrder(order.id, { message: "", proposed_budget: order.budget }) : null;
+        if (respondResult && respondResult.success) showToast(lang === "ru" ? "\u041E\u0442\u043A\u043B\u0438\u043A \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D!" : "Response sent!");
+        else showToast((respondResult && respondResult.error) || "Error");
+        onClose();
+      } }, tc.respond), /* @__PURE__ */ React.createElement("button", { className: "btn btn-outline btn-full", style: { marginTop: 8 }, onClick: onClose }, tc.cancel)));
   }
   function ResponsesTab() {
     const { lang } = useContext(AppContext);
@@ -963,8 +975,55 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     })), /* @__PURE__ */ React.createElement("div", { className: "divider" }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.8rem", fontWeight: 600, marginBottom: 8 } }, lang === "ru" ? "\u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0441\u043E\u0431\u044B\u0442\u0438\u044F" : "Upcoming Events"), /* @__PURE__ */ React.createElement("div", { className: "empty-state", style: { padding: "20px 0" } }, /* @__PURE__ */ React.createElement("p", null, lang === "ru" ? "\u041D\u0435\u0442 \u0437\u0430\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u0441\u043E\u0431\u044B\u0442\u0438\u0439" : "No upcoming events")));
   }
   function MessagesTab() {
-    const { lang } = useContext(AppContext);
-    return /* @__PURE__ */ React.createElement("div", { className: "empty-state" }, /* @__PURE__ */ React.createElement("div", { className: "emoji" }, "\u{1F4AC}"), /* @__PURE__ */ React.createElement("p", null, lang === "ru" ? "\u041D\u0435\u0442 \u043D\u043E\u0432\u044B\u0445 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0439" : "No new messages"));
+    const { lang, user, showToast } = useContext(AppContext);
+    const [convos, setConvos] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [chatWith, setChatWith] = useState(null);
+    const [chatMessages, setChatMessages] = useState([]);
+    const [newMsg, setNewMsg] = useState("");
+    useEffect(function() { loadConvos(); }, []);
+    function loadConvos() { setLoading(true); if (typeof api !== "undefined") api.getMessages().then(function(r) { setConvos(r || []); setLoading(false); }); else setLoading(false); }
+    function openChat(otherId, otherName) {
+      setChatWith({ id: otherId, name: otherName });
+      if (typeof api !== "undefined") api.getMessages(otherId).then(function(r) { setChatMessages(r || []); });
+    }
+    function sendMsg() {
+      if (!newMsg.trim() || !chatWith) return;
+      if (typeof api !== "undefined") api.sendMessage({ receiver_id: chatWith.id, content: newMsg }).then(function() {
+        setNewMsg(""); api.getMessages(chatWith.id).then(function(r) { setChatMessages(r || []); });
+      });
+    }
+    if (chatWith) return React.createElement(React.Fragment, null,
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 16 } },
+        React.createElement("button", { onClick: function() { setChatWith(null); loadConvos(); }, style: { background: "none", border: "none", color: "var(--text)", cursor: "pointer" } }, Icons.back),
+        React.createElement("div", { style: { fontWeight: 700 } }, chatWith.name)
+      ),
+      React.createElement("div", { style: { overflowY: "auto", marginBottom: 16, maxHeight: "55vh" } },
+        chatMessages.map(function(m) {
+          var mine = m.sender_id === (user && user.id);
+          return React.createElement("div", { key: m.id, style: { display: "flex", justifyContent: mine ? "flex-end" : "flex-start", marginBottom: 8 } },
+            React.createElement("div", { style: { background: mine ? "var(--green)" : "var(--bg3)", color: mine ? "#fff" : "var(--text)", padding: "8px 12px", borderRadius: 12, maxWidth: "75%", fontSize: "0.8rem" } }, m.content,
+              React.createElement("div", { style: { fontSize: "0.6rem", opacity: 0.6, marginTop: 4 } }, (m.created_at || "").slice(11, 16))
+            )
+          );
+        })
+      ),
+      React.createElement("div", { style: { display: "flex", gap: 8 } },
+        React.createElement("input", { className: "form-input", style: { flex: 1 }, placeholder: lang === "ru" ? "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435..." : "Message...", value: newMsg, onChange: function(e) { setNewMsg(e.target.value); }, onKeyDown: function(e) { if (e.key === "Enter") sendMsg(); } }),
+        React.createElement("button", { className: "btn btn-primary", onClick: sendMsg }, Icons.send)
+      )
+    );
+    if (loading) return React.createElement("div", { className: "loading-spinner" });
+    if (!convos.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4AC}"), React.createElement("p", null, lang === "ru" ? "\u041D\u0435\u0442 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0439" : "No messages"));
+    return React.createElement(React.Fragment, null, convos.map(function(c) {
+      return React.createElement("div", { key: c.id, className: "order-card", onClick: function() { openChat(c.other_id, c.other_name || "User"); }, style: { cursor: "pointer" } },
+        React.createElement("div", { style: { display: "flex", justifyContent: "space-between" } },
+          React.createElement("div", { style: { fontWeight: 700, fontSize: "0.85rem" } }, c.other_name || "User"),
+          c.unread > 0 && React.createElement("span", { style: { background: "var(--green)", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem" } }, c.unread)
+        ),
+        React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)", marginTop: 4 } }, (c.content || "").slice(0, 60))
+      );
+    }));
   }
   function ProfileTab() {
     const { lang, user } = useContext(AppContext);
@@ -1015,13 +1074,70 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     );
   }
   function MyOrdersTab() {
-    const { lang, user } = useContext(AppContext);
+    const { lang, user, showToast } = useContext(AppContext);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    useEffect(function() { if (typeof api !== "undefined") api.getOrders({ status: "all" }).then(function(r) { setOrders((r && r.orders || []).filter(function(o) { return o.client_id === (user && user.id); })); setLoading(false); }); else { setOrders(MOCK_ORDERS.slice(0,3)); setLoading(false); } }, []);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [responses2, setResponses2] = useState([]);
+    const [loadingResp, setLoadingResp] = useState(false);
+    useEffect(function() { loadOrders(); }, []);
+    function loadOrders() {
+      setLoading(true);
+      if (typeof api !== "undefined") api.getOrders({ status: "all" }).then(function(r) { setOrders((r && r.orders || []).filter(function(o) { return o.client_id === (user && user.id); })); setLoading(false); });
+      else { setOrders(MOCK_ORDERS.slice(0,3)); setLoading(false); }
+    }
+    function viewResponses(order) {
+      setSelectedOrder(order);
+      setLoadingResp(true);
+      if (typeof api !== "undefined") api.getResponses(order.id).then(function(r) { setResponses2(r || []); setLoadingResp(false); });
+      else setLoadingResp(false);
+    }
+    function acceptMaster(respId) {
+      if (typeof api !== "undefined") api.acceptResponse(respId).then(function(r) {
+        if (r && r.success) { showToast(lang === "ru" ? "Мастер подтверждён!" : "Master confirmed!"); setSelectedOrder(null); loadOrders(); }
+        else showToast((r && r.error) || "Error");
+      });
+    }
+    function completeOrder(orderId) {
+      var rating = prompt(lang === "ru" ? "Оценка мастера (1-5):" : "Rate master (1-5):");
+      if (!rating) return;
+      if (typeof api !== "undefined") api.completeOrder(orderId, { rating: parseInt(rating) }).then(function(r) {
+        if (r && r.success) { showToast(lang === "ru" ? "Заказ завершён!" : "Order completed!"); loadOrders(); }
+      });
+    }
     if (loading) return React.createElement("div", { className: "loading-spinner" });
-    if (!orders.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4CB}"), React.createElement("p", null, lang === "ru" ? "\u0423 \u0432\u0430\u0441 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442 \u0437\u0430\u043A\u0430\u0437\u043E\u0432" : "No orders yet"));
-    return React.createElement(React.Fragment, null, React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "\u041C\u043E\u0438 \u0437\u0430\u043A\u0430\u0437\u044B" : "My Orders"), orders.map(function(o) { return React.createElement("div", { key: o.id, className: "order-card" }, React.createElement("div", { className: "order-title" }, o.title || o.titleEn), React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", o.location || ""), React.createElement("span", { className: "status-badge status-" + o.status }, o.status)), React.createElement("div", { className: "order-footer" }, React.createElement("div", { className: "order-budget" }, o.budget, o.currency || "\u20AC"), React.createElement("div", { className: "order-responses" }, o.responses_count || 0, " ", lang === "ru" ? "\u043E\u0442\u043A\u043B\u0438\u043A\u043E\u0432" : "responses"))); }));
+    if (!orders.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4CB}"), React.createElement("p", null, lang === "ru" ? "У вас пока нет заказов" : "No orders yet"));
+    if (selectedOrder) return React.createElement(React.Fragment, null,
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 16 } },
+        React.createElement("button", { onClick: function() { setSelectedOrder(null); }, style: { background: "none", border: "none", color: "var(--text)", cursor: "pointer" } }, Icons.back),
+        React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700 } }, selectedOrder.title)
+      ),
+      React.createElement("div", { className: "order-meta", style: { marginBottom: 16 } }, React.createElement("span", null, Icons.location, " ", selectedOrder.location || ""), React.createElement("span", { className: "status-badge status-" + (selectedOrder.status === "open" ? "open" : "active") }, selectedOrder.status)),
+      selectedOrder.status === "in_progress" && React.createElement("button", { className: "btn btn-primary btn-full mb-2", onClick: function() { completeOrder(selectedOrder.id); } }, lang === "ru" ? "✅ Работа выполнена" : "✅ Mark Complete"),
+      React.createElement("h3", { style: { fontSize: "0.9rem", fontWeight: 700, marginBottom: 10 } }, lang === "ru" ? "Отклики мастеров (" + (selectedOrder.responses_count || 0) + ")" : "Responses (" + (selectedOrder.responses_count || 0) + ")"),
+      loadingResp ? React.createElement("div", { className: "loading-spinner" }) : responses2.length === 0 ? React.createElement("p", { style: { color: "var(--text3)", fontSize: "0.8rem" } }, lang === "ru" ? "Пока нет откликов" : "No responses yet") :
+      responses2.map(function(r) {
+        return React.createElement("div", { key: r.id, className: "order-card", style: { borderColor: r.status === "accepted" ? "var(--green)" : "var(--border)" } },
+          React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
+            React.createElement("div", null,
+              React.createElement("div", { style: { fontWeight: 700, fontSize: "0.9rem" } }, r.master_name || "Master #" + r.master_id),
+              React.createElement("div", { style: { fontSize: "0.7rem", color: "var(--text3)" } }, Icons.star, " ", r.master_rating || "—", " · ", r.master_city || "", ", ", r.master_country || "")
+            ),
+            r.status === "accepted" ? React.createElement("span", { className: "status-badge status-active" }, "✅ " + (lang === "ru" ? "Выбран" : "Chosen")) :
+            r.status === "pending" && selectedOrder.status === "open" ? React.createElement("button", { className: "btn btn-sm btn-primary", onClick: function() { acceptMaster(r.id); } }, lang === "ru" ? "Выбрать" : "Accept") : null
+          ),
+          r.message && React.createElement("p", { style: { fontSize: "0.8rem", color: "var(--text2)", marginTop: 8, lineHeight: 1.4 } }, r.message),
+          r.proposed_budget && React.createElement("div", { className: "order-budget", style: { marginTop: 6 } }, r.proposed_budget, "€")
+        );
+      })
+    );
+    return React.createElement(React.Fragment, null, React.createElement("h2", { className: "page-title", style: { fontSize: "1rem" } }, lang === "ru" ? "Мои заказы" : "My Orders"), orders.map(function(o) {
+      return React.createElement("div", { key: o.id, className: "order-card", onClick: function() { viewResponses(o); }, style: { cursor: "pointer" } },
+        React.createElement("div", { className: "order-title" }, o.title || o.titleEn),
+        React.createElement("div", { className: "order-meta" }, React.createElement("span", null, Icons.location, " ", o.location || ""), React.createElement("span", { className: "status-badge status-" + (o.status === "open" ? "open" : o.status === "completed" ? "active" : "open") }, o.status)),
+        React.createElement("div", { className: "order-footer" }, React.createElement("div", { className: "order-budget" }, o.budget, o.currency || "€"), React.createElement("div", { className: "order-responses", style: { color: (o.responses_count || 0) > 0 ? "var(--green)" : "var(--text3)" } }, "💬 ", o.responses_count || 0, " ", lang === "ru" ? "откликов" : "responses"))
+      );
+    }));
   }
   function MastersCatalogTab() {
     const { lang } = useContext(AppContext);
