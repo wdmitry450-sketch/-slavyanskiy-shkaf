@@ -1,5 +1,8 @@
 (() => {
   // build-entry.jsx
+
+  var _isTMA = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+  var _isWide = function() { return !_isTMA && window.innerWidth > 768; };
   var { useState, useEffect, useCallback, useRef, useMemo, createContext, useContext } = React;
   var LOGO_CLOSED_SM = "/logo-closed.png";
   var LOGO_OPEN_SM = "/logo-open.png";
@@ -741,6 +744,24 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 .text-red { color: var(--red); }
 .text-muted { color: var(--text3); }
 .text-center { text-align: center; }
+.app.wide { max-width:1200px; }
+.app.wide .hero { padding:60px 40px; }
+.app.wide .hero h1 { font-size:2.2rem; }
+.app.wide .stats-row { max-width:800px; margin:0 auto 40px; gap:16px; }
+.app.wide .section { padding:40px 40px; max-width:1000px; margin:0 auto; }
+.app.wide .why-section { max-width:900px; margin:0 auto; }
+.app.wide .why-grid { grid-template-columns:repeat(4,1fr); }
+.app.wide .cta-section { max-width:800px; margin:30px auto 40px; }
+.app.wide .page { max-width:500px; margin:0 auto; }
+.app.wide .dash { flex-direction:row; }
+.app.wide .dash-content { flex:1; padding:24px 32px; }
+.app.wide .dash-nav { position:static; flex-direction:column; width:220px; border-top:none; border-right:1px solid var(--border); padding:16px 0; min-height:calc(100vh - 52px); }
+.app.wide .dash-nav-item { flex-direction:row; justify-content:flex-start; padding:10px 20px; font-size:0.8rem; gap:10px; }
+.app.wide .admin-grid { grid-template-columns:repeat(4,1fr); }
+.loading-spinner { display:flex; justify-content:center; padding:30px; }
+.loading-spinner::after { content:''; width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.6s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
 .mt-2 { margin-top: 8px; }
 .mt-4 { margin-top: 16px; }
 .mb-2 { margin-bottom: 8px; }
@@ -796,12 +817,13 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [selectedCats, setSelectedCats] = useState([]);
     const updateForm = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
     const toggleCat = (id) => setSelectedCats((prev) => prev.includes(id) ? prev.filter((c) => c !== id) : prev.length < 5 ? [...prev, id] : prev);
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (!form.name || !form.email || !form.password) {
         showToast(lang === "ru" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043F\u043E\u043B\u044F" : "Fill in required fields");
         return;
       }
-      setUser({ id: 99, name: form.name, email: form.email, role, country: form.country, city: form.city, categories: selectedCats });
+      var regResult = typeof api !== 'undefined' ? await api.register({ role, name: form.name, email: form.email, phone: form.phone, password: form.password, country: form.country, city: form.city, postal_code: form.postalCode, categories: selectedCats }) : null;
+      if (regResult && regResult.token) { api.setToken(regResult.token); setUser(regResult.user); } else { setUser({ id: 99, name: form.name, email: form.email, role, country: form.country, city: form.city, categories: selectedCats }); }
       setPage(role === "master" ? "master" : "client");
       showToast(lang === "ru" ? "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F \u0443\u0441\u043F\u0435\u0448\u043D\u0430!" : "Registration successful!");
     };
@@ -812,7 +834,17 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const t = translations[lang].login;
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const handleLogin = () => {
+    const handleLogin = async () => {
+      if (!email || !password) { showToast("Enter email and password"); return; }
+      var result = typeof api !== 'undefined' ? await api.login(email, password) : null;
+      if (result && result.token) {
+        api.setToken(result.token);
+        setUser(result.user);
+        setPage(result.user.role === "master" ? "master" : result.user.role === "admin" ? "admin" : "client");
+        showToast(lang === "ru" ? "Добро пожаловать!" : "Welcome!");
+        return;
+      }
+      if (result && result.error) { showToast(result.error); return; }
       if (email === "admin@slavicshkaf.com") {
         setUser({ id: 0, name: "Admin", email, role: "admin" });
         setPage("admin");
@@ -1037,6 +1069,9 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [user, setUser] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [toast, setToast] = useState(null);
+    const [wide, setWide] = useState(_isWide());
+    useEffect(function() { if (_isTMA) return; var h = function() { setWide(_isWide()); }; window.addEventListener("resize", h); return function() { window.removeEventListener("resize", h); }; }, []);
+    useEffect(function() { if (typeof api !== "undefined" && api.token) { api.me().then(function(me) { if (me && me.id) { setUser(me); setPage(me.role === "master" ? "master" : me.role === "admin" ? "admin" : "client"); } else { api.setToken(null); } }); } }, []);
     const showToast = useCallback((msg) => {
       setToast(msg);
     }, []);
@@ -1051,7 +1086,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       setMenuOpen,
       showToast
     }), [lang, page, user, menuOpen, showToast]);
-    return /* @__PURE__ */ React.createElement(AppContext.Provider, { value: ctx }, /* @__PURE__ */ React.createElement("style", null, CSS), /* @__PURE__ */ React.createElement("div", { className: "app" }, /* @__PURE__ */ React.createElement(Header, null), /* @__PURE__ */ React.createElement(Sidebar, null), page === "home" && /* @__PURE__ */ React.createElement(LandingPage, null), page === "register" && /* @__PURE__ */ React.createElement(RegisterPage, null), page === "login" && /* @__PURE__ */ React.createElement(LoginPage, null), page === "master" && /* @__PURE__ */ React.createElement(MasterDashboard, null), page === "client" && /* @__PURE__ */ React.createElement(ClientDashboard, null), page === "admin" && /* @__PURE__ */ React.createElement(AdminPanel, null), toast && /* @__PURE__ */ React.createElement(Toast, { message: toast, onClose: () => setToast(null) })));
+    return /* @__PURE__ */ React.createElement(AppContext.Provider, { value: ctx }, /* @__PURE__ */ React.createElement("style", null, CSS), /* @__PURE__ */ React.createElement("div", { className: "app" + (wide ? " wide" : "") }, /* @__PURE__ */ React.createElement(Header, null), /* @__PURE__ */ React.createElement(Sidebar, null), page === "home" && /* @__PURE__ */ React.createElement(LandingPage, null), page === "register" && /* @__PURE__ */ React.createElement(RegisterPage, null), page === "login" && /* @__PURE__ */ React.createElement(LoginPage, null), page === "master" && /* @__PURE__ */ React.createElement(MasterDashboard, null), page === "client" && /* @__PURE__ */ React.createElement(ClientDashboard, null), page === "admin" && /* @__PURE__ */ React.createElement(AdminPanel, null), toast && /* @__PURE__ */ React.createElement(Toast, { message: toast, onClose: () => setToast(null) })));
   }
   if (typeof api !== "undefined") api.init();
   var root = ReactDOM.createRoot(document.getElementById("root"));
