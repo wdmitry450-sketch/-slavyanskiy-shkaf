@@ -870,7 +870,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     } }, "admin@slavicshkaf.com")));
   }
   function MasterDashboard() {
-    const { lang } = useContext(AppContext);
+    const { lang, notifCount } = useContext(AppContext);
     const t = translations[lang].masterDash;
     const tc = translations[lang].common;
     const [tab, setTab] = useState("exchange");
@@ -881,7 +881,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       { id: "messages", icon: Icons.message, label: t.messages },
       { id: "profile", icon: Icons.user, label: t.profile }
     ];
-    return /* @__PURE__ */ React.createElement("div", { className: "dash" }, /* @__PURE__ */ React.createElement("div", { className: "dash-content" }, tab === "exchange" && /* @__PURE__ */ React.createElement(ExchangeTab, null), tab === "responses" && /* @__PURE__ */ React.createElement(ResponsesTab, null), tab === "calendar" && /* @__PURE__ */ React.createElement(CalendarTab, null), tab === "messages" && /* @__PURE__ */ React.createElement(MessagesTab, null), tab === "profile" && /* @__PURE__ */ React.createElement(ProfileTab, null)), /* @__PURE__ */ React.createElement("nav", { className: "dash-nav" }, navItems.map((item) => /* @__PURE__ */ React.createElement("button", { key: item.id, className: `dash-nav-item ${tab === item.id ? "active" : ""}`, onClick: () => setTab(item.id) }, item.icon, /* @__PURE__ */ React.createElement("span", null, item.label)))));
+    return /* @__PURE__ */ React.createElement("div", { className: "dash" }, /* @__PURE__ */ React.createElement("div", { className: "dash-content" }, tab === "exchange" && /* @__PURE__ */ React.createElement(ExchangeTab, null), tab === "responses" && /* @__PURE__ */ React.createElement(ResponsesTab, null), tab === "calendar" && /* @__PURE__ */ React.createElement(CalendarTab, null), tab === "messages" && /* @__PURE__ */ React.createElement(MessagesTab, null), tab === "profile" && /* @__PURE__ */ React.createElement(ProfileTab, null)), /* @__PURE__ */ React.createElement("nav", { className: "dash-nav" }, navItems.map((item) => /* @__PURE__ */ React.createElement("button", { key: item.id, className: `dash-nav-item ${tab === item.id ? "active" : ""}`, onClick: () => setTab(item.id), style: { position: "relative" } }, item.icon, /* @__PURE__ */ React.createElement("span", null, item.label), item.id === "messages" && typeof notifCount !== "undefined" && notifCount > 0 && /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", top: 2, right: "calc(50% - 18px)", background: "var(--red)", color: "#fff", borderRadius: "50%", minWidth: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.55rem", fontWeight: 700 } }, notifCount > 9 ? "9+" : notifCount)))));
   }
   function ExchangeTab() {
     const { lang, showToast } = useContext(AppContext);
@@ -1023,14 +1023,38 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       });
     }
 
-    function sendMsg() {
-      if (!newMsg.trim() || !chatWith) return;
+    var [pendingFiles, setPendingFiles] = useState([]);
+    var fileInputRef = useRef(null);
+
+    function handleFileSelect(e) {
+      var files = Array.from(e.target.files || []);
+      if (pendingFiles.length + files.length > 10) { showToast(lang === "ru" ? "\u041C\u0430\u043A\u0441\u0438\u043C\u0443\u043C 10 \u0444\u0430\u0439\u043B\u043E\u0432" : "Max 10 files"); return; }
+      setPendingFiles(function(prev) { return prev.concat(files); });
+      e.target.value = "";
+    }
+
+    function removeFile(idx) { setPendingFiles(function(prev) { return prev.filter(function(_, i) { return i !== idx; }); }); }
+
+    async function sendMsg() {
+      if ((!newMsg.trim() && pendingFiles.length === 0) || !chatWith) return;
       var msgText = newMsg;
+      var filesToSend = pendingFiles.slice();
       setNewMsg("");
+      setPendingFiles([]);
+      // Upload files first
+      var attachments = [];
+      if (filesToSend.length > 0 && typeof api !== "undefined") {
+        for (var fi = 0; fi < filesToSend.length; fi++) {
+          var uploadResult = await api.uploadMedia(filesToSend[fi]);
+          if (uploadResult && uploadResult.url) {
+            attachments.push({ type: uploadResult.type, url: uploadResult.url, name: uploadResult.name });
+          }
+        }
+      }
       // Optimistic: add message immediately
-      setChatMessages(function(prev) { return prev.concat([{ id: Date.now(), sender_id: user && user.id, content: msgText, created_at: new Date().toISOString() }]); });
+      setChatMessages(function(prev) { return prev.concat([{ id: Date.now(), sender_id: user && user.id, content: msgText, attachments: attachments.length ? JSON.stringify(attachments) : null, created_at: new Date().toISOString() }]); });
       setTimeout(function() { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, 50);
-      if (typeof api !== "undefined") api.sendMessage({ receiver_id: chatWith.id, content: msgText }).then(function() {
+      if (typeof api !== "undefined") api.sendMessage({ receiver_id: chatWith.id, content: msgText || (attachments.length ? "\u{1F4CE} " + attachments.length + " file(s)" : ""), attachments: attachments.length ? attachments : undefined }).then(function() {
         loadChatMessages(chatWith.id);
       });
     }
@@ -1050,13 +1074,37 @@ textarea.form-input { resize: vertical; min-height: 80px; }
           var mine = m.sender_id === (user && user.id);
           return React.createElement("div", { key: m.id, style: { display: "flex", justifyContent: mine ? "flex-end" : "flex-start", marginBottom: 6 } },
             React.createElement("div", { style: { background: mine ? "var(--green)" : "var(--bg3)", color: mine ? "#fff" : "var(--text)", padding: "10px 14px", borderRadius: mine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", maxWidth: "80%", fontSize: "0.82rem", lineHeight: 1.5 } },
-              m.content,
+              m.content && React.createElement("div", null, m.content),
+              (function() {
+                try {
+                  var atts = m.attachments ? (typeof m.attachments === "string" ? JSON.parse(m.attachments) : m.attachments) : [];
+                  if (!atts || !atts.length) return null;
+                  return React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, marginTop: m.content ? 6 : 0 } },
+                    atts.map(function(att, ai) {
+                      if (att.type === "video") return React.createElement("video", { key: ai, src: att.url, controls: true, style: { maxWidth: "100%", borderRadius: 8, marginTop: 4 }, preload: "metadata" });
+                      return React.createElement("img", { key: ai, src: att.url, alt: att.name || "photo", style: { maxWidth: att.length > 1 ? "48%" : "100%", borderRadius: 8, marginTop: 4, cursor: "pointer" }, onClick: function() { window.open(att.url, "_blank"); } });
+                    })
+                  );
+                } catch(e) { return null; }
+              })(),
               React.createElement("div", { style: { fontSize: "0.6rem", opacity: 0.5, marginTop: 4, textAlign: mine ? "right" : "left" } }, (m.created_at || "").slice(11, 16))
             )
           );
         })
       ),
+      pendingFiles.length > 0 && React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, padding: "8px 0" } },
+        pendingFiles.map(function(f, fi) {
+          var isImg = f.type && f.type.startsWith("image/");
+          return React.createElement("div", { key: fi, style: { position: "relative", display: "inline-block" } },
+            isImg ? React.createElement("img", { src: URL.createObjectURL(f), style: { width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: "1px solid var(--border)" } }) :
+            React.createElement("div", { style: { width: 60, height: 60, background: "var(--bg3)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", color: "var(--text3)" } }, "\u{1F3AC}"),
+            React.createElement("button", { onClick: function() { removeFile(fi); }, style: { position: "absolute", top: -4, right: -4, background: "var(--red)", color: "#fff", border: "none", borderRadius: "50%", width: 18, height: 18, fontSize: "0.6rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "\u2715")
+          );
+        })
+      ),
+      React.createElement("input", { ref: fileInputRef, type: "file", accept: "image/*,video/*", multiple: true, style: { display: "none" }, onChange: handleFileSelect }),
       React.createElement("div", { style: { display: "flex", gap: 8, padding: "8px 0", borderTop: "1px solid var(--border)" } },
+        React.createElement("button", { style: { background: "none", border: "none", cursor: "pointer", padding: "0 4px", display: "flex", alignItems: "center" }, onClick: function() { if (fileInputRef.current) fileInputRef.current.click(); } }, React.createElement("svg", { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "var(--text3)", strokeWidth: 2 }, React.createElement("path", { d: "M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" }))),
         React.createElement("input", { className: "form-input", style: { flex: 1, borderRadius: 24, padding: "10px 16px" }, placeholder: lang === "ru" ? "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435..." : "Message...", value: newMsg, onChange: function(e) { setNewMsg(e.target.value); }, onKeyDown: function(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); } } }),
         React.createElement("button", { style: { background: newMsg.trim() ? "var(--green)" : "var(--bg3)", border: "none", borderRadius: "50%", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }, onClick: sendMsg }, React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: newMsg.trim() ? "#fff" : "var(--text3)", strokeWidth: 2 }, React.createElement("path", { d: "M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" })))
       )
@@ -1093,7 +1141,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     }))), isMaster && /* @__PURE__ */ React.createElement("div", { className: "profile-section" }, /* @__PURE__ */ React.createElement("div", { className: "profile-section-title" }, lang === "ru" ? "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B / \u041B\u0438\u0446\u0435\u043D\u0437\u0438\u0438" : "Documents / Licenses"), /* @__PURE__ */ React.createElement("div", { style: { border: "2px dashed var(--border)", borderRadius: "var(--radius)", padding: 20, textAlign: "center", cursor: "pointer" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: "1.5rem", marginBottom: 4 } }, "\u{1F4C4}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)" } }, lang === "ru" ? "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u0434\u043B\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432" : "Tap to upload documents"))), /* @__PURE__ */ React.createElement("button", { className: "btn btn-outline btn-full" }, lang === "ru" ? "\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u0440\u043E\u0444\u0438\u043B\u044C" : "Edit Profile"));
   }
   function ClientDashboard() {
-    const { lang } = useContext(AppContext);
+    const { lang, notifCount } = useContext(AppContext);
     const t = translations[lang].clientDash;
     const [tab, setTab] = useState("myOrders");
     const navItems = [
@@ -1103,7 +1151,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       { id: "messages", icon: Icons.message, label: t.messages },
       { id: "profile", icon: Icons.user, label: t.profile }
     ];
-    return /* @__PURE__ */ React.createElement("div", { className: "dash" }, /* @__PURE__ */ React.createElement("div", { className: "dash-content" }, tab === "newOrder" && /* @__PURE__ */ React.createElement(NewOrderTab, null), tab === "myOrders" && /* @__PURE__ */ React.createElement(MyOrdersTab, null), tab === "masters" && /* @__PURE__ */ React.createElement(MastersCatalogTab, null), tab === "messages" && /* @__PURE__ */ React.createElement(MessagesTab, null), tab === "profile" && /* @__PURE__ */ React.createElement(ProfileTab, null)), /* @__PURE__ */ React.createElement("nav", { className: "dash-nav" }, navItems.map((item) => /* @__PURE__ */ React.createElement("button", { key: item.id, className: `dash-nav-item ${tab === item.id ? "active" : ""}`, onClick: () => setTab(item.id) }, item.icon, /* @__PURE__ */ React.createElement("span", null, item.label)))));
+    return /* @__PURE__ */ React.createElement("div", { className: "dash" }, /* @__PURE__ */ React.createElement("div", { className: "dash-content" }, tab === "newOrder" && /* @__PURE__ */ React.createElement(NewOrderTab, null), tab === "myOrders" && /* @__PURE__ */ React.createElement(MyOrdersTab, null), tab === "masters" && /* @__PURE__ */ React.createElement(MastersCatalogTab, null), tab === "messages" && /* @__PURE__ */ React.createElement(MessagesTab, null), tab === "profile" && /* @__PURE__ */ React.createElement(ProfileTab, null)), /* @__PURE__ */ React.createElement("nav", { className: "dash-nav" }, navItems.map((item) => /* @__PURE__ */ React.createElement("button", { key: item.id, className: `dash-nav-item ${tab === item.id ? "active" : ""}`, onClick: () => setTab(item.id), style: { position: "relative" } }, item.icon, /* @__PURE__ */ React.createElement("span", null, item.label), item.id === "messages" && typeof notifCount !== "undefined" && notifCount > 0 && /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", top: 2, right: "calc(50% - 18px)", background: "var(--red)", color: "#fff", borderRadius: "50%", minWidth: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.55rem", fontWeight: 700 } }, notifCount > 9 ? "9+" : notifCount)))));
   }
   function NewOrderTab() {
     const { lang, showToast } = useContext(AppContext);
@@ -1237,7 +1285,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     );
   }
   function AdminPanel() {
-    const { lang } = useContext(AppContext);
+    const { lang, notifCount } = useContext(AppContext);
     const t = translations[lang].admin;
     const [tab, setTab] = useState("stats");
     const navItems = [
@@ -1247,7 +1295,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       { id: "tops", icon: Icons.crown, label: t.tops },
       { id: "broadcast", icon: Icons.send, label: t.broadcast }
     ];
-    return /* @__PURE__ */ React.createElement("div", { className: "dash" }, /* @__PURE__ */ React.createElement("div", { className: "dash-content" }, tab === "stats" && /* @__PURE__ */ React.createElement(AdminStatsTab, null), tab === "users" && /* @__PURE__ */ React.createElement(AdminUsersTab, null), tab === "orders" && /* @__PURE__ */ React.createElement(AdminOrdersTab, null), tab === "tops" && /* @__PURE__ */ React.createElement(AdminTopsTab, null), tab === "broadcast" && /* @__PURE__ */ React.createElement(AdminBroadcastTab, null)), /* @__PURE__ */ React.createElement("nav", { className: "dash-nav" }, navItems.map((item) => /* @__PURE__ */ React.createElement("button", { key: item.id, className: `dash-nav-item ${tab === item.id ? "active" : ""}`, onClick: () => setTab(item.id) }, item.icon, /* @__PURE__ */ React.createElement("span", null, item.label)))));
+    return /* @__PURE__ */ React.createElement("div", { className: "dash" }, /* @__PURE__ */ React.createElement("div", { className: "dash-content" }, tab === "stats" && /* @__PURE__ */ React.createElement(AdminStatsTab, null), tab === "users" && /* @__PURE__ */ React.createElement(AdminUsersTab, null), tab === "orders" && /* @__PURE__ */ React.createElement(AdminOrdersTab, null), tab === "tops" && /* @__PURE__ */ React.createElement(AdminTopsTab, null), tab === "broadcast" && /* @__PURE__ */ React.createElement(AdminBroadcastTab, null)), /* @__PURE__ */ React.createElement("nav", { className: "dash-nav" }, navItems.map((item) => /* @__PURE__ */ React.createElement("button", { key: item.id, className: `dash-nav-item ${tab === item.id ? "active" : ""}`, onClick: () => setTab(item.id), style: { position: "relative" } }, item.icon, /* @__PURE__ */ React.createElement("span", null, item.label), item.id === "messages" && typeof notifCount !== "undefined" && notifCount > 0 && /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", top: 2, right: "calc(50% - 18px)", background: "var(--red)", color: "#fff", borderRadius: "50%", minWidth: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.55rem", fontWeight: 700 } }, notifCount > 9 ? "9+" : notifCount)))));
   }
   function AdminStatsTab() {
     const { lang } = useContext(AppContext);

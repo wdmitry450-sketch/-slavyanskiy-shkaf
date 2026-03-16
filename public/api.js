@@ -20,8 +20,11 @@ const api = {
 
     try {
       const res = await fetch(`${API_BASE}/${path}`, { ...options, headers });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Request failed');
+      const text = await res.text();
+      if (!text) return { error: 'Empty response from server' };
+      let data;
+      try { data = JSON.parse(text); } catch(e) { return { error: 'Invalid response: ' + text.slice(0, 100) }; }
+      if (!res.ok) return { error: data.error || 'Request failed (' + res.status + ')' };
       return data;
     } catch (e) {
       console.warn('API call failed:', path, e.message);
@@ -72,6 +75,20 @@ const api = {
 
   // Telegram
   linkTelegram: (chatId) => api.request('telegram/link', { method: 'POST', body: JSON.stringify({ chat_id: chatId }) }),
+
+  // Media upload
+  uploadMedia: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const headers = {};
+      if (api.token) headers['Authorization'] = `Bearer ${api.token}`;
+      const res = await fetch(`${API_BASE}/media/upload`, { method: 'POST', headers, body: formData });
+      const text = await res.text();
+      if (!text) return { error: 'Empty response' };
+      return JSON.parse(text);
+    } catch(e) { return { error: e.message }; }
+  },
 
   // Admin
   adminStats: () => api.request('admin/stats'),
