@@ -777,10 +777,13 @@ textarea.form-input { resize: vertical; min-height: 80px; }
             if (typeof api !== "undefined") api.getNotifications(true).then(function(r) {
               if (r && r.notifications && r.notifications.length > 0) {
                 showToast(r.notifications[0].title + ": " + r.notifications[0].message);
-                api.markNotificationsRead();
+                api.markNotificationsRead(); setNotifCount(0);
               } else { showToast(lang === "ru" ? "\u041D\u0435\u0442 \u043D\u043E\u0432\u044B\u0445 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439" : "No new notifications"); }
             });
-          } }, React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2" }, React.createElement("path", { d: "M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" }))),
+          } }, React.createElement("div", { style: { position: "relative" } },
+            React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2" }, React.createElement("path", { d: "M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" })),
+            notifCount > 0 && React.createElement("div", { style: { position: "absolute", top: -4, right: -4, background: "var(--red)", color: "#fff", borderRadius: "50%", minWidth: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.55rem", fontWeight: 700 } }, notifCount > 9 ? "9+" : notifCount)
+          )),
           React.createElement("button", { className: "menu-btn", onClick: () => setMenuOpen(true) }, Icons.menu)
         ) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { className: "header-btn", onClick: () => setPage("login") }, t.login), /* @__PURE__ */ React.createElement("button", { className: "header-btn filled", onClick: () => setPage("register") }, t.register))));
   }
@@ -972,55 +975,112 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [chatWith, setChatWith] = useState(null);
     const [chatMessages, setChatMessages] = useState([]);
     const [newMsg, setNewMsg] = useState("");
-    useEffect(function() { loadConvos(); }, []);
-    function loadConvos() { setLoading(true); if (typeof api !== "undefined") api.getMessages().then(function(r) { setConvos(r && !r.error ? r : []); setLoading(false); }); else setLoading(false); }
+    const chatRef = useRef(null);
+    const pollRef = useRef(null);
+
+    useEffect(function() { loadConvos(); return function() { if (pollRef.current) clearInterval(pollRef.current); }; }, []);
+
+    // Auto-open chat if redirected
     useEffect(function() {
       try {
         var saved = localStorage.getItem("ss_chat_with");
         if (saved) { var c = JSON.parse(saved); localStorage.removeItem("ss_chat_with"); if (c && c.id) openChat(c.id, c.name || "User"); }
       } catch(e) {}
     }, []);
+
+    function loadConvos() {
+      setLoading(true);
+      if (typeof api !== "undefined") api.getMessages().then(function(r) { setConvos(r && !r.error ? r : []); setLoading(false); });
+      else setLoading(false);
+    }
+
     function openChat(otherId, otherName) {
       setChatWith({ id: otherId, name: otherName });
-      if (typeof api !== "undefined") api.getMessages(otherId).then(function(r) { setChatMessages(r && !r.error ? r : []); });
+      loadChatMessages(otherId);
+      // Start polling every 3 seconds
+      if (pollRef.current) clearInterval(pollRef.current);
+      pollRef.current = setInterval(function() { loadChatMessages(otherId); }, 3000);
     }
-    function sendMsg() {
-      if (!newMsg.trim() || !chatWith) return;
-      if (typeof api !== "undefined") api.sendMessage({ receiver_id: chatWith.id, content: newMsg }).then(function() {
-        setNewMsg(""); api.getMessages(chatWith.id).then(function(r) { setChatMessages(r && !r.error ? r : []); });
+
+    function closeChat() {
+      if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+      setChatWith(null);
+      loadConvos();
+    }
+
+    function loadChatMessages(otherId) {
+      if (typeof api !== "undefined") api.getMessages(otherId).then(function(r) {
+        if (r && !r.error) {
+          setChatMessages(function(prev) {
+            if (JSON.stringify(prev.map(function(m){return m.id})) !== JSON.stringify(r.map(function(m){return m.id}))) {
+              // New messages arrived - scroll to bottom
+              setTimeout(function() { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, 100);
+              return r;
+            }
+            return prev;
+          });
+        }
       });
     }
+
+    function sendMsg() {
+      if (!newMsg.trim() || !chatWith) return;
+      var msgText = newMsg;
+      setNewMsg("");
+      // Optimistic: add message immediately
+      setChatMessages(function(prev) { return prev.concat([{ id: Date.now(), sender_id: user && user.id, content: msgText, created_at: new Date().toISOString() }]); });
+      setTimeout(function() { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, 50);
+      if (typeof api !== "undefined") api.sendMessage({ receiver_id: chatWith.id, content: msgText }).then(function() {
+        loadChatMessages(chatWith.id);
+      });
+    }
+
+    // Chat view
     if (chatWith) return React.createElement(React.Fragment, null,
-      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 16 } },
-        React.createElement("button", { onClick: function() { setChatWith(null); loadConvos(); }, style: { background: "none", border: "none", color: "var(--text)", cursor: "pointer" } }, Icons.back),
-        React.createElement("div", { style: { fontWeight: 700 } }, chatWith.name)
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 12, padding: "8px 0", borderBottom: "1px solid var(--border)" } },
+        React.createElement("button", { onClick: closeChat, style: { background: "none", border: "none", color: "var(--text)", cursor: "pointer", padding: 4 } }, Icons.back),
+        React.createElement("div", { style: { flex: 1 } },
+          React.createElement("div", { style: { fontWeight: 700, fontSize: "0.9rem" } }, chatWith.name),
+          React.createElement("div", { style: { fontSize: "0.65rem", color: "var(--green)" } }, lang === "ru" ? "\u043E\u043D\u043B\u0430\u0439\u043D" : "online")
+        )
       ),
-      React.createElement("div", { style: { overflowY: "auto", marginBottom: 16, maxHeight: "55vh" } },
+      React.createElement("div", { ref: chatRef, style: { flex: 1, overflowY: "auto", marginBottom: 12, maxHeight: "calc(100vh - 250px)", padding: "8px 0" } },
+        chatMessages.length === 0 ? React.createElement("div", { style: { textAlign: "center", color: "var(--text3)", padding: 40, fontSize: "0.8rem" } }, lang === "ru" ? "\u041D\u0430\u043F\u0438\u0448\u0438\u0442\u0435 \u043F\u0435\u0440\u0432\u043E\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435" : "Write the first message") :
         chatMessages.map(function(m) {
           var mine = m.sender_id === (user && user.id);
-          return React.createElement("div", { key: m.id, style: { display: "flex", justifyContent: mine ? "flex-end" : "flex-start", marginBottom: 8 } },
-            React.createElement("div", { style: { background: mine ? "var(--green)" : "var(--bg3)", color: mine ? "#fff" : "var(--text)", padding: "8px 12px", borderRadius: 12, maxWidth: "75%", fontSize: "0.8rem" } }, m.content,
-              React.createElement("div", { style: { fontSize: "0.6rem", opacity: 0.6, marginTop: 4 } }, (m.created_at || "").slice(11, 16))
+          return React.createElement("div", { key: m.id, style: { display: "flex", justifyContent: mine ? "flex-end" : "flex-start", marginBottom: 6 } },
+            React.createElement("div", { style: { background: mine ? "var(--green)" : "var(--bg3)", color: mine ? "#fff" : "var(--text)", padding: "10px 14px", borderRadius: mine ? "14px 14px 4px 14px" : "14px 14px 14px 4px", maxWidth: "80%", fontSize: "0.82rem", lineHeight: 1.5 } },
+              m.content,
+              React.createElement("div", { style: { fontSize: "0.6rem", opacity: 0.5, marginTop: 4, textAlign: mine ? "right" : "left" } }, (m.created_at || "").slice(11, 16))
             )
           );
         })
       ),
-      React.createElement("div", { style: { display: "flex", gap: 8 } },
-        React.createElement("input", { className: "form-input", style: { flex: 1 }, placeholder: lang === "ru" ? "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435..." : "Message...", value: newMsg, onChange: function(e) { setNewMsg(e.target.value); }, onKeyDown: function(e) { if (e.key === "Enter") sendMsg(); } }),
-        React.createElement("button", { className: "btn btn-primary", onClick: sendMsg }, Icons.send)
+      React.createElement("div", { style: { display: "flex", gap: 8, padding: "8px 0", borderTop: "1px solid var(--border)" } },
+        React.createElement("input", { className: "form-input", style: { flex: 1, borderRadius: 24, padding: "10px 16px" }, placeholder: lang === "ru" ? "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435..." : "Message...", value: newMsg, onChange: function(e) { setNewMsg(e.target.value); }, onKeyDown: function(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); } } }),
+        React.createElement("button", { style: { background: newMsg.trim() ? "var(--green)" : "var(--bg3)", border: "none", borderRadius: "50%", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }, onClick: sendMsg }, React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: newMsg.trim() ? "#fff" : "var(--text3)", strokeWidth: 2 }, React.createElement("path", { d: "M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" })))
       )
     );
+
+    // Conversations list
     if (loading) return React.createElement("div", { className: "loading-spinner" });
-    if (!convos.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4AC}"), React.createElement("p", null, lang === "ru" ? "\u041D\u0435\u0442 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0439" : "No messages"));
-    return React.createElement(React.Fragment, null, convos.map(function(c) {
-      return React.createElement("div", { key: c.id, className: "order-card", onClick: function() { openChat(c.other_id, c.other_name || "User"); }, style: { cursor: "pointer" } },
-        React.createElement("div", { style: { display: "flex", justifyContent: "space-between" } },
-          React.createElement("div", { style: { fontWeight: 700, fontSize: "0.85rem" } }, c.other_name || "User"),
-          c.unread > 0 && React.createElement("span", { style: { background: "var(--green)", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem" } }, c.unread)
-        ),
-        React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)", marginTop: 4 } }, (c.content || "").slice(0, 60))
-      );
-    }));
+    if (!convos.length) return React.createElement("div", { className: "empty-state" }, React.createElement("div", { className: "emoji" }, "\u{1F4AC}"), React.createElement("p", null, lang === "ru" ? "\u041D\u0435\u0442 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0439.\n\u0427\u0430\u0442 \u043E\u0442\u043A\u0440\u043E\u0435\u0442\u0441\u044F \u043F\u043E\u0441\u043B\u0435 \u043E\u0442\u043A\u043B\u0438\u043A\u0430." : "No messages yet."));
+    return React.createElement(React.Fragment, null,
+      React.createElement("h2", { style: { fontSize: "1rem", fontWeight: 700, marginBottom: 12 } }, lang === "ru" ? "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F" : "Messages"),
+      convos.map(function(c) {
+        return React.createElement("div", { key: c.id, style: { background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 14, marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, transition: "border-color 0.2s" }, onClick: function() { openChat(c.other_id, c.other_name || "User"); } },
+          React.createElement("div", { style: { width: 42, height: 42, borderRadius: "50%", background: "var(--bg3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 } }, "\u{1F464}"),
+          React.createElement("div", { style: { flex: 1, minWidth: 0 } },
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
+              React.createElement("div", { style: { fontWeight: 700, fontSize: "0.85rem" } }, c.other_name || "User"),
+              React.createElement("div", { style: { fontSize: "0.6rem", color: "var(--text3)" } }, (c.created_at || "").slice(0, 10))
+            ),
+            React.createElement("div", { style: { fontSize: "0.75rem", color: "var(--text3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, (c.content || "").slice(0, 50))
+          ),
+          c.unread > 0 && React.createElement("div", { style: { background: "var(--green)", color: "#fff", borderRadius: "50%", minWidth: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem", fontWeight: 700 } }, c.unread)
+        );
+      })
+    );
   }
   function ProfileTab() {
     const { lang, user } = useContext(AppContext);
@@ -1266,6 +1326,20 @@ textarea.form-input { resize: vertical; min-height: 80px; }
     const [user, setUser] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [toast, setToast] = useState(null);
+    const [notifCount, setNotifCount] = useState(0);
+    // Poll notifications every 15 seconds
+    useEffect(function() {
+      function checkNotifs() {
+        if (typeof api !== "undefined" && api.token) {
+          api.getNotifications(true).then(function(r) {
+            if (r && !r.error && r.unread_count !== undefined) setNotifCount(r.unread_count);
+          });
+        }
+      }
+      checkNotifs();
+      var interval = setInterval(checkNotifs, 15000);
+      return function() { clearInterval(interval); };
+    }, [user]);
     const [wide, setWide] = useState(_isWide());
     useEffect(function() { if (_isTMA) return; var h = function() { setWide(_isWide()); }; window.addEventListener("resize", h); return function() { window.removeEventListener("resize", h); }; }, []);
     useEffect(function() { if (typeof api !== "undefined" && api.token) { api.me().then(function(me) { if (me && me.id && !me.error) {
