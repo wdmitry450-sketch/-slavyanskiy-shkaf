@@ -802,6 +802,7 @@ async function handleMarkNotificationsRead(request, env) {
 async function handleMediaUpload(request, env) {
   const user = await getUser(request, env);
   if (!user) return err('Unauthorized', 401);
+  if (!env.MEDIA) return err('Media storage not configured. Create R2 bucket "slavic-shkaf-media" and add binding MEDIA in Cloudflare Pages settings.', 500);
 
   try {
     const formData = await request.formData();
@@ -836,14 +837,14 @@ async function handleMediaUpload(request, env) {
       size: file.size,
     }, 201);
   } catch(e) {
-    return err('Upload failed: ' + e.message, 500);
+    return err('Upload failed: ' + (e.message || 'Unknown error') + '. Make sure R2 bucket is configured.', 500);
   }
 }
 
 // GET /api/media/:filename — serve a file
 async function handleMediaServe(request, env, filename) {
+  if (!env.MEDIA) return err('Media storage not configured', 500);
   try {
-    if (!env.MEDIA) return err('Media storage not configured', 500);
     const key = `chat/${filename}`;
     const object = await env.MEDIA.get(key);
     if (!object) return err('File not found', 404);
