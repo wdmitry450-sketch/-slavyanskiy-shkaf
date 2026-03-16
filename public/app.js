@@ -1589,8 +1589,13 @@ textarea.form-input { resize: vertical; min-height: 80px; }
       setUser,
       menuOpen,
       setMenuOpen,
-      showToast
-    }), [lang, page, user, menuOpen, showToast]);
+      showToast,
+      wide,
+      notifCount,
+      setNotifCount,
+      viewProfileId,
+      setViewProfileId
+    }), [lang, page, user, menuOpen, showToast, wide, notifCount, viewProfileId]);
     return /* @__PURE__ */ React.createElement(AppContext.Provider, { value: ctx }, /* @__PURE__ */ React.createElement("style", null, CSS), /* @__PURE__ */ React.createElement("div", { className: "app" + (wide ? " wide" : "") }, /* @__PURE__ */ React.createElement(Header, null), /* @__PURE__ */ React.createElement(Sidebar, null), page === "home" && /* @__PURE__ */ React.createElement(LandingPage, null), page === "register" && /* @__PURE__ */ React.createElement(RegisterPage, null), page === "login" && /* @__PURE__ */ React.createElement(LoginPage, null), page === "master" && /* @__PURE__ */ React.createElement(MasterDashboard, null), page === "client" && /* @__PURE__ */ React.createElement(ClientDashboard, null), page === "admin" && /* @__PURE__ */ React.createElement(AdminPanel, null), viewProfileId && React.createElement(PublicProfileModal, { profileId: viewProfileId, onClose: function() { setViewProfileId(null); }, lang: lang }), toast && /* @__PURE__ */ React.createElement(Toast, { message: toast, onClose: () => setToast(null) })));
   }
   if (typeof api !== "undefined") api.init();
