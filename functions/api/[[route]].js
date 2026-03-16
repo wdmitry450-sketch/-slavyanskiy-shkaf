@@ -60,6 +60,35 @@ async function getUser(request, env) {
   return user;
 }
 
+// ===== NOTIFICATION HELPERS =====
+
+async function createNotification(env, userId, type, title, message, linkType, linkId) {
+  try {
+    await env.DB.prepare(
+      'INSERT INTO notifications (user_id, type, title, message, link_type, link_id) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(userId, type, title, message, linkType || null, linkId || null).run();
+  } catch(e) { /* notifications table may not exist yet */ }
+}
+
+async function sendTelegramNotification(env, userId, text) {
+  try {
+    const user = await env.DB.prepare('SELECT telegram_chat_id FROM users WHERE id = ?').bind(userId).first();
+    if (!user?.telegram_chat_id) return;
+    const BOT_TOKEN = env.TELEGRAM_BOT_TOKEN;
+    if (!BOT_TOKEN) return;
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: user.telegram_chat_id, text, parse_mode: 'HTML' }),
+    });
+  } catch(e) { /* silent fail */ }
+}
+
+async function notifyUser(env, userId, type, title, message, linkType, linkId) {
+  await createNotification(env, userId, type, title, message, linkType, linkId);
+  await sendTelegramNotification(env, userId, `🔔 <b>${title}</b>\n${message}`);
+}
+
 // ===== ROUTE HANDLERS =====
 
 // POST /api/auth/register
@@ -245,12 +274,26 @@ async function handleRespondToOrder(request, env, orderId) {
 
   const { message, proposed_budget, proposed_deadline } = await request.json();
 
+  // Get order info
+  const order = await env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(orderId).first();
+  if (!order) return err('Order not found', 404);
+  if (order.status !== 'open') return err('Order is not open', 400);
+
   try {
     await env.DB.prepare(
       'INSERT INTO responses (order_id, master_id, message, proposed_budget, proposed_deadline) VALUES (?, ?, ?, ?, ?)'
     ).bind(orderId, user.id, message || null, proposed_budget || null, proposed_deadline || null).run();
 
     await env.DB.prepare('UPDATE orders SET responses_count = responses_count + 1 WHERE id = ?').bind(orderId).run();
+
+    // Notify client (non-blocking)
+    try {
+      await notifyUser(env, order.client_id, 'response',
+        'Новый отклик на заказ',
+        `Мастер ${user.name} откликнулся на "${order.title}"${proposed_budget ? '. Предложение: ' + proposed_budget + '€' : ''}`,
+        'order', orderId
+      );
+    } catch(e) { /* notifications non-critical */ }
 
     return json({ success: true }, 201);
   } catch (e) {
@@ -377,6 +420,13 @@ async function handleSendMessage(request, env) {
   await env.DB.prepare(
     'INSERT INTO messages (sender_id, receiver_id, order_id, content) VALUES (?, ?, ?, ?)'
   ).bind(user.id, receiver_id, order_id || null, content).run();
+
+  // Notify receiver (non-blocking)
+  try { await notifyUser(env, receiver_id, 'message',
+    'Новое сообщение',
+    `${user.name}: ${content.slice(0, 100)}${content.length > 100 ? '...' : ''}`,
+    'chat', user.id
+  ); } catch(e) { /* non-critical */ }
 
   return json({ success: true }, 201);
 }
@@ -638,6 +688,110 @@ async function handleCreateEvent(request, env) {
 
 // ===== ROUTER =====
 
+// PUT /api/responses/:id/accept — client accepts a master's response
+async function handleAcceptResponse(request, env, responseId) {
+  const user = await getUser(request, env);
+  if (!user) return err('Unauthorized', 401);
+
+  try {
+    const resp = await env.DB.prepare('SELECT r.*, o.client_id, o.title as order_title FROM responses r JOIN orders o ON r.order_id = o.id WHERE r.id = ?').bind(responseId).first();
+    if (!resp) return err('Response not found', 404);
+    if (resp.client_id !== user.id) return err('Only order owner can accept', 403);
+
+    // Accept this response
+    await env.DB.prepare("UPDATE responses SET status = 'accepted' WHERE id = ?").bind(responseId).run();
+    // Reject others
+    await env.DB.prepare("UPDATE responses SET status = 'rejected' WHERE order_id = ? AND id != ?").bind(resp.order_id, responseId).run();
+    // Update order status
+    await env.DB.prepare("UPDATE orders SET status = 'in_progress', updated_at = datetime('now') WHERE id = ?").bind(resp.order_id).run();
+
+    // Notifications (non-blocking)
+    try {
+      await notifyUser(env, resp.master_id, 'accepted',
+        'Вас выбрали!',
+        `Заказчик ${user.name} выбрал вас для заказа "${resp.order_title}"`,
+        'order', resp.order_id
+      );
+      const rejected = await env.DB.prepare("SELECT master_id FROM responses WHERE order_id = ? AND status = 'rejected'").bind(resp.order_id).all();
+      for (const r of rejected.results) {
+        await notifyUser(env, r.master_id, 'rejected', 'Заказ закрыт', `Заказ "${resp.order_title}" был закрыт — выбран другой мастер`, 'order', resp.order_id);
+      }
+    } catch(e) { /* notifications are non-critical */ }
+
+    return json({ success: true });
+  } catch(e) {
+    return err('Accept failed: ' + e.message, 500);
+  }
+}
+
+// POST /api/orders/:id/complete — mark order as completed + optional review
+async function handleCompleteOrder(request, env, orderId) {
+  const user = await getUser(request, env);
+  if (!user) return err('Unauthorized', 401);
+
+  const order = await env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(orderId).first();
+  if (!order) return err('Order not found', 404);
+  if (order.client_id !== user.id) return err('Only owner can complete', 403);
+
+  await env.DB.prepare("UPDATE orders SET status = 'completed', updated_at = datetime('now') WHERE id = ?").bind(orderId).run();
+
+  const body = await request.json();
+
+  // Find accepted master
+  const accepted = await env.DB.prepare("SELECT master_id FROM responses WHERE order_id = ? AND status = 'accepted'").bind(orderId).first();
+
+  if (accepted && body.rating) {
+    // Save review
+    try {
+      await env.DB.prepare('INSERT INTO reviews (order_id, reviewer_id, target_id, rating, comment) VALUES (?, ?, ?, ?, ?)')
+        .bind(orderId, user.id, accepted.master_id, body.rating, body.comment || null).run();
+      const avg = await env.DB.prepare('SELECT AVG(rating) as avg, COUNT(*) as cnt FROM reviews WHERE target_id = ?').bind(accepted.master_id).first();
+      await env.DB.prepare('UPDATE users SET rating = ?, reviews_count = ? WHERE id = ?').bind(Math.round(avg.avg * 10) / 10, avg.cnt, accepted.master_id).run();
+    } catch(e) { /* already reviewed */ }
+
+    // Notify master (non-blocking)
+    try { await notifyUser(env, accepted.master_id, 'completed',
+      'Заказ завершён!',
+      `Заказ "${order.title}" завершён. ${body.rating ? 'Оценка: ' + '⭐'.repeat(body.rating) : ''}`,
+      'order', orderId
+    ); } catch(e) { /* non-critical */ }
+  }
+
+  return json({ success: true });
+}
+
+// GET /api/notifications
+async function handleGetNotifications(request, env) {
+  const user = await getUser(request, env);
+  if (!user) return err('Unauthorized', 401);
+
+  const url = new URL(request.url);
+  const unreadOnly = url.searchParams.get('unread') === '1';
+
+  let query = 'SELECT * FROM notifications WHERE user_id = ?';
+  if (unreadOnly) query += ' AND is_read = 0';
+  query += ' ORDER BY created_at DESC LIMIT 50';
+
+  const notifs = await env.DB.prepare(query).bind(user.id).all();
+  const unreadCount = await env.DB.prepare('SELECT COUNT(*) as c FROM notifications WHERE user_id = ? AND is_read = 0').bind(user.id).first();
+
+  return json({ notifications: notifs.results, unread_count: unreadCount.c });
+}
+
+// PUT /api/notifications/read
+async function handleMarkNotificationsRead(request, env) {
+  const user = await getUser(request, env);
+  if (!user) return err('Unauthorized', 401);
+
+  const body = await request.json();
+  if (body.id) {
+    await env.DB.prepare('UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?').bind(body.id, user.id).run();
+  } else {
+    await env.DB.prepare('UPDATE notifications SET is_read = 1 WHERE user_id = ?').bind(user.id).run();
+  }
+  return json({ success: true });
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -673,6 +827,18 @@ export async function onRequest(context) {
 
     // My responses
     if (path === 'my/responses' && method === 'GET') return handleMyResponses(request, env);
+
+    // Accept response
+    const acceptMatch = path.match(/^responses\/(\d+)\/accept$/);
+    if (acceptMatch && method === 'PUT') return handleAcceptResponse(request, env, parseInt(acceptMatch[1]));
+
+    // Complete order
+    const completeMatch = path.match(/^orders\/(\d+)\/complete$/);
+    if (completeMatch && method === 'POST') return handleCompleteOrder(request, env, parseInt(completeMatch[1]));
+
+    // Notifications
+    if (path === 'notifications' && method === 'GET') return handleGetNotifications(request, env);
+    if (path === 'notifications/read' && method === 'PUT') return handleMarkNotificationsRead(request, env);
 
     // Masters
     if (path === 'masters' && method === 'GET') return handleGetMasters(request, env);
